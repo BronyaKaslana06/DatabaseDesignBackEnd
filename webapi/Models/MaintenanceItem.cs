@@ -10,6 +10,7 @@ public partial class MaintenanceItem
     public string VehicleId { get; set; } = null!;
 
     public string? MaintenanceLocation { get; set; }
+    public string? Title { get; set; }
 
     public string? Remarks { get; set; }
 

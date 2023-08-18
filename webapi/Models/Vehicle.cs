@@ -11,6 +11,8 @@ public partial class Vehicle
 
     public string OwnerId { get; set; } = null!;
 
+    public string PlateNumber { get; set; } = null!;
+
     public DateTime PurchaseDate { get; set; }
 
     public string? BatteryId { get; set; }
