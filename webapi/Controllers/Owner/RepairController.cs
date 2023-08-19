@@ -56,34 +56,6 @@ namespace webapi.Controllers.Administrator
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
         [HttpPatch]
-        public IActionResult submit_evaluations([FromBody] dynamic _acm)
-        {
-            _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-
-            string id = $"{_acm.maintenance_item_id}";
-            if (id == null)
-                return NewContent(1, "记录标记为空");
-
-            var acm = _context.MaintenanceItems.Find(id);
-
-            if (acm == null)
-                return NewContent(1, "无记录");
-            else
-            {
-                acm.Evaluations = _acm.evaluations;
-            }
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                return NewContent(1, e.InnerException?.Message + "");
-            }
-
-            return NewContent(0, "success");
-        }
-        [HttpPatch]
         public IActionResult update([FromBody] dynamic _acm)
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
@@ -96,7 +68,11 @@ namespace webapi.Controllers.Administrator
 
             if(acm==null)
                 return NewContent(1, "无记录");
-            else
+            else if (_acm.hasOwnProperty("evaluations"))
+            {
+                    acm.Evaluations = _acm.evaluations;
+            }
+            else 
             {
                 acm.VehicleId = _acm.vehicle_id;
                 acm.MaintenanceLocation = _acm.maintenance_location;
