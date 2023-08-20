@@ -27,15 +27,20 @@ namespace BSS_EFCore.configuration
             builder.Property(e => e.IdentityNumber)
                 .HasMaxLength(50)
                 .IsUnicode()
-                .HasColumnName("IDENTITY_NUMBER");
+                .HasColumnName("IDENTITYNUMBER");
             builder.Property(e => e.Name)
                 .HasMaxLength(30)
                 .IsUnicode()
                 .HasColumnName("NAME");
+            builder.Property(e => e.UserName)
+                .HasMaxLength(30)
+                .IsUnicode()
+                .HasColumnName("USERNAME");
             builder.Property(e => e.Password)
                 .HasMaxLength(50)
                 .IsUnicode()
-                .HasColumnName("PASSWORD");
+                .HasColumnName("PASSWORD")
+                .HasDefaultValue("123456");
             builder.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .IsUnicode()

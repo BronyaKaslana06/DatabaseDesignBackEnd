@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EntityFramework.Models;
 
@@ -7,7 +8,9 @@ public partial class Employee
 {
     public long EmployeeId { get; set; }
 
-    public string email { get; set; }
+    public string Email { get; set; }
+
+    public string? UserName { get; set; }
 
     public string Password { get; set; } 
 
@@ -23,13 +26,27 @@ public partial class Employee
 
     public string? Gender { get; set; }
 
-    public string? Positions { get; set; }
+    public int Position { get; set; }
+
+    [NotMapped]
+    public PositionEnum PositionEnum
+    {
+        get
+        {
+            if (Position <= 0 || Position > 3)
+                Position = 3;
+            return (PositionEnum)Position;
+        }
+        set
+        {
+            Position = (int)value;
+        }
+    }
 
     public int Salary { get; set; }
 
 
-
-    public Kpi kpi { get; set; } 
+    public List<Kpi> kpi { get; set; } = new List<Kpi>();
 
     public List<MaintenanceItem> maintenanceItems { get; set; } = new List<MaintenanceItem>();
 
@@ -40,3 +57,11 @@ public partial class Employee
     public SwitchStation? switchStation { get; set; }  //nullable
 
 }
+
+public enum PositionEnum
+{
+   换电站管理员 = 1,
+   维修工 = 2,
+   其他 =3
+}
+// 0 预留

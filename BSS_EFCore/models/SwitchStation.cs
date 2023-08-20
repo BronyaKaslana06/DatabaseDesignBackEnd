@@ -11,11 +11,15 @@ public partial class SwitchStation
 
     public float ServiceFee { get; set; }
 
+    public float ElectricityFee { get; set; }
+
+    public int QueueLength { get; set; }
+
     public double Longtitude { get; set; }
 
     public double Latitude { get; set; }
 
-    public bool FaliureStatus { get; set; }
+    public bool FailureStatus { get; set; }
 
     public int BatteryCapacity { get; set; }
 

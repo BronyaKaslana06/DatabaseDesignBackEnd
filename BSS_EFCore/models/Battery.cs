@@ -8,26 +8,16 @@ public partial class Battery
 {
     public long BatteryId { get; set; }
 
-    [Obsolete]
-    public string? AvailableStatus { get; set; }
+    public int? AvailableStatus { get; set; }
 
     [NotMapped]
-    //[Newtonsoft.Json.JsonIgnore]
     public AvailableStatusEnum AvailableStatusEnum
     {
         get
         {
-            switch (AvailableStatus)
-            {
-                case (int)AvailableStatusEnum.available:
-                    return AvailableStatusEnum.available;
-                case (int)AvailableStatusEnum.onCar:
-                    return AvailableStatusEnum.onCar;
-                case (int)AvailableStatusEnum.discharged:
-                    return AvailableStatusEnum.discharged;
-                default:
-                    return AvailableStatusEnum.Unknown;
-            }
+            if (AvailableStatus == null || AvailableStatus <= 0 || AvailableStatus >= 5)
+                AvailableStatus = 4;
+            return (AvailableStatusEnum)AvailableStatus;
         }
         set
         {
