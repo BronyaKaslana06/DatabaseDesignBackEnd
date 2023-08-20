@@ -31,18 +31,17 @@ namespace webapi.Controllers.Administrator
             int limit = pageSize;
             if (offset < 0 || limit <= 0)
                 return BadRequest();
-            
-            string pattern2 = "'%" + (username == "null" ? "" : username) + "%'";
-            string pattern7 = "'%" + (station_name == "null" ? "" : station_name) + "%'";
-            string pattern1 = employee_id == "null" ? "" : " AND (" + "T0.employee_id = " + employee_id;
-            string pattern3 = gender == "null" ? "" : " AND (" + "T0.gender = " + gender;
-            string pattern4 = phone_number == "null" ? "" : " AND (" + "T0.phone_number = " + phone_number;
-            string pattern5 = salary == "null" ? "" : " AND (" + "T0.salary = " + salary.ToString();
-            string pattern6 = station_id == "null" ? "" : " AND (" + "T1.station_id = " + station_id;
-            
-            string where_cause = "WHERE " + "T0.username like " + pattern2 +
-                " AND (" + "T2.station_name like " + pattern7 +
-                pattern1 + pattern3 + pattern4 + pattern5 + pattern6;
+
+            string pattern1 = employee_id == "" ? "" : " AND T0.employee_id = '" + employee_id;
+            string pattern2 = username == "" ? "" : " AND T0.username like '%" + username + "%'";
+            string pattern3 = gender == "" ? "" : " AND T0.gender = '" + gender + "'";
+            string pattern4 = phone_number == "" ? " " : " AND T0.phone_number = '" + phone_number + "'";
+            string pattern5 = salary == "" ? "" : " AND T0.salary = '" + salary.ToString() + "'";
+            string pattern6 = station_id == "" ? "" : " AND T1.station_id = '" + station_id + "'";
+            string pattern7 = station_name == "" ? "" : " AND T2.station_name like '%" + station_name + "%'";
+
+            string where_cause = "WHERE T0.gender like '%'" +
+                pattern1 + pattern2 + pattern3 + pattern4 + pattern5 + pattern6 + pattern7;
             string sql_info = "SELECT T0.employee_id,T0.username,T0.phone_number,T0.gender,T0.salary,T1.station_id,T2.station_name " +
                 "FROM EMPLOYEE T0 " +
                 "LEFT JOIN EMPLOYEE_SWITCH_STATION T1 " +

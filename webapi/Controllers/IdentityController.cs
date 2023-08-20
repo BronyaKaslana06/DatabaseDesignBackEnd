@@ -83,16 +83,17 @@ namespace webapi.Controllers
         public ActionResult SignupCheck([FromBody] dynamic _user)
         {
             dynamic user = JsonConvert.DeserializeObject(Convert.ToString(_user));
-            string user_type = $"{user.user_type}";
+            string user_type = $"{user.user_type}" ?? string.Empty;
             //可注册的用户类型：员工/车主
             if (user_type == string.Empty || user_type != "0" && user_type != "1")
                 return NoContent();
             //员工和车主共用的参数
-            string username = $"{user.username}";
-            string password = $"{user.password}";
-            string nickname = $"{user.nickname}";
-            DateTime create_time = Convert.ToDateTime($"{user.create_time}");
-            string phone_number = $"{user.phone_number}";
+            string username = $"{user.username}" ?? "新用户";
+            string password = $"{user.password}" ?? "123456";
+            string nickname = $"{user.nickname}" ?? "蔚来";
+            string gender = $"{user.gender}" ?? "男";
+            DateTime create_time = Convert.ToDateTime($"{user.create_time}" ?? System.DateTime.Now.ToString());
+            string phone_number = $"{user.phone_number}" ?? string.Empty;
             //定义返回对象
             dynamic obj = new ExpandoObject();
             obj.data = new
@@ -120,10 +121,10 @@ namespace webapi.Controllers
                     Nickname = nickname,
                     CreateTime = create_time,
                     PhoneNumber = phone_number,
-                    Email = $"{user.email}",
-                    Gender = $"{user.gender}",
-                    Birthday = Convert.ToDateTime($"{user.birthday}"),
-                    Address = $"{user.address}"
+                    Email = $"{user.email}" ?? string.Empty,
+                    Gender = gender,
+                    Birthday = Convert.ToDateTime(user.birthday==null?"2000-01-01":user.birthday),
+                    Address = $"{user.address}" ?? string.Empty
                 };
                 _context.VehicleOwners.Add(owner);
                 try
@@ -144,7 +145,7 @@ namespace webapi.Controllers
             }
             else if(user_type == "1") //注册员工
             {
-                string invite_code = $"{user.invite_code}";
+                string invite_code = $"{user.invite_code}" ?? string.Empty;
                 if (invite_code != "123456")
                 {
                     obj.data = new
@@ -169,9 +170,9 @@ namespace webapi.Controllers
                     Name = nickname,
                     CreateTime = create_time,
                     PhoneNumber = phone_number,
-                    Gender = $"{user.gender}",
-                    IdentityNumber = $"{user.identity_number}",
-                    Positions = $"{user.position}",
+                    Gender = gender,
+                    IdentityNumber = $"{user.identity_number}" ?? string.Empty,
+                    Positions = $"{user.position}" ?? string.Empty,
                     Salary = 0
                 };
                 _context.Employees.Add(employee);

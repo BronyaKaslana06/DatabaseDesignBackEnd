@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace webapi.Controllers.Administrator
 {
-    [Route("owner/vehicle_maintenance_info")]
+    [Route("owner/vehicle_maintenance_info/[action]")]
     [ApiController]
     public class VMInfoController : ControllerBase
     {
