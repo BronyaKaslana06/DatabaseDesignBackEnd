@@ -49,7 +49,7 @@ namespace webapi.Controllers.Administrator
 
             var query = _context.SwitchLogs
                 .Where(sl =>
-                    EF.Functions.Like(sl.SwitchServiceId, pattern1) &&
+                    EF.Functions.Like(sl.SwitchServiceId.ToString(), pattern1) &&
                     EF.Functions.Like(sl.EmployeeId, pattern2) &&
                     EF.Functions.Like(sl.VehicleId, pattern3))
                 .OrderBy(sl => sl.SwitchServiceId)
@@ -87,7 +87,7 @@ namespace webapi.Controllers.Administrator
 
         private bool LogExists(string id)
         {
-            return _context.SwitchLogs?.Any(e => e.SwitchServiceId == id) ?? false;
+            return _context.SwitchLogs?.Any(e => e.SwitchServiceId.ToString() == id) ?? false;
         }
     }
 }

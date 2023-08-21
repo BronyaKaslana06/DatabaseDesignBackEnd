@@ -42,6 +42,8 @@ public class ModelContext : DbContext
 
     public virtual DbSet<VehicleOwner> VehicleOwners { get; set; }
 
+    public virtual DbSet<OwnerPos> OwnerPos { get; set; }
+
     public virtual DbSet<VehicleParam> VehicleParams { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

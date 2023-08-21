@@ -14,6 +14,7 @@ using System.Reflection.Metadata;
 using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
+using Idcreator;
 
 namespace webapi.Controllers.Administrator
 {
@@ -86,14 +87,15 @@ namespace webapi.Controllers.Administrator
             var pattern6 = "%" + (string.IsNullOrEmpty(password) ? "" : password) + "%";
 
             var query = _context.VehicleOwners
-                .Where(vo =>
-                    EF.Functions.Like(vo.OwnerId, pattern1) &&
-                    EF.Functions.Like(vo.Username, pattern2) &&
-                    EF.Functions.Like(vo.Gender, pattern3) &&
-                    EF.Functions.Like(vo.PhoneNumber, pattern4) &&
-                    EF.Functions.Like(vo.Address, pattern5) &&
-                    EF.Functions.Like(vo.Password, pattern6))
-                .OrderBy(vo => vo.OwnerId)
+                .Join(_context.OwnerPos, vo => vo.OwnerId, op => op.OwnerId, (vo, op) => new { vo, op })
+                .Where(j =>
+                    EF.Functions.Like(j.vo.OwnerId.ToString(), pattern1) &&
+                    EF.Functions.Like(j.vo.Username, pattern2) &&
+                    EF.Functions.Like(j.vo.Gender, pattern3) &&
+                    EF.Functions.Like(j.vo.PhoneNumber, pattern4) &&
+                    EF.Functions.Like(j.op.Address, pattern5) &&
+                    EF.Functions.Like(j.vo.Password, pattern6))
+                .OrderBy(j => j.vo.OwnerId)
                 .Skip(offset)
                 .Take(limit)
                 .ToList();
@@ -115,16 +117,17 @@ namespace webapi.Controllers.Administrator
             dynamic param = JsonConvert.DeserializeObject(Convert.ToString(_param));
             string owner_id = $"{param.owner_id}";
             var owner = _context.VehicleOwners.Find(owner_id);
-            if (owner == null)
+            var pos = _context.OwnerPos.Find(owner_id);
+            if (owner == null || pos == null)
             {
                 return NotFound();
             }
-            owner.OwnerId = $"{param.owner_id}";
+            owner.OwnerId = long.Parse($"{param.owner_id}");
             owner.Gender = $"{param.gender}";
             owner.PhoneNumber = $"{param.phone_number}";
-            owner.Address = $"{param.address}";
             owner.Password = $"{param.password}";
             owner.Username = $"{param.username}";
+            pos.Address = $"{param.address}";
             try
             {
                 _context.SaveChanges();
@@ -151,13 +154,12 @@ namespace webapi.Controllers.Administrator
                 "FROM vehicle_owner ";
             DataTable df_count = OracleHelper.SelectSql(sql_total);
             int totalNum = df_count != null ? Convert.ToInt32(df_count.Rows[0][0]) : 0;
-            string uid = "uid" + totalNum.ToString("D9");
+            long uid = SnowflakeIDcreator.nextId();
 
             VehicleOwner new_owner = new VehicleOwner()
             {
                 OwnerId = uid,
                 Username = $"{owner.username}",
-                Nickname = "user_0.00" + totalNum.ToString("D8"),
                 Password = "123456",
                 ProfilePhoto = null,
                 CreateTime = System.DateTime.Now,
@@ -165,10 +167,17 @@ namespace webapi.Controllers.Administrator
                 Email = "wl@car.com",
                 Gender = $"{owner.gender}",
                 Birthday = null,
+                
+            };
+            OwnerPos new_pos = new OwnerPos()
+            {
+                OwnerId = uid,
                 Address = $"{owner.address}"
             };
 
+
             _context.VehicleOwners.Add(new_owner);
+            _context.OwnerPos.Add(new_pos);
             try
             {
                 _context.SaveChanges();
@@ -220,7 +229,7 @@ namespace webapi.Controllers.Administrator
 
         private bool OwnerExists(string id)
         {
-            return _context.VehicleOwners?.Any(e => e.OwnerId == id) ?? false;
+            return _context.VehicleOwners?.Any(e => e.OwnerId.ToString() == id) ?? false;
         }
 
         ContentResult NewContent(int _code = 0, string _msg = "success")
