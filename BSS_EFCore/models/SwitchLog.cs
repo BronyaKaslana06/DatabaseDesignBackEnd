@@ -9,11 +9,7 @@ public partial class SwitchLog
 
     public DateTime SwitchTime { get; set; }
 
-    public int Score { get; set; }
-
-    public string Position { get; set; }
-
-
+    public double Score { get; set; }
 
     public Battery batteryOn { get; set; } //非空
 
@@ -23,5 +19,5 @@ public partial class SwitchLog
 
     public Employee employee { get; set; }    //not null
 
-
+    public SwitchLog switchlog { get; set; }    //not null
 }

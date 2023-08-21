@@ -19,10 +19,6 @@ namespace BSS_EFCore.configuration
 
             builder.Property(e => e.SwitchServiceId)
                 .HasColumnName("SWITCH_SERVICE_ID");
-            builder.Property(e => e.Position)
-                .HasMaxLength(50)
-                .IsUnicode()
-                .HasColumnName("POSITION");
             builder.Property(e => e.SwitchTime)
                 .HasColumnName("SWITCH_TIME");
 

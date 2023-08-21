@@ -23,7 +23,7 @@ namespace BSS_EFCore.configuration
                 .HasMaxLength(50)
                 .IsUnicode()
                 .HasColumnName("POSITION");
-            builder.Property(e => e.Notes)
+            builder.Property(e => e.Note)
                 .HasMaxLength(255)
                 .IsUnicode()
                 .HasColumnName("NOTES");

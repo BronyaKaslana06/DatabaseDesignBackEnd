@@ -91,7 +91,7 @@ namespace webapi.Controllers.Administrator
             }
 
             var filteredItems = _context.MaintenanceItems
-                .Where(item => item.OrderSubmissionTime >= parsedStartTime && item.OrderSubmissionTime <= parsedEndTime && item.VehicleId == vehicle_id)
+                .Where(item => item.OrderSubmissionTime >= parsedStartTime && item.OrderSubmissionTime <= parsedEndTime && item.vehicle.VehicleId.ToString() == vehicle_id)
                 .OrderBy(item => item.MaintenanceItemId)
                 .Select(item => new
                 {

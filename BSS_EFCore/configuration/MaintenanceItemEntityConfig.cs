@@ -34,7 +34,6 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("SERVICE_TIME");
                
             builder.HasMany<Employee>(e => e.employees).WithMany(a => a.maintenanceItems).UsingEntity(j=>j.ToTable("Employee_MaintenanceItem"));
-            builder.HasOne<VehicleOwner>(e => e.vehicleOwner).WithMany(a => a.maintenanceItems).IsRequired();
             builder.HasOne<Vehicle>(e=>e.vehicle).WithMany(a=>a.maintenanceItems).IsRequired();
         }
     }

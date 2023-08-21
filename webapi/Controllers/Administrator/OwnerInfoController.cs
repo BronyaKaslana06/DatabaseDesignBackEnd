@@ -116,8 +116,12 @@ namespace webapi.Controllers.Administrator
         {
             dynamic param = JsonConvert.DeserializeObject(Convert.ToString(_param));
             string owner_id = $"{param.owner_id}";
-            var owner = _context.VehicleOwners.Find(owner_id);
-            var pos = _context.OwnerPos.Find(owner_id);
+            if (!long.TryParse(owner_id, out long num))
+            {
+                return NewContent(1, "id格式错误");
+            }
+            var owner = _context.VehicleOwners.Find(num);
+            var pos = _context.OwnerPos.Find(num);
             if (owner == null || pos == null)
             {
                 return NotFound();
@@ -209,8 +213,11 @@ namespace webapi.Controllers.Administrator
             {
                 return NotFound();
             }
-
-            var owner = _context.VehicleOwners.Find(owner_id);
+            if (!long.TryParse(owner_id, out long num))
+            {
+                return NewContent(1, "id格式错误");
+            }
+            var owner = _context.VehicleOwners.Find(num);
             if (owner == null)
             {
                 return NewContent(1, "找不到该车主");

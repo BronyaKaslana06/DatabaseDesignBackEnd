@@ -13,11 +13,12 @@ public partial class MaintenanceItem
 
     public string? Note { get; set; }
 
+    public string? Title { get; set; }
+
     public DateTime ServiceTime { get; set; }
 
     public DateTime OrderSubmissionTime { get; set; }
 
-    [Obsolete]
     public int OrderStatus { get; set; }
 
     [NotMapped]
@@ -45,20 +46,10 @@ public partial class MaintenanceItem
     }
 
 
-    public int Score { get; set; }
-
-
-
+    public double Score { get; set; }
 
     public List<Employee> employees = new List<Employee>();   //至少一个
-    public VehicleOwner vehicleOwner {  get; set; } //not null
-
     public Vehicle vehicle { get; set; }   // not null
-
-
-
-
-
 }
 
 

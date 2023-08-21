@@ -16,7 +16,7 @@ namespace BSS_EFCore.configuration
             builder.HasKey(e => e.KpiId).HasName("SYS_C009105");
 
             builder.ToTable("KPI");
-
+  
             builder.Property(e => e.KpiId)
                 .HasColumnName("KPI_ID");
             builder.Property(e => e.Score)

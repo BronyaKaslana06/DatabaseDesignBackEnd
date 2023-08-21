@@ -33,7 +33,7 @@ namespace webapi.Controllers.Administrator
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
 
-            string id = SnowflakeIDcreator.nextId().ToString();
+            long id = SnowflakeIDcreator.nextId();
             var acm = new News()
             {
                 AnnouncementId = id,
@@ -60,9 +60,9 @@ namespace webapi.Controllers.Administrator
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
             
-            string id = $"{_acm.announcement_id}";
-            if(id==null)
-                return NewContent(1, "id为空");
+            bool flag = long.TryParse($"{_acm.announcement_id}", out long id);
+            if(!flag)
+                return NewContent(1, "id无效");
             
             var acm = _context.News.Find(id);
 

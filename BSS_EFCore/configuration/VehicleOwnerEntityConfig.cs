@@ -19,10 +19,6 @@ namespace BSS_EFCore.configuration
 
             builder.Property(e => e.OwnerId)
                 .HasColumnName("OWNER_ID");
-            builder.Property(e => e.Address)
-                .HasMaxLength(255)
-                .IsUnicode()
-                .HasColumnName("ADDRESS");
             builder.Property(e => e.Birthday)
                 .HasColumnName("BIRTHDAY");
             builder.Property(e => e.CreateTime)
@@ -35,7 +31,7 @@ namespace BSS_EFCore.configuration
                 .HasMaxLength(3)
                 .IsUnicode()
                 .HasColumnName("GENDER");
-            builder.Property(e => e.Nickname)
+            builder.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode()
                 .HasColumnName("NICKNAME");
@@ -50,7 +46,6 @@ namespace BSS_EFCore.configuration
             builder.Property(e => e.ProfilePhoto)
                 .HasColumnType("BLOB")
                 .HasColumnName("PROFILE_PHOTO");
-
         }
     }
 }

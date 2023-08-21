@@ -11,7 +11,7 @@ public partial class News
 
     public string? PublishPos { get; set; }
 
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     public string? Contents { get; set; }
 

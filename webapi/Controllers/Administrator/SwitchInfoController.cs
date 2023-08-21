@@ -50,8 +50,8 @@ namespace webapi.Controllers.Administrator
             var query = _context.SwitchLogs
                 .Where(sl =>
                     EF.Functions.Like(sl.SwitchServiceId.ToString(), pattern1) &&
-                    EF.Functions.Like(sl.EmployeeId, pattern2) &&
-                    EF.Functions.Like(sl.VehicleId, pattern3))
+                    EF.Functions.Like(sl.employee.EmployeeId.ToString(), pattern2) &&
+                    EF.Functions.Like(sl.vehicle.VehicleId.ToString(), pattern3))
                 .OrderBy(sl => sl.SwitchServiceId)
                 .Skip(offset)
                 .Take(limit)
@@ -73,8 +73,8 @@ namespace webapi.Controllers.Administrator
             {
                 return NotFound();
             }
-
-            var ServiceLog = _context.SwitchLogs.Find(switch_service_id);
+            bool flag = long.TryParse(switch_service_id, out long id);
+            var ServiceLog = _context.SwitchLogs.Find(id);
             if (ServiceLog == null)
             {
                 return NotFound();

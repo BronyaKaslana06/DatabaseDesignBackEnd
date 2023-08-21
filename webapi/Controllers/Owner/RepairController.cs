@@ -24,17 +24,17 @@ namespace webapi.Controllers.Administrator
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
 
-            string id = SnowflakeIDcreator.nextId().ToString();
+            long id = SnowflakeIDcreator.nextId();
             var acm = new MaintenanceItem()
             {
                 MaintenanceItemId = id,
                 VehicleId = _acm.vehicle_id,
                 Title = _acm.order_status,
                 MaintenanceLocation = _acm.maintenance_location,
-                Remarks = _acm.remarks,
+                Note = _acm.remarks,
                 ServiceTime = DateTime.Now,
                 OrderSubmissionTime = DateTime.Now,
-                OrderStatus = "否",
+                OrderStatus = 0,
                 Evaluations = null,
             };
             _context.Add(acm);
@@ -61,7 +61,9 @@ namespace webapi.Controllers.Administrator
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
 
-            string id = $"{_acm.maintenance_item_id}";
+            bool flag = long .TryParse($"{_acm.maintenance_item_id}",out long id);
+            if (!flag)
+                return NewContent(1, "记录标记非法");
             if (id == null)
                 return NewContent(1, "记录标记为空");
 
@@ -99,7 +101,7 @@ namespace webapi.Controllers.Administrator
                 return NewContent(1, "无记录");
             else
             {
-                acm.VehicleId = _acm.vehicle_id;
+                acm.vehicle.VehicleId = _acm.vehicle_id;
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Remarks = _acm.remarks;
                 acm.OrderStatus = _acm.order_status;

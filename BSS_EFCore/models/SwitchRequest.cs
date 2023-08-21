@@ -8,7 +8,6 @@ public partial class SwitchRequest
 {
     public long SwitchRequestId { get; set; }
 
-    [Obsolete]
     public int SwitchType { get; set; }
 
     [NotMapped]
@@ -36,10 +35,10 @@ public partial class SwitchRequest
 
     public DateTime RequestTime { get; set; }
 
-    public string Position { get; set; }
-
-    public string? Notes { get; set; }
-
+    public string? Position { get; set; }
+    public double Longtitue { get; set; }
+    public double Latitude { get; set; }
+    public string? Note { get; set; }
 
 
     public Employee employee { get; set; }  //非空

@@ -27,7 +27,7 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("AVAILABLE_BATTERY_COUNT");
             builder.Property(e => e.BatteryCapacity)
                 .HasColumnName("BATTERY_CAPACITY");
-            builder.Property(e => e.FaliureStatus)
+            builder.Property(e => e.FailureStatus)
                 .HasColumnName("FALIURE_STATUS");
             builder.Property(e => e.Latitude)
                 .HasColumnName("LATITUDE");
