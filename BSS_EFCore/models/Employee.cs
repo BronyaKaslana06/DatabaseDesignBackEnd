@@ -26,6 +26,7 @@ public partial class Employee
 
     public string? Gender { get; set; }
 
+    [Obsolete]
     public int Position { get; set; }
 
     [NotMapped]
@@ -46,7 +47,7 @@ public partial class Employee
     public int Salary { get; set; }
 
 
-    public List<Kpi> kpi { get; set; } = new List<Kpi>();
+    public Kpi kpi { get; set; }  //非空
 
     public List<MaintenanceItem> maintenanceItems { get; set; } = new List<MaintenanceItem>();
 
@@ -58,10 +59,12 @@ public partial class Employee
 
 }
 
+
 public enum PositionEnum
 {
    换电站管理员 = 1,
    维修工 = 2,
-   其他 =3
+   其它 =3
 }
 // 0 预留
+

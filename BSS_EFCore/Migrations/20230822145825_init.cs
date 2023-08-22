@@ -37,7 +37,7 @@ namespace BSS_EFCore.Migrations
                     BATTERY_TYPE_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     MAX_CHARGE_TIEMS = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    TOTAL_CAPACITY = table.Column<int>(type: "NUMBER(10)", nullable: false)
+                    TOTAL_CAPACITY = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -53,11 +53,14 @@ namespace BSS_EFCore.Migrations
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     STATION_NAME = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
                     SERVICE_FEE = table.Column<float>(type: "BINARY_FLOAT", nullable: false),
+                    ElectricityFee = table.Column<float>(type: "BINARY_FLOAT", nullable: false),
+                    QueueLength = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     LONGTITUDE = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
                     LATITUDE = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
                     FALIURE_STATUS = table.Column<bool>(type: "NUMBER(1)", nullable: false),
                     BATTERY_CAPACITY = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    AVAILABLE_BATTERY_COUNT = table.Column<int>(type: "NUMBER(10)", nullable: false)
+                    AVAILABLE_BATTERY_COUNT = table.Column<int>(type: "NUMBER(10)", nullable: false),
+                    city = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,8 +81,7 @@ namespace BSS_EFCore.Migrations
                     CREATE_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                     PHONE_NUMBER = table.Column<string>(type: "NVARCHAR2(20)", maxLength: 20, nullable: false),
                     GENDER = table.Column<string>(type: "NVARCHAR2(3)", maxLength: 3, nullable: true),
-                    BIRTHDAY = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: true),
-                    ADDRESS = table.Column<string>(type: "NVARCHAR2(255)", maxLength: 255, nullable: true)
+                    BIRTHDAY = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -113,7 +115,7 @@ namespace BSS_EFCore.Migrations
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     PUBLISH_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                     PUBLISH_POS = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
-                    TITLE = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
+                    TITLE = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
                     CONTENTS = table.Column<string>(type: "NCLOB", maxLength: 2500, nullable: true),
                     LIKES = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     VIEW_COUNT = table.Column<int>(type: "NUMBER(10)", nullable: false),
@@ -138,7 +140,7 @@ namespace BSS_EFCore.Migrations
                 {
                     BATTERY_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    AVAILABLE_STATUS = table.Column<int>(type: "NUMBER(10)", nullable: false),
+                    AVAILABLE_STATUS = table.Column<int>(type: "NUMBER(10)", nullable: true),
                     CURRENT_CAPACITY = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
                     CURR_CHARGE_TIMES = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     MANUFACTURING_DATE = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
@@ -170,15 +172,16 @@ namespace BSS_EFCore.Migrations
                 {
                     EMPLOYEE_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    email = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    PASSWORD = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
+                    USERNAME = table.Column<string>(type: "NVARCHAR2(30)", maxLength: 30, nullable: true),
+                    PASSWORD = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false, defaultValue: "123456"),
                     PROFILE_PHOTO = table.Column<byte[]>(type: "BLOB", nullable: true),
                     CREATE_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                     PHONE_NUMBER = table.Column<string>(type: "NVARCHAR2(20)", maxLength: 20, nullable: true),
-                    IDENTITY_NUMBER = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
+                    IDENTITYNUMBER = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
                     NAME = table.Column<string>(type: "NVARCHAR2(30)", maxLength: 30, nullable: true),
                     GENDER = table.Column<string>(type: "NVARCHAR2(3)", maxLength: 3, nullable: true),
-                    POSITIONS = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
+                    POSITIONS = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     SALARY = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     switchStationStationId = table.Column<long>(type: "NUMBER(19)", nullable: true)
                 },
@@ -191,6 +194,28 @@ namespace BSS_EFCore.Migrations
                         principalSchema: "C##CAR",
                         principalTable: "SWITCH_STATION",
                         principalColumn: "STATION_ID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OWNERPOS",
+                schema: "C##CAR",
+                columns: table => new
+                {
+                    Owner_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
+                    ADDRESS = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true),
+                    vehicleownerOwnerId = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("SYS_C009099", x => x.Owner_ID);
+                    table.ForeignKey(
+                        name: "FK_OWNERPOS_VEHICLE_OWNER_vehicleownerOwnerId",
+                        column: x => x.vehicleownerOwnerId,
+                        principalSchema: "C##CAR",
+                        principalTable: "VEHICLE_OWNER",
+                        principalColumn: "OWNER_ID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -264,23 +289,23 @@ namespace BSS_EFCore.Migrations
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     MAINTENANCE_LOCATION = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
                     Note = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true),
+                    Title = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true),
                     SERVICE_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                     ORDER_SUBMISSION_TIME = table.Column<DateTime>(type: "TIMESTAMP(6)", precision: 6, nullable: false),
                     ORDER_STATUS = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    Score = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    vehicleOwnerOwnerId = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    VehicleId = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                    Score = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
+                    VehicleId = table.Column<long>(type: "NUMBER(19)", nullable: false),
+                    VehicleOwnerOwnerId = table.Column<long>(type: "NUMBER(19)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("SYS_C009117", x => x.MAINTENANCE_ITEM_ID);
                     table.ForeignKey(
-                        name: "FK_MAINTENANCE_ITEM_VEHICLE_OWNER_vehicleOwnerOwnerId",
-                        column: x => x.vehicleOwnerOwnerId,
+                        name: "FK_MAINTENANCE_ITEM_VEHICLE_OWNER_VehicleOwnerOwnerId",
+                        column: x => x.VehicleOwnerOwnerId,
                         principalSchema: "C##CAR",
                         principalTable: "VEHICLE_OWNER",
-                        principalColumn: "OWNER_ID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "OWNER_ID");
                     table.ForeignKey(
                         name: "FK_MAINTENANCE_ITEM_VEHICLE_VehicleId",
                         column: x => x.VehicleId,
@@ -298,12 +323,12 @@ namespace BSS_EFCore.Migrations
                     SWITCH_SERVICE_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     SWITCH_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
-                    Score = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    POSITION = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
+                    Score = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
                     batteryOnBatteryId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     batteryOffBatteryId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     VehicleId = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    EmployeeId = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                    EmployeeId = table.Column<long>(type: "NUMBER(19)", nullable: false),
+                    switchlogSwitchServiceId = table.Column<long>(type: "NUMBER(19)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -330,6 +355,13 @@ namespace BSS_EFCore.Migrations
                         principalColumn: "EMPLOYEE_ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_SWITCH_LOG_SWITCH_LOG_switchlogSwitchServiceId",
+                        column: x => x.switchlogSwitchServiceId,
+                        principalSchema: "C##CAR",
+                        principalTable: "SWITCH_LOG",
+                        principalColumn: "SWITCH_SERVICE_ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_SWITCH_LOG_VEHICLE_VehicleId",
                         column: x => x.VehicleId,
                         principalSchema: "C##CAR",
@@ -347,7 +379,9 @@ namespace BSS_EFCore.Migrations
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     SWITCH_TYPE = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     REQUEST_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
-                    POSITION = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
+                    POSITION = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
+                    Longtitue = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
+                    Latitude = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
                     NOTES = table.Column<string>(type: "NVARCHAR2(255)", maxLength: 255, nullable: true),
                     EmployeeId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     vehicleOwnerOwnerId = table.Column<long>(type: "NUMBER(19)", nullable: false),
@@ -444,16 +478,22 @@ namespace BSS_EFCore.Migrations
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MAINTENANCE_ITEM_vehicleOwnerOwnerId",
+                name: "IX_MAINTENANCE_ITEM_VehicleOwnerOwnerId",
                 schema: "C##CAR",
                 table: "MAINTENANCE_ITEM",
-                column: "vehicleOwnerOwnerId");
+                column: "VehicleOwnerOwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NEWS_administratorAdminId",
                 schema: "C##CAR",
                 table: "NEWS",
                 column: "administratorAdminId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OWNERPOS_vehicleownerOwnerId",
+                schema: "C##CAR",
+                table: "OWNERPOS",
+                column: "vehicleownerOwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SWITCH_LOG_batteryOffBatteryId",
@@ -472,6 +512,12 @@ namespace BSS_EFCore.Migrations
                 schema: "C##CAR",
                 table: "SWITCH_LOG",
                 column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SWITCH_LOG_switchlogSwitchServiceId",
+                schema: "C##CAR",
+                table: "SWITCH_LOG",
+                column: "switchlogSwitchServiceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SWITCH_LOG_VehicleId",
@@ -530,6 +576,10 @@ namespace BSS_EFCore.Migrations
 
             migrationBuilder.DropTable(
                 name: "NEWS",
+                schema: "C##CAR");
+
+            migrationBuilder.DropTable(
+                name: "OWNERPOS",
                 schema: "C##CAR");
 
             migrationBuilder.DropTable(

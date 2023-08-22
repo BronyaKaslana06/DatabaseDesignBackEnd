@@ -16,12 +16,13 @@ namespace BSS_EFCore.configuration
 
             builder.ToTable("OWNERPOS");
 
-            builder.Property(o => o.OwnerId)
-                .HasColumnName("Owner_ID");
+            //builder.Property(o => o.OwnerId)
+               // .HasColumnName("Owner_ID");
             builder.Property(o => o.Address)
                 .HasColumnName("ADDRESS");
 
-            builder.HasOne<VehicleOwner>(o => o.vehicleowner).WithMany(a => a.ownerpos).IsRequired();
+
+            builder.HasOne<VehicleOwner>(o => o.vehicleowner).WithMany(a => a.ownerpos).HasForeignKey(c=>c.OwnerId).IsRequired();
         }
     }
 }

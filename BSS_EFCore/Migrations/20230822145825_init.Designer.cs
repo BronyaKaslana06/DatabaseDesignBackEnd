@@ -12,7 +12,7 @@ using Oracle.EntityFrameworkCore.Metadata;
 namespace BSS_EFCore.Migrations
 {
     [DbContext(typeof(ModelContext))]
-    [Migration("20230815025813_init")]
+    [Migration("20230822145825_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -77,7 +77,7 @@ namespace BSS_EFCore.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BatteryId"));
 
-                    b.Property<int>("AvailableStatus")
+                    b.Property<int?>("AvailableStatus")
                         .HasColumnType("NUMBER(10)")
                         .HasColumnName("AVAILABLE_STATUS");
 
@@ -118,12 +118,12 @@ namespace BSS_EFCore.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BatteryTypeId"));
 
-                    b.Property<int>("MaxChargeTiems")
+                    b.Property<int>("MaxChargeTimes")
                         .HasColumnType("NUMBER(10)")
                         .HasColumnName("MAX_CHARGE_TIEMS");
 
-                    b.Property<int>("TotalCapacity")
-                        .HasColumnType("NUMBER(10)")
+                    b.Property<string>("TotalCapacity")
+                        .HasColumnType("NVARCHAR2(2000)")
                         .HasColumnName("TOTAL_CAPACITY");
 
                     b.HasKey("BatteryTypeId")
@@ -145,6 +145,10 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("TIMESTAMP(7)")
                         .HasColumnName("CREATE_TIME");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
+
                     b.Property<string>("Gender")
                         .HasMaxLength(3)
                         .IsUnicode(true)
@@ -155,7 +159,7 @@ namespace BSS_EFCore.Migrations
                         .HasMaxLength(50)
                         .IsUnicode(true)
                         .HasColumnType("NVARCHAR2(50)")
-                        .HasColumnName("IDENTITY_NUMBER");
+                        .HasColumnName("IDENTITYNUMBER");
 
                     b.Property<string>("Name")
                         .HasMaxLength(30)
@@ -165,9 +169,11 @@ namespace BSS_EFCore.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
                         .IsUnicode(true)
                         .HasColumnType("NVARCHAR2(50)")
+                        .HasDefaultValue("123456")
                         .HasColumnName("PASSWORD");
 
                     b.Property<string>("PhoneNumber")
@@ -176,10 +182,8 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("NVARCHAR2(20)")
                         .HasColumnName("PHONE_NUMBER");
 
-                    b.Property<string>("Positions")
-                        .HasMaxLength(50)
-                        .IsUnicode(true)
-                        .HasColumnType("NVARCHAR2(50)")
+                    b.Property<int>("Position")
+                        .HasColumnType("NUMBER(10)")
                         .HasColumnName("POSITIONS");
 
                     b.Property<byte[]>("ProfilePhoto")
@@ -190,9 +194,11 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("NUMBER(10)")
                         .HasColumnName("SALARY");
 
-                    b.Property<string>("email")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
+                    b.Property<string>("UserName")
+                        .HasMaxLength(30)
+                        .IsUnicode(true)
+                        .HasColumnType("NVARCHAR2(30)")
+                        .HasColumnName("USERNAME");
 
                     b.Property<long?>("switchStationStationId")
                         .HasColumnType("NUMBER(19)");
@@ -266,17 +272,20 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("TIMESTAMP(6)")
                         .HasColumnName("ORDER_SUBMISSION_TIME");
 
-                    b.Property<int>("Score")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<double>("Score")
+                        .HasColumnType("BINARY_DOUBLE");
 
                     b.Property<DateTime>("ServiceTime")
                         .HasColumnType("TIMESTAMP(7)")
                         .HasColumnName("SERVICE_TIME");
 
+                    b.Property<string>("Title")
+                        .HasColumnType("NVARCHAR2(2000)");
+
                     b.Property<long>("VehicleId")
                         .HasColumnType("NUMBER(19)");
 
-                    b.Property<long>("vehicleOwnerOwnerId")
+                    b.Property<long?>("VehicleOwnerOwnerId")
                         .HasColumnType("NUMBER(19)");
 
                     b.HasKey("MaintenanceItemId")
@@ -284,7 +293,7 @@ namespace BSS_EFCore.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.HasIndex("vehicleOwnerOwnerId");
+                    b.HasIndex("VehicleOwnerOwnerId");
 
                     b.ToTable("MAINTENANCE_ITEM", "C##CAR");
                 });
@@ -319,7 +328,6 @@ namespace BSS_EFCore.Migrations
                         .HasColumnName("PUBLISH_TIME");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(true)
                         .HasColumnType("NVARCHAR2(50)")
@@ -340,6 +348,30 @@ namespace BSS_EFCore.Migrations
                     b.ToTable("NEWS", "C##CAR");
                 });
 
+            modelBuilder.Entity("EntityFramework.Models.OwnerPos", b =>
+                {
+                    b.Property<long>("OwnerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(19)")
+                        .HasColumnName("Owner_ID");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("OwnerId"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("NVARCHAR2(2000)")
+                        .HasColumnName("ADDRESS");
+
+                    b.Property<long>("vehicleownerOwnerId")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.HasKey("OwnerId")
+                        .HasName("SYS_C009099");
+
+                    b.HasIndex("vehicleownerOwnerId");
+
+                    b.ToTable("OWNERPOS", "C##CAR");
+                });
+
             modelBuilder.Entity("EntityFramework.Models.SwitchLog", b =>
                 {
                     b.Property<long>("SwitchServiceId")
@@ -352,15 +384,8 @@ namespace BSS_EFCore.Migrations
                     b.Property<long>("EmployeeId")
                         .HasColumnType("NUMBER(19)");
 
-                    b.Property<string>("Position")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(true)
-                        .HasColumnType("NVARCHAR2(50)")
-                        .HasColumnName("POSITION");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<double>("Score")
+                        .HasColumnType("BINARY_DOUBLE");
 
                     b.Property<DateTime>("SwitchTime")
                         .HasColumnType("TIMESTAMP(7)")
@@ -375,6 +400,9 @@ namespace BSS_EFCore.Migrations
                     b.Property<long>("batteryOnBatteryId")
                         .HasColumnType("NUMBER(19)");
 
+                    b.Property<long>("switchlogSwitchServiceId")
+                        .HasColumnType("NUMBER(19)");
+
                     b.HasKey("SwitchServiceId")
                         .HasName("SYS_C009138");
 
@@ -385,6 +413,8 @@ namespace BSS_EFCore.Migrations
                     b.HasIndex("batteryOffBatteryId");
 
                     b.HasIndex("batteryOnBatteryId");
+
+                    b.HasIndex("switchlogSwitchServiceId");
 
                     b.ToTable("SWITCH_LOG", "C##CAR");
                 });
@@ -401,14 +431,19 @@ namespace BSS_EFCore.Migrations
                     b.Property<long>("EmployeeId")
                         .HasColumnType("NUMBER(19)");
 
-                    b.Property<string>("Notes")
+                    b.Property<double>("Latitude")
+                        .HasColumnType("BINARY_DOUBLE");
+
+                    b.Property<double>("Longtitue")
+                        .HasColumnType("BINARY_DOUBLE");
+
+                    b.Property<string>("Note")
                         .HasMaxLength(255)
                         .IsUnicode(true)
                         .HasColumnType("NVARCHAR2(255)")
                         .HasColumnName("NOTES");
 
                     b.Property<string>("Position")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(true)
                         .HasColumnType("NVARCHAR2(50)")
@@ -457,7 +492,10 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("NUMBER(10)")
                         .HasColumnName("BATTERY_CAPACITY");
 
-                    b.Property<bool>("FaliureStatus")
+                    b.Property<float>("ElectricityFee")
+                        .HasColumnType("BINARY_FLOAT");
+
+                    b.Property<bool>("FailureStatus")
                         .HasColumnType("NUMBER(1)")
                         .HasColumnName("FALIURE_STATUS");
 
@@ -469,6 +507,9 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("BINARY_DOUBLE")
                         .HasColumnName("LONGTITUDE");
 
+                    b.Property<int>("QueueLength")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<float>("ServiceFee")
                         .HasColumnType("BINARY_FLOAT")
                         .HasColumnName("SERVICE_FEE");
@@ -478,6 +519,10 @@ namespace BSS_EFCore.Migrations
                         .IsUnicode(true)
                         .HasColumnType("NVARCHAR2(50)")
                         .HasColumnName("STATION_NAME");
+
+                    b.Property<string>("city")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("StationId")
                         .HasName("SYS_C009065");
@@ -529,12 +574,6 @@ namespace BSS_EFCore.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("OwnerId"));
 
-                    b.Property<string>("Address")
-                        .HasMaxLength(255)
-                        .IsUnicode(true)
-                        .HasColumnType("NVARCHAR2(255)")
-                        .HasColumnName("ADDRESS");
-
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("TIMESTAMP(7)")
                         .HasColumnName("BIRTHDAY");
@@ -556,12 +595,6 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("NVARCHAR2(3)")
                         .HasColumnName("GENDER");
 
-                    b.Property<string>("Nickname")
-                        .HasMaxLength(50)
-                        .IsUnicode(true)
-                        .HasColumnType("NVARCHAR2(50)")
-                        .HasColumnName("NICKNAME");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -579,6 +612,12 @@ namespace BSS_EFCore.Migrations
                     b.Property<byte[]>("ProfilePhoto")
                         .HasColumnType("BLOB")
                         .HasColumnName("PROFILE_PHOTO");
+
+                    b.Property<string>("Username")
+                        .HasMaxLength(50)
+                        .IsUnicode(true)
+                        .HasColumnType("NVARCHAR2(50)")
+                        .HasColumnName("NICKNAME");
 
                     b.HasKey("OwnerId")
                         .HasName("SYS_C009088");
@@ -687,15 +726,11 @@ namespace BSS_EFCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EntityFramework.Models.VehicleOwner", "vehicleOwner")
+                    b.HasOne("EntityFramework.Models.VehicleOwner", null)
                         .WithMany("maintenanceItems")
-                        .HasForeignKey("vehicleOwnerOwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("VehicleOwnerOwnerId");
 
                     b.Navigation("vehicle");
-
-                    b.Navigation("vehicleOwner");
                 });
 
             modelBuilder.Entity("EntityFramework.Models.News", b =>
@@ -707,6 +742,17 @@ namespace BSS_EFCore.Migrations
                         .IsRequired();
 
                     b.Navigation("administrator");
+                });
+
+            modelBuilder.Entity("EntityFramework.Models.OwnerPos", b =>
+                {
+                    b.HasOne("EntityFramework.Models.VehicleOwner", "vehicleowner")
+                        .WithMany("ownerpos")
+                        .HasForeignKey("vehicleownerOwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("vehicleowner");
                 });
 
             modelBuilder.Entity("EntityFramework.Models.SwitchLog", b =>
@@ -735,11 +781,19 @@ namespace BSS_EFCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EntityFramework.Models.SwitchLog", "switchlog")
+                        .WithMany()
+                        .HasForeignKey("switchlogSwitchServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("batteryOff");
 
                     b.Navigation("batteryOn");
 
                     b.Navigation("employee");
+
+                    b.Navigation("switchlog");
 
                     b.Navigation("vehicle");
                 });
@@ -846,6 +900,8 @@ namespace BSS_EFCore.Migrations
             modelBuilder.Entity("EntityFramework.Models.VehicleOwner", b =>
                 {
                     b.Navigation("maintenanceItems");
+
+                    b.Navigation("ownerpos");
 
                     b.Navigation("switchRequests");
 

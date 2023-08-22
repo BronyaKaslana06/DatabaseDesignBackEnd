@@ -19,7 +19,7 @@ namespace BSS_EFCore.configuration
 
             builder.Property(e => e.BatteryTypeId)
                 .HasColumnName("BATTERY_TYPE_ID");
-            builder.Property(e => e.MaxChargeTiems)
+            builder.Property(e => e.MaxChargeTimes)
                 .HasColumnName("MAX_CHARGE_TIEMS");
             builder.Property(e => e.TotalCapacity)
                 .HasColumnName("TOTAL_CAPACITY");

@@ -8,6 +8,7 @@ public partial class SwitchRequest
 {
     public long SwitchRequestId { get; set; }
 
+    [Obsolete]
     public int SwitchType { get; set; }
 
     [NotMapped]

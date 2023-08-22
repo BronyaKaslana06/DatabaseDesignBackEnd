@@ -25,6 +25,8 @@ public partial class SwitchStation
 
     public int AvailableBatteryCount { get; set; }
 
+    public string city { get; set; }
+
 
     public List<Employee> employees { get; set; } = new List<Employee>();  //至少一个
     public List<Battery> batteries { get; set; } = new List<Battery>();   //可以为0

@@ -8,6 +8,8 @@ public partial class Battery
 {
     public long BatteryId { get; set; }
 
+
+    [Obsolete]
     public int? AvailableStatus { get; set; }
 
     [NotMapped]

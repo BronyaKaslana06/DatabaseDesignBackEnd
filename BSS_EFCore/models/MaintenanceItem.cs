@@ -19,6 +19,7 @@ public partial class MaintenanceItem
 
     public DateTime OrderSubmissionTime { get; set; }
 
+    [Obsolete]
     public int OrderStatus { get; set; }
 
     [NotMapped]

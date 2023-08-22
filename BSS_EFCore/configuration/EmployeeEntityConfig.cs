@@ -45,9 +45,7 @@ namespace BSS_EFCore.configuration
                 .HasMaxLength(20)
                 .IsUnicode()
                 .HasColumnName("PHONE_NUMBER");
-            builder.Property(e => e.Positions)
-                .HasMaxLength(50)
-                .IsUnicode()
+            builder.Property(e => e.Position)
                 .HasColumnName("POSITIONS");
             builder.Property(e => e.ProfilePhoto)
                 .HasColumnType("BLOB")
