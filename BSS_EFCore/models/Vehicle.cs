@@ -11,6 +11,7 @@ public partial class Vehicle
 
     public long BatteryId { get; set; }
 
+    public string? PlateNumber { get; set; }
 
     public Battery Battery { get; set; }   //非空
 

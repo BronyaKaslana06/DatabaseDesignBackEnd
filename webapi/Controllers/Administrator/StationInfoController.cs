@@ -10,6 +10,7 @@ using System.Data;
 using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
+using System.Transactions;
 
 namespace webapi.Controllers.Administrator
 {
@@ -79,7 +80,10 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
         public IActionResult PutStaff([FromBody] dynamic _station)
         {
             dynamic station = JsonConvert.DeserializeObject(Convert.ToString(_station));
-            string station_id = $"{station.station_id}";
+            if(!(long.TryParse($"{station.station_id}", out long station_id) && long.TryParse($"{station.employee_id}", out long EID)))
+            {
+                return NewContent(1, "id非法");
+            }
             var staff = _context.SwitchStations.Find(station_id);
 
             if (staff == null)
@@ -87,7 +91,14 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
                 return NewContent(1,"没找到该station");
             }
 
-            
+            var newEmployee = _context.Employees.Find(EID);
+
+            if (newEmployee == null)
+            {
+                return NewContent(1, "没有该id的管理员");
+            }
+
+            station.Employees.Add(newEmployee);
 
             //staff.StationId = $"{station.station_id}";
             if ($"{station.station_name}" != String.Empty)
@@ -99,7 +110,7 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
             if ($"{station.latitude}" != String.Empty)
                 staff.Latitude = Convert.ToDecimal(station.latitude);
             if ($"{station.faliure_status}" != String.Empty)
-                staff.FaliureStatus = $"{station.faliure_status}";
+                staff.FailureStatus = $"{station.faliure_status}" == "是" ? true : false;
             if ($"{station.available_battery_count}" != String.Empty)
                 staff.AvailableBatteryCount = Convert.ToDecimal(station.available_battery_count);
 
@@ -112,127 +123,63 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
                 return NewContent(1, e.InnerException?.Message+"");
             }
 
-            if ($"{station.employee_id}" != String.Empty)
-            {
-                var staff_stations = _context.EmployeeSwitchStations.Where(e => e.StationId == staff.StationId);
-                EmployeeSwitchStation? staff_station = null;
-                
-                foreach (var a in staff_stations)
-                    if (a.StationId == $"{station.station_id}")
-                        if (_context.Employees.Find(a.EmployeeId)?.Positions == "管理员")
-                        {
-                            staff_station = a;
-                            break;   
-                        }
-
-                var newEmployee= _context.Employees.Find($"{station.employee_id}");
-
-                if (newEmployee == null)
-                {
-                    return NewContent(1, "没有该id的管理员");
-                }
-                if (newEmployee.Positions != "管理员")
-                    return NewContent(1, "指定id的员工不是管理员");
-                if (staff_station!=null)
-                {
-                    _context.EmployeeSwitchStations.Remove(staff_station);
-                    _context.SaveChanges();
-                    staff_station.Employee = newEmployee;
-
-                    //_context.EmployeeSwitchStations.Add(new EmployeeSwitchStation(){ EmployeeId = $"{station.employee_id}", StationId = station_id, });
-                    staff_station.EmployeeId = $"{station.employee_id}";
-                    _context.EmployeeSwitchStations.Add(staff_station);
-                }
-                else
-                {
-                    staff_station = new EmployeeSwitchStation()
-                    {
-                        EmployeeId = $"{station.employee_id}",
-                        StationId = station_id
-                    };
-                    _context.EmployeeSwitchStations.Add(staff_station);
-                }
-            }
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                return NewContent(1, e.InnerException?.Message+"");
-            }
-            
             return NewContent();
         }
 
         [HttpPost]
         public ActionResult<string> PostStaff([FromBody] dynamic _station)
         {
-            dynamic station = JsonConvert.DeserializeObject(Convert.ToString(_station));
-            string employee_id = $"{station.employee_id}";
-            SwitchStation new_station = new SwitchStation()
+            using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                StationId = $"{station.station_id}",
-                StationName= $"{station.station_name}",
-                BatteryCapacity = Convert.ToDecimal(station.battety_capacity),
-                Longtitude = Convert.ToDecimal(station.longitude),
-                Latitude=Convert.ToDecimal(station.latitude),
-                FaliureStatus= $"{station.faliure_status}",
-                AvailableBatteryCount= Convert.ToDecimal(station.available_battery_count)
-            };
-    
-            _context.SwitchStations.Add(new_station);
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                String msg = e.InnerException?.Message+"";
-                if (_context.SwitchStations.Any(t=>t.StationId==new_station.StationId))
-                    msg = "已有该id的换电站";
-                else if (_context.SwitchStations.Any(t => (t.Latitude == new_station.Latitude) && (t.Longtitude == new_station.Longtitude)))
-                    msg = "已有该位置的换电站";
-                return NewContent(1, msg);
-            }
-            if ($"{station.employee_id}" != String.Empty)
-            {
-                EmployeeSwitchStation new_relation = new EmployeeSwitchStation()
+                dynamic station = JsonConvert.DeserializeObject(Convert.ToString(_station));
+                if (!((long.TryParse($"{station.station_id}", out long station_id) && long.TryParse($"{station.employee_id}", out long EID))))
                 {
-                    EmployeeId = employee_id,
-                    StationId = $"{station.station_id}"
+                    return NewContent(1, "id非法");
+                }
+                SwitchStation new_station = new SwitchStation()
+                {
+                    StationId = station_id,
+                    StationName = $"{station.station_name}",
+                    BatteryCapacity = Convert.ToDecimal(station.battety_capacity),
+                    Longtitude = Convert.ToDecimal(station.longitude),
+                    Latitude = Convert.ToDecimal(station.latitude),
+                    FailureStatus = $"{station.faliure_status}" == "是" ? true : false,
+                    AvailableBatteryCount = Convert.ToDecimal(station.available_battery_count)
                 };
-                _context.EmployeeSwitchStations.Add(new_relation);
 
+                var employee = _context.Employees.Find($"{station.employee_id}");
+                if (employee == null)
+                {
+                    return NewContent(1, "无该员工");
+                }
+                if (employee.Position != 1)
+                {
+                    return NewContent(2, "该员工不是管理员");
+                }
+
+                new_station.employees = new List<Employee> { employee };
+
+                _context.SwitchStations.Add(new_station);
                 try
                 {
                     _context.SaveChanges();
                 }
                 catch (DbUpdateException e)
                 {
-                    String msg = e.InnerException?.Message+"";
-                    if (_context.EmployeeSwitchStations.Find(employee_id) != null)
-                    {
-                        msg = "employ_id已占用";
-                    }
-                    else if (_context.Employees.Find(employee_id) == null)
-                    {
-                        msg = "无该员工";
-                    }
-                    else if (_context.Employees.Find(employee_id)?.Positions != "管理员")
-                    {
-                        msg = "该员工不是管理员";
-                    }
-                    return NewContent(2,msg);
+                    String msg = e.InnerException?.Message + "";
+                    if (_context.SwitchStations.Any(t => t.StationId == new_station.StationId))
+                        msg = "已有该id的换电站";
+                    else if (_context.SwitchStations.Any(t => (t.Latitude == new_station.Latitude) && (t.Longtitude == new_station.Longtitude)))
+                        msg = "已有该位置的换电站";
+                    return NewContent(2, msg);
                 }
-
+                var returnMessage = new
+                {
+                    code = 0,
+                    msg = "success"
+                };
+                return Content(JsonConvert.SerializeObject(returnMessage), "application/json");
             }
-            var returnMessage = new
-            {
-                code = 0,
-                msg = "success"
-            };
-            return Content(JsonConvert.SerializeObject(returnMessage), "application/json");
         }
 
         [HttpDelete]
@@ -240,16 +187,11 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
         {
 
             var station = _context.SwitchStations.Find(station_id);
-            var staff_stations = _context.EmployeeSwitchStations.Where(e => e.StationId == station_id);
             if (station == null )
             {
                 return NewContent(1,"找不到该station");
             }
 
-            foreach (var a in staff_stations)
-            {
-                _context.EmployeeSwitchStations.Remove(a);
-            }
             _context.SwitchStations.Remove(station);
             try
             {
@@ -262,17 +204,12 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
             return NewContent();
         }
 
-        private bool StaffExists(string id)
+        private bool StaffExists(long id)
         {
             return _context.Employees?.Any(e => e.EmployeeId == id) ?? false;
         }
 
-        private bool StaffInSwitchStationExists(string id)
-        {
-            return _context.EmployeeSwitchStations?.Any(e => e.EmployeeId == id) ?? false;
-        }
-
-        private bool SwitchStationExists(string id)
+        private bool SwitchStationExists(long id)
         {
             return _context.SwitchStations?.Any(e => e.StationId == id) ?? false;
         }

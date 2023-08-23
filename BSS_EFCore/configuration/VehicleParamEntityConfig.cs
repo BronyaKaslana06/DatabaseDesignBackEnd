@@ -31,6 +31,9 @@ namespace BSS_EFCore.configuration
                 .HasMaxLength(50)
                 .IsUnicode()
                 .HasColumnName("TRANSMISSION");
+            builder.Property(e => e.Sinp)
+                .HasColumnType("BLOB")
+                .HasColumnName("SINP");
 
         }
     }

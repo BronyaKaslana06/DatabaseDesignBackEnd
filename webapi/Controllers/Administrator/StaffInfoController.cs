@@ -10,6 +10,7 @@ using System.Data;
 using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
+using Idcreator;
 
 namespace webapi.Controllers.Administrator
 {
@@ -23,38 +24,42 @@ namespace webapi.Controllers.Administrator
         {
             _context = context;
         }
-
         [HttpGet("query")]
-        public ActionResult<IEnumerable<Employee>> GetPage_(int pageIndex, int pageSize, string employee_id="", string username = "", string gender = "", string phone_number = "", string salary = "", string station_id = "", string station_name="")
+        public ActionResult<IEnumerable<Employee>> GetPage(int pageIndex,int pageSize,string employee_id = "",string username = "",string gender = "",string phone_number = "",string salary = "",string station_id = "",string station_name = "")
         {
             int offset = (pageIndex - 1) * pageSize;
             int limit = pageSize;
             if (offset < 0 || limit <= 0)
                 return BadRequest();
+            bool flag = long.TryParse(employee_id, out long EID);
+            if (!(flag && long.TryParse(station_id, out long SID)))
+            {
+                return BadRequest();
+            }
+            var query = _context.Employees
+            .Where(e => (string.IsNullOrEmpty(employee_id) || e.EmployeeId == EID) &&
+                (string.IsNullOrEmpty(username) || e.UserName.Contains(username)) &&
+                (string.IsNullOrEmpty(gender) || e.Gender == gender) &&
+                (string.IsNullOrEmpty(phone_number) || e.PhoneNumber == phone_number) &&
+                (string.IsNullOrEmpty(salary) || e.Salary.ToString() == salary) &&
+                (string.IsNullOrEmpty(station_id) || e.switchStation.StationId == SID) &&
+                (string.IsNullOrEmpty(station_name) || e.switchStation.StationName.Contains(station_name))
+            )
+                .OrderBy(e => e.EmployeeId)
+                .Skip(offset)
+                .Take(limit);
 
-            string pattern1 = employee_id == "" ? "" : " AND T0.employee_id = '" + employee_id;
-            string pattern2 = username == "" ? "" : " AND T0.username like '%" + username + "%'";
-            string pattern3 = gender == "" ? "" : " AND T0.gender = '" + gender + "'";
-            string pattern4 = phone_number == "" ? " " : " AND T0.phone_number = '" + phone_number + "'";
-            string pattern5 = salary == "" ? "" : " AND T0.salary = '" + salary.ToString() + "'";
-            string pattern6 = station_id == "" ? "" : " AND T1.station_id = '" + station_id + "'";
-            string pattern7 = station_name == "" ? "" : " AND T2.station_name like '%" + station_name + "%'";
+            var totalData = query.Count();
+            var data = query.ToList();
 
-            string where_cause = "WHERE T0.gender like '%'" +
-                pattern1 + pattern2 + pattern3 + pattern4 + pattern5 + pattern6 + pattern7;
-            string sql_info = "SELECT T0.employee_id,T0.username,T0.phone_number,T0.gender,T0.salary,T1.station_id,T2.station_name " +
-                "FROM EMPLOYEE T0 " +
-                "LEFT JOIN EMPLOYEE_SWITCH_STATION T1 " +
-                "ON T0.employee_id=T1.employee_id " +
-                "LEFT JOIN SWITCH_STATION T2 " +
-                "on T1.station_id=T2.station_id " + where_cause +
-                "ORDER BY T0.employee_id";
-            DataTable df = OracleHelper.SelectSql(sql_info);
+            if(data == null)
+                return BadRequest();
             var obj = new
             {
-                totalData = df != null ? df.Rows.Count : 0,
-                data = df?.AsEnumerable().Skip(offset).Take(limit).CopyToDataTable<DataRow>(),
+                totalData,
+                data
             };
+
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
 
@@ -62,10 +67,14 @@ namespace webapi.Controllers.Administrator
         public IActionResult PutStaff([FromBody] dynamic _param)
         {
             dynamic param = JsonConvert.DeserializeObject(Convert.ToString(_param));
-            string employee_id = $"{param.employee_id}";
-            var staff = _context.Employees.Find(employee_id);
-            var staff_station = _context.EmployeeSwitchStations.Find(employee_id);
-            if (staff == null || staff_station == null)
+            bool flag = long.TryParse($"{param.employee_id}", out long EID);
+            if (!(flag && long.TryParse($"{param.station_id}", out long SID)))
+            {
+                return BadRequest();
+            }
+            var staff = _context.Employees.Find(EID);
+
+            if (staff == null)
             {
                 return NotFound();
             }
@@ -73,7 +82,7 @@ namespace webapi.Controllers.Administrator
             staff.PhoneNumber = $"{param.phone_number}";
             staff.Gender = $"{param.gender}";
             staff.Salary = Convert.ToDecimal(param.salary);
-            staff_station.StationId = $"{param.station_id}";
+            staff.switchStation.StationId = SID;
             Console.WriteLine(_context.Employees);
             try
             {
@@ -81,7 +90,7 @@ namespace webapi.Controllers.Administrator
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StaffExists(employee_id))
+                if (!StaffExists(EID))
                 {
                     return NotFound();
                 }
@@ -105,26 +114,20 @@ namespace webapi.Controllers.Administrator
             string sql = "SELECT MAX(employee_id) FROM EMPLOYEE";
             DataTable df = OracleHelper.SelectSql(sql);
             int df_count = Convert.IsDBNull(df.Rows[0][0]) ? 1000000: Convert.ToInt32(df.Rows[0][0]) + 1;
-            string uid = df_count.ToString("D7");
+            long uid = SnowflakeIDcreator.nextId();
 
             Employee new_employee = new Employee()
             {
                 EmployeeId = uid,
-                Username = $"{employee.username}",
+                UserName = $"{employee.username}",
                 Password = "123456",
                 CreateTime = System.DateTime.Now,
                 PhoneNumber = $"{employee.phone_number}",
                 IdentityNumber = "xxxxxxxxxxxxxxxxxx",
                 Gender = $"{employee.gender}",
-                Positions = "新人",
+                Position = 3,
                 Name = "佚名",
                 Salary = Convert.ToDecimal(employee.salary)
-            };
-
-            EmployeeSwitchStation new_relation = new EmployeeSwitchStation()
-            {
-                EmployeeId = uid,
-                StationId = $"{employee.station_id}"
             };
 
             _context.Employees.Add(new_employee);
@@ -135,23 +138,6 @@ namespace webapi.Controllers.Administrator
             catch (DbUpdateException)
             {
                 if (StaffExists(new_employee.EmployeeId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            _context.EmployeeSwitchStations.Add(new_relation);
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException)
-            {
-                if (StaffInSwitchStationExists(new_relation.EmployeeId) || SwitchStationExists(new_relation.StationId))
                 {
                     return Conflict();
                 }
@@ -174,14 +160,16 @@ namespace webapi.Controllers.Administrator
             {
                 return NotFound();
             }
-
-            var staff = _context.Employees.Find(employee_id);
-            var staff_station = _context.EmployeeSwitchStations.Find(employee_id);
-            if (staff == null || staff_station == null)
+            bool flag = long.TryParse(employee_id, out long EID);
+            if (!flag)
+            {
+                return BadRequest();
+            }
+            var staff = _context.Employees.Find(EID);
+            if (staff == null)
             {
                 return NotFound();
             }
-            _context.EmployeeSwitchStations.Remove(staff_station);
             _context.SaveChanges();
             _context.Employees.Remove(staff);
             _context.SaveChanges();
@@ -189,17 +177,12 @@ namespace webapi.Controllers.Administrator
             return NoContent();
         }
 
-        private bool StaffExists(string id)
+        private bool StaffExists(long id)
         {
             return _context.Employees?.Any(e => e.EmployeeId == id) ?? false;
         }
 
-        private bool StaffInSwitchStationExists(string id)
-        {
-            return _context.EmployeeSwitchStations?.Any(e => e.EmployeeId == id) ?? false;
-        }
-
-        private bool SwitchStationExists(string id)
+        private bool SwitchStationExists(long id)
         {
             return _context.SwitchStations?.Any(e => e.StationId == id) ?? false;
         }

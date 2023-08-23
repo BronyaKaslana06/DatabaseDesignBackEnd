@@ -32,7 +32,13 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("ORDER_SUBMISSION_TIME");
             builder.Property(e => e.ServiceTime)
                 .HasColumnName("SERVICE_TIME");
-               
+            builder.Property(e => e.Note)
+                .HasColumnName("NOTE");
+            builder.Property(e => e.Score)
+                .HasColumnName("SCORE");
+            builder.Property(e => e.Title)
+                .HasColumnName("TITLE");
+
             builder.HasMany<Employee>(e => e.employees).WithMany(a => a.maintenanceItems).UsingEntity(j=>j.ToTable("Employee_MaintenanceItem"));
             builder.HasOne<Vehicle>(e=>e.vehicle).WithMany(a=>a.maintenanceItems).IsRequired();
         }

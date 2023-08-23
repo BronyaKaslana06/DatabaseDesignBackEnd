@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using Idcreator;
+using System.Transactions;
 
 namespace webapi.Controllers.Administrator
 {
@@ -147,63 +148,66 @@ namespace webapi.Controllers.Administrator
         [HttpPost]
         public ActionResult<string> PostOwner([FromBody] dynamic _owner)
         {
-            if (_context.VehicleOwners == null)
+            using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                return Problem("Entity set 'ModelContext.VehicleOwner' is null.");
-            }
-            dynamic owner = JsonConvert.DeserializeObject(Convert.ToString(_owner));
-            string sql = "SELECT MAX(owner_id) FROM EMPLOYEE";
-            DataTable df = OracleHelper.SelectSql(sql);
-            string sql_total = "SELECT COUNT(*) " +
-                "FROM vehicle_owner ";
-            DataTable df_count = OracleHelper.SelectSql(sql_total);
-            int totalNum = df_count != null ? Convert.ToInt32(df_count.Rows[0][0]) : 0;
-            long uid = SnowflakeIDcreator.nextId();
-
-            VehicleOwner new_owner = new VehicleOwner()
-            {
-                OwnerId = uid,
-                Username = $"{owner.username}",
-                Password = "123456",
-                ProfilePhoto = null,
-                CreateTime = System.DateTime.Now,
-                PhoneNumber = $"{owner.phone_number}",
-                Email = "wl@car.com",
-                Gender = $"{owner.gender}",
-                Birthday = null,
-                
-            };
-            OwnerPos new_pos = new OwnerPos()
-            {
-                OwnerId = uid,
-                Address = $"{owner.address}"
-            };
-
-
-            _context.VehicleOwners.Add(new_owner);
-            _context.OwnerPos.Add(new_pos);
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                var a = new
+                if (_context.VehicleOwners == null)
                 {
-                    code = 1,
-                    msg = e.InnerException?.Message
+                    return Problem("Entity set 'ModelContext.VehicleOwner' is null.");
+                }
+                dynamic owner = JsonConvert.DeserializeObject(Convert.ToString(_owner));
+                string sql = "SELECT MAX(owner_id) FROM EMPLOYEE";
+                DataTable df = OracleHelper.SelectSql(sql);
+                string sql_total = "SELECT COUNT(*) " +
+                    "FROM vehicle_owner ";
+                DataTable df_count = OracleHelper.SelectSql(sql_total);
+                int totalNum = df_count != null ? Convert.ToInt32(df_count.Rows[0][0]) : 0;
+                long uid = SnowflakeIDcreator.nextId();
+
+                VehicleOwner new_owner = new VehicleOwner()
+                {
+                    OwnerId = uid,
+                    Username = $"{owner.username}",
+                    Password = "123456",
+                    ProfilePhoto = null,
+                    CreateTime = System.DateTime.Now,
+                    PhoneNumber = $"{owner.phone_number}",
+                    Email = "wl@car.com",
+                    Gender = $"{owner.gender}",
+                    Birthday = null,
+
+                };
+                OwnerPos new_pos = new OwnerPos()
+                {
+                    OwnerId = uid,
+                    Address = $"{owner.address}"
                 };
 
-                return Conflict(a);
-            }
 
-            var returnMessage = new
-            {
-                code = 0,
-                owner_id = new_owner.OwnerId,
-                msg = "success"
-            };
-            return Content(JsonConvert.SerializeObject(returnMessage), "application/json");
+                _context.VehicleOwners.Add(new_owner);
+                _context.OwnerPos.Add(new_pos);
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateException e)
+                {
+                    var a = new
+                    {
+                        code = 1,
+                        msg = e.InnerException?.Message
+                    };
+
+                    return Conflict(a);
+                }
+
+                var returnMessage = new
+                {
+                    code = 0,
+                    owner_id = new_owner.OwnerId.ToString(),
+                    msg = "success"
+                };
+                return Content(JsonConvert.SerializeObject(returnMessage), "application/json");
+            }
         }
 
         [HttpDelete]

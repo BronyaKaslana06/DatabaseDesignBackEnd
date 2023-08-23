@@ -25,27 +25,40 @@ namespace webapi.Controllers.Administrator
         [HttpGet]
         public ActionResult<IEnumerable<MaintenanceItem>> query(string maintenance_item_id = "")
         {
+            bool flag = long.TryParse(maintenance_item_id, out var id);
+            if(!flag)
+            {
+                var obj = new
+                {
+                    code = 1,
+                    msg = "id非法",
+                    totalData = 0,
+                    data = "",
+                };
+                return Content(JsonConvert.SerializeObject(obj), "application/json");
+            }
             try
             {
                 var filteredItems = _context.MaintenanceItems
-                        .Join(_context.MaintenanceItemEmployees, mi => mi.MaintenanceItemId, mie => mie.MaintenanceItemId, (mi, mie) => new { mi, mie })
-                        .Join(_context.Employees, j => j.mie.EmployeeId, emp => emp.EmployeeId, (j, emp) => new { j.mi, j.mie, emp })
-                        .Join(_context.Vehicles, j => j.mi.VehicleId, veh => veh.VehicleId, (j, veh) => new { j.mi, j.mie, j.emp, veh })
-                        .Where(j => maintenance_item_id == "" || j.mi.MaintenanceItemId == maintenance_item_id)
-                        .OrderBy(j => j.mi.MaintenanceItemId)
-                        .Select(j => new
-                        {
-                            j.mi.MaintenanceLocation,
-                            j.veh.PlateNumber,
-                            j.mi.Title,
-                            j.mi.OrderSubmissionTime,
-                            j.mi.ServiceTime,
-                            j.mi.OrderStatus,
-                            j.mi.Remarks,
-                            j.mi.Evaluations,
-                            j.emp.Name,
-                            j.emp.PhoneNumber
-                        });
+                    .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
+                    .Join(_context.Employees, miEmp => miEmp.Employee, emp => emp, (miEmp, emp) => new { miEmp.MaintenanceItem, Employee = emp })
+                    .Join(_context.Vehicles, miEmp => miEmp.MaintenanceItem.vehicle.VehicleId, veh => veh.VehicleId, (miEmp, veh) => new { miEmp.MaintenanceItem, miEmp.Employee, Vehicle = veh })
+                    .Where(joinedData => maintenance_item_id == "" || joinedData.MaintenanceItem.MaintenanceItemId == id)
+                    .OrderBy(joinedData => joinedData.MaintenanceItem.MaintenanceItemId)
+                    .Select(joinedData => new
+                    {
+                        joinedData.MaintenanceItem.MaintenanceLocation,
+                        joinedData.Vehicle.PlateNumber,
+                        joinedData.MaintenanceItem.Title,
+                        joinedData.MaintenanceItem.OrderSubmissionTime,
+                        joinedData.MaintenanceItem.ServiceTime,
+                        joinedData.MaintenanceItem.OrderStatus,
+                        joinedData.MaintenanceItem.Note,
+                        joinedData.MaintenanceItem.Score,
+                        joinedData.Employee.Name,
+                        joinedData.Employee.PhoneNumber
+                    })
+                    .ToList();
 
                 var totalNum = filteredItems.Count();
 

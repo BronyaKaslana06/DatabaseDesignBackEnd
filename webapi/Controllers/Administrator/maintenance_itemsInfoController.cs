@@ -221,8 +221,8 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
                     battery_tmp.CurrentCapacity = 70;
                     battery_tmp.ManufacturingDate=DateTime.Now;
 
-                    batteryType_tmp.MaxChargeTiems = 1000;
-                    batteryType_tmp.TotalCapacity = 200;
+                    batteryType_tmp.MaxChargeTimes = 1000;
+                    batteryType_tmp.TotalCapacity = "98.67KWh";
 
                     battery_tmp.batteryType = batteryType_tmp;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
 
 namespace EntityFramework.Models;
 
@@ -16,6 +17,8 @@ public partial class VehicleParam
     public string Manufacturer { get; set; }
 
     public int MaxSpeed { get; set; }
+
+    public Blob Sinp { get; set; }
 
     public virtual List<Vehicle> vehicles { get; set; } = new List<Vehicle>();  //至少为1
 }

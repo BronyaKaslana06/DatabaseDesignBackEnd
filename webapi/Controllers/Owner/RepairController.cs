@@ -5,10 +5,11 @@ using System.Data;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using Idcreator;
+using System.Transactions;
 
 namespace webapi.Controllers.Administrator
 {
-    [Route("owner/repair_reservation")]
+    [Route("owner/repair_reservation/[action]")]
     [ApiController]
     public class RepairController : ControllerBase
     {
@@ -22,39 +23,53 @@ namespace webapi.Controllers.Administrator
         [HttpPost]
         public IActionResult submit([FromBody] dynamic _acm)
         {
-            _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-
-            long id = SnowflakeIDcreator.nextId();
-            var acm = new MaintenanceItem()
+            using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                MaintenanceItemId = id,
-                VehicleId = _acm.vehicle_id,
-                Title = _acm.order_status,
-                MaintenanceLocation = _acm.maintenance_location,
-                Note = _acm.remarks,
-                ServiceTime = DateTime.Now,
-                OrderSubmissionTime = DateTime.Now,
-                OrderStatus = 0,
-                Evaluations = null,
-            };
-            _context.Add(acm);
+                _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
+                bool flag = long.TryParse(_acm.vehicle_id, out long VId);
+                if (!flag)
+                {
+                    var ob = new
+                    {
+                        code = 1,
+                        msg = "VehicleId无效",
+                        maintenance_item_id = 0,
+                    };
+                    return Content(JsonConvert.SerializeObject(ob), "application/json");
+                }
+                long id = SnowflakeIDcreator.nextId();
+                var acm = new MaintenanceItem()
+                {
+                    MaintenanceItemId = id,
+                    vehicle = _context.Vehicles.FirstOrDefault(v => v.VehicleId == VId) ?? throw new Exception("未找到匹配的车辆"),
+                    Title = _acm.order_status,
+                    MaintenanceLocation = _acm.maintenance_location,
+                    Note = _acm.remarks,
+                    ServiceTime = DateTime.Now,
+                    OrderSubmissionTime = DateTime.Now,
+                    OrderStatus = 0,
+                    Score = -1,
+                };
 
-            try
-            {
-                _context.SaveChanges();
+                _context.Add(acm);
+
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateException e)
+                {
+                    return NewContent(1, e.InnerException?.Message + "");
+                }
+
+                var obj = new
+                {
+                    code = 0,
+                    msg = "success",
+                    maintenance_item_id = id.ToString(),
+                };
+                return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
-            catch (DbUpdateException e)
-            {
-                return NewContent(1, e.InnerException?.Message + "");
-            }
-
-            var obj = new
-            {
-                code = 0,
-                msg = "success",
-                maintenance_item_id = id,
-            };
-            return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
         [HttpPatch]
         public IActionResult submit_evaluations([FromBody] dynamic _acm)
@@ -73,7 +88,7 @@ namespace webapi.Controllers.Administrator
                 return NewContent(1, "无记录");
             else
             {
-                acm.Evaluations = _acm.evaluations;
+                acm.Score= long.Parse(_acm.evaluations);
             }
             try
             {
@@ -103,7 +118,7 @@ namespace webapi.Controllers.Administrator
             {
                 acm.vehicle.VehicleId = _acm.vehicle_id;
                 acm.MaintenanceLocation = _acm.maintenance_location;
-                acm.Remarks = _acm.remarks;
+                acm.Note = _acm.remarks;
                 acm.OrderStatus = _acm.order_status;
             }
             try

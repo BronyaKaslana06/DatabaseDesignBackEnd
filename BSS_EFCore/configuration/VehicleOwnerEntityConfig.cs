@@ -34,7 +34,7 @@ namespace BSS_EFCore.configuration
             builder.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode()
-                .HasColumnName("NICKNAME");
+                .HasColumnName("USERNAME");
             builder.Property(e => e.Password)
                 .HasMaxLength(50)
                 .IsUnicode()

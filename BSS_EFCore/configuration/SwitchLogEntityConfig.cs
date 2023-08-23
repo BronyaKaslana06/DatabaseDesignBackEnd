@@ -21,6 +21,8 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("SWITCH_SERVICE_ID");
             builder.Property(e => e.SwitchTime)
                 .HasColumnName("SWITCH_TIME");
+            builder.Property(e => e.Score)
+                .HasColumnName("SCORE");
 
 
             builder.HasOne<Battery>(d => d.batteryOn).WithMany(p => p.switchLogsOn).IsRequired();

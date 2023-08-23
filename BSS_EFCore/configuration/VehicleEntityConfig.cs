@@ -21,6 +21,8 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("VEHICLE_ID");
             builder.Property(e => e.PurchaseDate)
                 .HasColumnName("PURCHASE_DATE");
+            builder.Property(e => e.PlateNumber)
+                .HasColumnName("PLATE_NUMBER");
 
 
             builder.HasOne<VehicleOwner>(e => e.vehicleOwner).WithMany(a => a.vehicles).IsRequired();
