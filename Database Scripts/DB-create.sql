@@ -6,7 +6,11 @@ create table c###car.switch_station (
     electricity_fee number default 0 not null,
     longtitude number default 90.00 not null unique,
     latitude number default 90.00 not null unique,
+<<<<<<< Updated upstream
     faliure_status char(3) default '·ñ' check (faliure_status in ('ÊÇ', '·ñ')),
+=======
+    faliure_status char(3) default 'å?' check (faliure_status in ('æ˜?', 'å?')),
+>>>>>>> Stashed changes
     battery_capacity int default 0 not null,
     available_battery_count int default 0
 );
@@ -19,7 +23,11 @@ create table c###car.battery_type (
 
 create table c###car.battery (
     battery_id varchar2(50) default 'bt_tl1_num0.0.0' primary key,
+<<<<<<< Updated upstream
     available_status char(3) default 'ÊÇ' check (available_status in ('·ñ', 'ÊÇ')),
+=======
+    available_status char(3) default 'æ˜?' check (available_status in ('æ˜?', 'å?')),
+>>>>>>> Stashed changes
     current_capacity varchar2(4) default '0' not null,
     curr_charge_times int default 0 not null,
     manufacturing_date timestamp default systimestamp not null,
@@ -46,7 +54,11 @@ create table c###car.vehicle_owner (
     create_time timestamp default systimestamp not null,
     phone_number varchar2(50) default '+86',
     email varchar2(50) default 'wl@car.com' not null,
+<<<<<<< Updated upstream
     gender char(3) default 'ÄÐ' check (gender in ('ÄÐ', 'Å®')),
+=======
+    gender char(3) default 'ç”?' check (gender in ('ç”?', 'å¥?')),
+>>>>>>> Stashed changes
     birthday timestamp,
     address varchar2(255)
 );
@@ -61,7 +73,11 @@ create table c###car.employee (
     phone_number varchar2(50) default '+86',
     identity_number varchar2(50) default '1xxxxxxxxxxxxxxxxx' not null,
     name varchar2(50) default 'å¼ ä¸‰' not null,
+<<<<<<< Updated upstream
     gender char(3) default 'ÄÐ' check (gender in ('ÄÐ', 'Å®')),
+=======
+    gender char(3) default 'ç”?' check (gender in ('ç”?', 'å¥?')),
+>>>>>>> Stashed changes
     positions varchar2(50) default '_',
     salary number
 );
@@ -116,7 +132,11 @@ create table c###car.maintenance_item (
     remarks varchar2(255),
     service_time timestamp default systimestamp not null,
     order_submission_time timestamp,
+<<<<<<< Updated upstream
     order_status char(3) default 'ÊÇ' check (order_status in ('·ñ', 'ÊÇ')),
+=======
+    order_status char(3) default 'å?' check (order_status in ('æ˜?', 'å?')),
+>>>>>>> Stashed changes
     evaluations varchar2(255),
     constraint fk_maintenance_item_vehicle foreign key (vehicle_id)
         references c###car.vehicle (vehicle_id) on delete cascade 
@@ -186,7 +206,7 @@ create table c###car.switch_log (
 create table c###car.administrator (
     admin_id varchar2(50) default '2000000' primary key,
     email varchar2(50) default 'xxxx@xxxx.xxx' not null,
-    password varchar2(50) default '123456' not null,
+    password varchar2(50) default '123456' not null
 );
 create trigger c###car.trg_cascade_update_battery
 after update of battery_type_id on c###car.battery_type
