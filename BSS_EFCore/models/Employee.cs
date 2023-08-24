@@ -6,6 +6,7 @@ namespace EntityFramework.Models;
 
 public partial class Employee
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long EmployeeId { get; set; }
 
     public string Email { get; set; }

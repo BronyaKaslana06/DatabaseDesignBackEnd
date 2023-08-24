@@ -31,23 +31,32 @@ namespace webapi.Controllers.Administrator
             int limit = pageSize;
             if (offset < 0 || limit <= 0)
                 return BadRequest();
-            bool flag = long.TryParse(employee_id, out long EID);
-            if (!(flag && long.TryParse(station_id, out long SID)))
+            if (!string.IsNullOrEmpty(employee_id) && !long.TryParse(employee_id, out long EID) ||
+                !string.IsNullOrEmpty(station_id) && !long.TryParse(station_id, out long SID))
             {
                 return BadRequest();
             }
             var query = _context.Employees
-            .Where(e => (string.IsNullOrEmpty(employee_id) || e.EmployeeId == EID) &&
+            .Where(e => (string.IsNullOrEmpty(employee_id) || e.EmployeeId == Convert.ToInt64(employee_id)) &&
                 (string.IsNullOrEmpty(username) || e.UserName.Contains(username)) &&
                 (string.IsNullOrEmpty(gender) || e.Gender == gender) &&
                 (string.IsNullOrEmpty(phone_number) || e.PhoneNumber == phone_number) &&
                 (string.IsNullOrEmpty(salary) || e.Salary.ToString() == salary) &&
-                (string.IsNullOrEmpty(station_id) || e.switchStation.StationId == SID) &&
+                (string.IsNullOrEmpty(station_id) || e.switchStation.StationId == Convert.ToInt64(station_id)) &&
                 (string.IsNullOrEmpty(station_name) || e.switchStation.StationName.Contains(station_name))
-            )
-                .OrderBy(e => e.EmployeeId)
-                .Skip(offset)
-                .Take(limit);
+            ).Select(e => new
+            {
+                employee_id=e.EmployeeId,
+                username=e.UserName,
+                gender=e.Gender,
+                phone_number=e.PhoneNumber,
+                salary=e.Salary,
+                station_id=e.switchStation.StationId,
+                station_name=e.switchStation.StationName
+            })
+            .OrderBy(e => employee_id)
+            .Skip(offset)
+            .Take(limit);
 
             var totalData = query.Count();
             var data = query.ToList();
@@ -66,24 +75,27 @@ namespace webapi.Controllers.Administrator
         [HttpPatch]
         public IActionResult PutStaff([FromBody] dynamic _param)
         {
-            dynamic param = JsonConvert.DeserializeObject(Convert.ToString(_param));
-            bool flag = long.TryParse($"{param.employee_id}", out long EID);
-            if (!(flag && long.TryParse($"{param.station_id}", out long SID)))
-            {
-                return BadRequest();
-            }
-            var staff = _context.Employees.Find(EID);
+            dynamic param = JsonConvert.DeserializeObject<dynamic>(_param.ToString());
+            long EID = Convert.ToInt64(param.employee_id);
+            long SID = Convert.ToInt64(param.station_id);
+
+            var staff = _context.Employees.FirstOrDefault(e => e.EmployeeId == EID);
 
             if (staff == null)
             {
                 return NotFound();
             }
-            
-            staff.PhoneNumber = $"{param.phone_number}";
-            staff.Gender = $"{param.gender}";
-            staff.Salary = Convert.ToDecimal(param.salary);
-            staff.switchStation.StationId = SID;
-            Console.WriteLine(_context.Employees);
+
+            staff.PhoneNumber = param.phone_number;
+            staff.Gender = param.gender;
+            staff.Salary = Convert.ToInt32(param.salary);
+
+            var switchStation = _context.SwitchStations.FirstOrDefault(s => s.StationId == SID);
+            if (switchStation != null)
+            {
+                staff.switchStation = switchStation;
+            }
+
             try
             {
                 _context.SaveChanges();
@@ -110,27 +122,29 @@ namespace webapi.Controllers.Administrator
             {
                 return Problem("Entity set 'ModelContext.Employee' is null.");
             }
-            dynamic employee = JsonConvert.DeserializeObject(Convert.ToString(_employee));
-            string sql = "SELECT MAX(employee_id) FROM EMPLOYEE";
-            DataTable df = OracleHelper.SelectSql(sql);
-            int df_count = Convert.IsDBNull(df.Rows[0][0]) ? 1000000: Convert.ToInt32(df.Rows[0][0]) + 1;
-            long uid = SnowflakeIDcreator.nextId();
+
+            dynamic employee = JsonConvert.DeserializeObject<dynamic>(_employee.ToString());
+
+            long switchStationId = Convert.ToInt64(employee.station_id);
+            var switchStation = _context.SwitchStations.FirstOrDefault(s => s.StationId == switchStationId);
 
             Employee new_employee = new Employee()
             {
-                EmployeeId = uid,
-                UserName = $"{employee.username}",
+                Email = employee.Email,
+                UserName = employee.username,
                 Password = "123456",
-                CreateTime = System.DateTime.Now,
-                PhoneNumber = $"{employee.phone_number}",
+                CreateTime = DateTime.Now,
+                PhoneNumber = employee.phone_number,
                 IdentityNumber = "xxxxxxxxxxxxxxxxxx",
-                Gender = $"{employee.gender}",
+                Gender = employee.gender,
                 Position = 3,
                 Name = "佚名",
-                Salary = Convert.ToDecimal(employee.salary)
+                Salary = Convert.ToInt32(employee.salary),
+                switchStation = switchStation
             };
 
             _context.Employees.Add(new_employee);
+
             try
             {
                 _context.SaveChanges();
@@ -146,9 +160,10 @@ namespace webapi.Controllers.Administrator
                     throw;
                 }
             }
+
             var obj = new
             {
-                employee_id = uid,
+                employee_id = new_employee.EmployeeId,
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
