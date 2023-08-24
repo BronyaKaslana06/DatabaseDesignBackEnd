@@ -19,5 +19,5 @@ public partial class SwitchLog
 
     public Employee employee { get; set; }    //not null
 
-    public SwitchLog switchlog { get; set; }    //not null
+    public SwitchRequest switchrequest { get; set; }    //not null
 }
