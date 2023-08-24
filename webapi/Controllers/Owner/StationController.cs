@@ -182,13 +182,13 @@ public class Calculator
     {
         return degrees * Math.PI / 180.0;
     }
-    public static double ComputeSimilarityScore(string s1, string s2)
+    public static double ComputeSimilarityScore(string s, string keyword)
     {
-        int[,] dp = new int[s1.Length + 1, s2.Length + 1];
+        int[,] dp = new int[s.Length + 1, keyword.Length + 1];
 
-        for (int i = 0; i <= s1.Length; i++)
+        for (int i = 0; i <= s.Length; i++)
         {
-            for (int j = 0; j <= s2.Length; j++)
+            for (int j = 0; j <= keyword.Length; j++)
             {
                 if (i == 0)
                 {
@@ -198,7 +198,7 @@ public class Calculator
                 {
                     dp[i, j] = i;
                 }
-                else if (s1[i - 1] == s2[j - 1])
+                else if (s[i - 1] == keyword[j - 1])
                 {
                     dp[i, j] = dp[i - 1, j - 1];
                 }
@@ -209,9 +209,8 @@ public class Calculator
             }
         }
 
-        // 相似性分数，归一化
-        int maxLen = Math.Max(s1.Length, s2.Length);
-        double similarity = 1.0 - (double)dp[s1.Length, s2.Length] / maxLen;
+        // 关键词相似性分数，归一化
+        double similarity = 1.0 - (double)dp[s.Length, keyword.Length] / keyword.Length;
 
         return similarity;
     }
