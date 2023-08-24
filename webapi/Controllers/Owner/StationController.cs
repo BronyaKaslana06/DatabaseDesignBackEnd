@@ -89,7 +89,7 @@ namespace webapi.Controllers.Administrator
                             AvailableStatus = battery.AvailableStatus == 1 ? "可用" : "充电中",
                             CurrentCapa = battery.CurrentCapacity,
                             BatteryType = battery.batteryType.BatteryTypeId % 10 == 1 ? "长续航级" : "标准续航级",
-                        }).ToList(),
+                        }).ToArray(),
                         item.ServiceFee,
                         item.ParkingFee,
                         item.ElectricityFee,
@@ -98,6 +98,8 @@ namespace webapi.Controllers.Administrator
                         item.TimeSpan,
                         item.StationName,
                         Distance = Calculator.CalculateDistanceInMeters(item.Latitude, item.Longtitude, latitude.Value, longtitude.Value),
+                        item.QueueLength,
+                        item.Address
                     })
                     .ToArray();
                 var obj = new
@@ -119,7 +121,7 @@ namespace webapi.Controllers.Administrator
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
-        [HttpGet("name-fitting")]
+        [HttpGet("keyword")]
         public ActionResult<IEnumerable<SwitchStation>> StationName(string keyword = "")
         {
             try
