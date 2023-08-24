@@ -53,6 +53,16 @@ namespace webapi.Controllers.Administrator
                     EF.Functions.Like(sl.employee.EmployeeId.ToString(), pattern2) &&
                     EF.Functions.Like(sl.vehicle.VehicleId.ToString(), pattern3))
                 .OrderBy(sl => sl.SwitchServiceId)
+                .Select(sl => new
+                {
+                    switch_log_id = sl.SwitchServiceId.ToString(),
+                    employee_id = sl.employee.EmployeeId.ToString(),
+                    vehicle_id = sl.vehicle.VehicleId.ToString(),
+                    switch_time = sl.SwitchTime,
+                    battery_id_on = sl.batteryOn.BatteryId.ToString(),
+                    battery_id_off = sl.batteryOff.BatteryId.ToString(),
+                    evaluations = sl.Score.ToString()
+                })
                 .Skip(offset)
                 .Take(limit)
                 .ToList();

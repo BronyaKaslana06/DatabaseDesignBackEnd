@@ -47,6 +47,15 @@ namespace webapi.Controllers.Administrator
             }
             var query = _context.VehicleOwners
                     .OrderBy(vo => vo.OwnerId)
+                    .Select(vo => new
+                    {                         
+                        owner_id = vo.OwnerId.ToString(),
+                        username = vo.Username,
+                        gender = vo.Gender,
+                        phone_number = vo.PhoneNumber,
+                        address = string.Join(", ", vo.ownerpos.Select(pos => pos.Address)),
+                        password = vo.Password
+                    })
                     .Skip(offset)
                     .Take(limit)
                     .ToList();
@@ -97,6 +106,16 @@ namespace webapi.Controllers.Administrator
                     EF.Functions.Like(j.op.Address, pattern5) &&
                     EF.Functions.Like(j.vo.Password, pattern6))
                 .OrderBy(j => j.vo.OwnerId)
+                .Select(j => new
+                {
+                    owner_id = j.vo.OwnerId.ToString(),
+                    address = string.Join(", ", j.vo.ownerpos.Select(pos => pos.Address)),
+                    username = j.vo.Username,
+                    password = j.vo.Password,
+                    gender = j.vo.Gender,
+                    email = j.vo.Email,
+                    phone_number = j.vo.PhoneNumber
+                })
                 .Skip(offset)
                 .Take(limit)
                 .ToList();

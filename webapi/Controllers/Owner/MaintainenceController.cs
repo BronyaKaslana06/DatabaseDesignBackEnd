@@ -47,16 +47,16 @@ namespace webapi.Controllers.Administrator
                     .OrderBy(joinedData => joinedData.MaintenanceItem.MaintenanceItemId)
                     .Select(joinedData => new
                     {
-                        joinedData.MaintenanceItem.MaintenanceLocation,
-                        joinedData.Vehicle.PlateNumber,
-                        joinedData.MaintenanceItem.Title,
-                        joinedData.MaintenanceItem.OrderSubmissionTime,
-                        joinedData.MaintenanceItem.ServiceTime,
-                        joinedData.MaintenanceItem.OrderStatus,
-                        joinedData.MaintenanceItem.Note,
-                        joinedData.MaintenanceItem.Score,
-                        joinedData.Employee.Name,
-                        joinedData.Employee.PhoneNumber
+                        maintenance_location = joinedData.MaintenanceItem.MaintenanceLocation,
+                        plate_number = joinedData.Vehicle.PlateNumber,
+                        title = joinedData.MaintenanceItem.Title,
+                        order_submission_time = joinedData.MaintenanceItem.OrderSubmissionTime,
+                        service_time = joinedData.MaintenanceItem.ServiceTime,
+                        order_status = joinedData.MaintenanceItem.OrderStatus,
+                        remarks = joinedData.MaintenanceItem.Note,
+                        evaluations = joinedData.MaintenanceItem.Score,
+                        name = joinedData.Employee.Name,
+                        phone_number = joinedData.Employee.PhoneNumber
                     })
                     .ToList();
 
@@ -108,10 +108,10 @@ namespace webapi.Controllers.Administrator
                 .OrderBy(item => item.MaintenanceItemId)
                 .Select(item => new
                 {
-                    item.MaintenanceItemId,
-                    item.Title,
-                    item.OrderSubmissionTime,
-                    item.MaintenanceLocation
+                    maintenance_item_id = item.MaintenanceItemId,
+                    title = item.Title,
+                    order_submission_time = item.OrderSubmissionTime,
+                    maintenance_location = item.MaintenanceLocation
                 });
             int totalNum = filteredItems.Count();
             var obj = new

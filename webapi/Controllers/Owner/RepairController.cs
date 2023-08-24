@@ -43,8 +43,8 @@ namespace webapi.Controllers.Administrator
                     .SelectMany(item => item.vehicles)
                     .Select(item => new
                     {
-                        item.VehicleId,
-                        item.PlateNumber
+                        vehicle_id = item.VehicleId,
+                        plate_number = item.PlateNumber
                     })
                     .ToArray();
 
@@ -91,10 +91,10 @@ namespace webapi.Controllers.Administrator
                     .OrderBy(item => item.VehicleId)
                     .Select(item => new
                     {
-                        item.vehicleParam,
-                        item.PurchaseDate,
-                        BatteryId = item.Battery.BatteryId.ToString(),
-                        item.Battery.CurrentCapacity
+                        vehicle_model = item.vehicleParam.ModelName,
+                        purchase_date = item.PurchaseDate,
+                        battery_id = item.Battery.BatteryId.ToString(),
+                        current_capacity = item.Battery.CurrentCapacity
                     })
                     .ToArray();
                 int totalNum = filteredItems.Count();
