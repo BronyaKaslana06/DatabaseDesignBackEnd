@@ -77,7 +77,7 @@ namespace webapi.Controllers.Administrator
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
         }
         [HttpDelete]
-        public IActionResult DeleteLog(string switch_service_id)
+        public IActionResult DeleteLog(string switch_service_id = "")
         {
             if (_context.SwitchLogs == null)
             {

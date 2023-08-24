@@ -230,7 +230,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpDelete]
-        public IActionResult DeleteOwner(string owner_id)
+        public IActionResult DeleteOwner(string switch_log_id)
         {
             if (_context.VehicleOwners == null)
             {
@@ -240,11 +240,13 @@ namespace webapi.Controllers.Administrator
             {
                 return NewContent(1, "id格式错误");
             }
+            var ownerpos = _context.OwnerPos.Find(num);
             var owner = _context.VehicleOwners.Find(num);
-            if (owner == null)
+            if (owner == null|| ownerpos == null)
             {
                 return NewContent(1, "找不到该车主");
             }
+            _context.OwnerPos.Remove(ownerpos);
             _context.VehicleOwners.Remove(owner);
             try
             {
