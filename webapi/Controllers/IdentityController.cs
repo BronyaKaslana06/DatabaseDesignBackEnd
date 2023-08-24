@@ -196,6 +196,7 @@ namespace webapi.Controllers
                         }
                     }
                 }
+                tx.Complete();
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }

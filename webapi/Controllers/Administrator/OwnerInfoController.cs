@@ -174,36 +174,19 @@ namespace webapi.Controllers.Administrator
                     return Problem("Entity set 'ModelContext.VehicleOwner' is null.");
                 }
                 dynamic owner = JsonConvert.DeserializeObject(Convert.ToString(_owner));
-                string sql = "SELECT MAX(owner_id) FROM EMPLOYEE";
-                DataTable df = OracleHelper.SelectSql(sql);
-                string sql_total = "SELECT COUNT(*) " +
-                    "FROM vehicle_owner ";
-                DataTable df_count = OracleHelper.SelectSql(sql_total);
-                int totalNum = df_count != null ? Convert.ToInt32(df_count.Rows[0][0]) : 0;
-                long uid = SnowflakeIDcreator.nextId();
-
                 VehicleOwner new_owner = new VehicleOwner()
                 {
-                    OwnerId = uid,
-                    Username = $"{owner.username}",
-                    Password = "123456",
+                    Username = owner.username,
+                    Password = owner.password,
                     ProfilePhoto = null,
                     CreateTime = System.DateTime.Now,
-                    PhoneNumber = $"{owner.phone_number}",
-                    Email = "wl@car.com",
-                    Gender = $"{owner.gender}",
-                    Birthday = null,
-
+                    PhoneNumber = owner.phone_number,
+                    Email = "123",
+                    Gender = owner.gender,
+                    Birthday = System.DateTime.Now,
                 };
-                OwnerPos new_pos = new OwnerPos()
-                {
-                    OwnerId = uid,
-                    Address = $"{owner.address}"
-                };
-
-
+                Console.WriteLine("\n\n\n\n" + new_owner.OwnerId + "\n\n\n\n");
                 _context.VehicleOwners.Add(new_owner);
-                _context.OwnerPos.Add(new_pos);
                 try
                 {
                     _context.SaveChanges();
@@ -218,45 +201,70 @@ namespace webapi.Controllers.Administrator
 
                     return Conflict(a);
                 }
+                Console.WriteLine("\n\n\n\n" + new_owner.OwnerId + "\n\n\n\n");
+                OwnerPos new_pos = new OwnerPos()
+                {
+                    OwnerId = new_owner.OwnerId,
+                    Address = owner.address,
+                };
+                _context.OwnerPos.Add(new_pos);
+                Console.WriteLine("\n\n\n\n" + new_owner.OwnerId + "\n\n\n\n");
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateException e)
+                {
+                    var a = new
+                    {
+                        code = 1,
+                        msg = e.InnerException?.Message
+                    };
 
+                    return Conflict(a);
+                }
                 var returnMessage = new
                 {
                     code = 0,
                     owner_id = new_owner.OwnerId.ToString(),
                     msg = "success"
                 };
+                tx.Complete();
                 return Content(JsonConvert.SerializeObject(returnMessage), "application/json");
             }
         }
 
         [HttpDelete]
-        public IActionResult DeleteOwner(string switch_log_id)
+        public IActionResult DeleteOwner(string owner_id)
         {
-            if (_context.VehicleOwners == null)
+            using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                return NotFound();
+                if (_context.VehicleOwners == null)
+                {
+                    return NotFound();
+                }
+                if (!long.TryParse(owner_id, out long num))
+                {
+                    return NewContent(1, "id格式错误");
+                }
+                var owner = _context.VehicleOwners.Find(num);
+                if (owner == null)
+                {
+                    return NewContent(1, "找不到该车主");
+                }
+                
+                _context.VehicleOwners.Remove(owner);
+                try
+                {
+                    _context.SaveChanges();
+                    tx.Complete();
+                }
+                catch (DbUpdateException e)
+                {
+                    return NewContent(1, e.InnerException?.Message);
+                }
+                return NewContent();
             }
-            if (!long.TryParse(owner_id, out long num))
-            {
-                return NewContent(1, "id格式错误");
-            }
-            var ownerpos = _context.OwnerPos.Find(num);
-            var owner = _context.VehicleOwners.Find(num);
-            if (owner == null|| ownerpos == null)
-            {
-                return NewContent(1, "找不到该车主");
-            }
-            _context.OwnerPos.Remove(ownerpos);
-            _context.VehicleOwners.Remove(owner);
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                return NewContent(1, e.InnerException?.Message);
-            }
-            return NewContent();
         }
 
         private bool OwnerExists(string id)

@@ -136,10 +136,8 @@ namespace webapi.Controllers.Administrator
                     };
                     return Content(JsonConvert.SerializeObject(ob), "application/json");
                 }
-                long id = SnowflakeIDcreator.nextId();
                 var acm = new MaintenanceItem()
                 {
-                    MaintenanceItemId = id,
                     vehicle = _context.Vehicles.FirstOrDefault(v => v.VehicleId == VId) ?? throw new Exception("未找到匹配的车辆"),
                     Title = _acm.order_status,
                     MaintenanceLocation = _acm.maintenance_location,
@@ -165,8 +163,9 @@ namespace webapi.Controllers.Administrator
                 {
                     code = 0,
                     msg = "success",
-                    maintenance_item_id = id.ToString(),
+                    maintenance_item_id = acm.MaintenanceItemId.ToString(),
                 };
+                tx.Complete();
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }

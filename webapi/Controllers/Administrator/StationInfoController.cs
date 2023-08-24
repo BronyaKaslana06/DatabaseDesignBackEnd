@@ -178,6 +178,7 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
                     code = 0,
                     msg = "success"
                 };
+                tx.Complete();
                 return Content(JsonConvert.SerializeObject(returnMessage), "application/json");
             }
         }
