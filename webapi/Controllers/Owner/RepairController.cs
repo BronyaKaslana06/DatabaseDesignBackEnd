@@ -5,11 +5,8 @@ using System.Data;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using Idcreator;
-<<<<<<< Updated upstream
 using System.Transactions;
-=======
 using System.Globalization;
->>>>>>> Stashed changes
 
 namespace webapi.Controllers.Administrator
 {
@@ -27,17 +24,30 @@ namespace webapi.Controllers.Administrator
         [HttpGet]
         public ActionResult<IEnumerable<Vehicle>> own_query(string owner_id = "")
         {
-            var pattern = "%" + (string.IsNullOrEmpty(owner_id) ? "" : owner_id) + "%";
+            if (!long.TryParse(owner_id, out long id))
+            {
+                var obj = new
+                {
+                    code = 1,
+                    msg = "车主id非法",
+                    totalData = 0,
+                    data = "",
+                };
+                return Content(JsonConvert.SerializeObject(obj), "application/json");
+            }
             try
             {
-                var filteredItems = _context.Vehicles
-                    .Where(item => item.OwnerId == owner_id)
+                var filteredItems = _context.VehicleOwners
+                    .Where(item => item.OwnerId == id)
                     .OrderBy(item => item.OwnerId)
+                    .SelectMany(item => item.vehicles)
                     .Select(item => new
                     {
                         item.VehicleId,
                         item.PlateNumber
-                    });
+                    })
+                    .ToArray();
+
                 int totalNum = filteredItems.Count();
                 var obj = new
                 {
@@ -63,19 +73,30 @@ namespace webapi.Controllers.Administrator
         [HttpGet]
         public ActionResult<IEnumerable<Vehicle>> info_query(string vehicle_id = "")
         {
-            var pattern = "%" + (string.IsNullOrEmpty(vehicle_id) ? "" : vehicle_id) + "%";
+            if (!long.TryParse(vehicle_id, out long id))
+            {
+                var obj = new
+                {
+                    code = 1,
+                    msg = "车辆id非法",
+                    totalData = 0,
+                    data = "",
+                };
+                return Content(JsonConvert.SerializeObject(obj), "application/json");
+            }
             try
             {
                 var filteredItems = _context.Vehicles
-                    .Where(item => item.VehicleId == vehicle_id)
-                    .OrderBy(item => item.OwnerId)
+                    .Where(item => item.VehicleId == id)
+                    .OrderBy(item => item.VehicleId)
                     .Select(item => new
                     {
-                        item.VehicleModel,
+                        item.vehicleParam,
                         item.PurchaseDate,
-                        item.BatteryId,
-                        item.CurrentCapcity
-                    });
+                        BatteryId = item.Battery.BatteryId.ToString(),
+                        item.Battery.CurrentCapacity
+                    })
+                    .ToArray();
                 int totalNum = filteredItems.Count();
                 var obj = new
                 {
@@ -111,7 +132,7 @@ namespace webapi.Controllers.Administrator
                     {
                         code = 1,
                         msg = "VehicleId无效",
-                        maintenance_item_id = 0,
+                        maintenance_item_id = 0.ToString(),
                     };
                     return Content(JsonConvert.SerializeObject(ob), "application/json");
                 }
@@ -157,8 +178,6 @@ namespace webapi.Controllers.Administrator
             bool flag = long .TryParse($"{_acm.maintenance_item_id}",out long id);
             if (!flag)
                 return NewContent(1, "记录标记非法");
-            if (id == null)
-                return NewContent(1, "记录标记为空");
 
             var acm = _context.MaintenanceItems.Find(id);
 
@@ -179,57 +198,30 @@ namespace webapi.Controllers.Administrator
 
             return NewContent(0, "success");
         }
-        [HttpPatch]
-        public IActionResult submit_evaluations([FromBody] dynamic _acm)
-        {
-            _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-
-            string id = $"{_acm.maintenance_item_id}";
-            if (id == null)
-                return NewContent(1, "记录标记为空");
-
-            var acm = _context.MaintenanceItems.Find(id);
-
-            if (acm == null)
-                return NewContent(1, "无记录");
-            else
-            {
-                acm.Evaluations = _acm.evaluations;
-            }
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                return NewContent(1, e.InnerException?.Message + "");
-            }
-
-            return NewContent(0, "success");
-        }
+      
         [HttpPatch]
         public IActionResult update([FromBody] dynamic _acm)
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-            
-            bool flag = long.TryParse($"{_acm.maintenance_item_id}", out long id);
-            if(!flag)
+            bool flag = long.TryParse(_acm.vehicle_id, out long vid);
+            if (!(long.TryParse(_acm.maintenance_item_id, out long id) && flag))
                 return NewContent(1, "记录标记无效");
 
             var acm = _context.MaintenanceItems.Find(id);
-
-            if(acm==null)
+            if (acm == null)
                 return NewContent(1, "无记录");
-            else
+            else if (_acm.evaluations == null)
             {
-<<<<<<< Updated upstream
-                acm.vehicle.VehicleId = _acm.vehicle_id;
-=======
-                acm.VehicleId = _acm.vehicle_id;
->>>>>>> Stashed changes
+                acm.vehicle.VehicleId = vid;
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Note = _acm.remarks;
-                acm.OrderStatus = _acm.order_status;
+                acm.OrderStatus = _acm.order_status == "是" ? 1 : 0;
+            }
+            else
+            {
+                if (!int.TryParse(_acm.evaluations, out int s))
+                    return NewContent(1, "提交的评价无效");
+                acm.Score = s; 
             }
             try
             {

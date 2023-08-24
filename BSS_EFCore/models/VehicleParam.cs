@@ -18,7 +18,7 @@ public partial class VehicleParam
 
     public int MaxSpeed { get; set; }
 
-    public Blob Sinp { get; set; }
+    public byte[]? Sinp { get; set; }
 
     public virtual List<Vehicle> vehicles { get; set; } = new List<Vehicle>();  //至少为1
 }

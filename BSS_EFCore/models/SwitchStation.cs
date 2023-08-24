@@ -13,6 +13,8 @@ public partial class SwitchStation
 
     public float ElectricityFee { get; set; }
 
+    public float ParkingFee { get; set; }
+
     public int QueueLength { get; set; }
 
     public double Longtitude { get; set; }
@@ -25,8 +27,11 @@ public partial class SwitchStation
 
     public int AvailableBatteryCount { get; set; }
 
-    public string city { get; set; }
+    public string City { get; set; }
 
+    public string Tags { get; set; }
+
+    public string TimeSpan { get; set; }
 
     public List<Employee> employees { get; set; } = new List<Employee>();  //至少一个
     public List<Battery> batteries { get; set; } = new List<Battery>();   //可以为0
