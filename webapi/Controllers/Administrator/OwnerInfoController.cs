@@ -174,14 +174,17 @@ namespace webapi.Controllers.Administrator
                     return Problem("Entity set 'ModelContext.VehicleOwner' is null.");
                 }
                 dynamic owner = JsonConvert.DeserializeObject(Convert.ToString(_owner));
+                long maxOwnerId = _context.VehicleOwners.Max(o => (long?)o.OwnerId) ?? 0;
+                long newOwnerId = maxOwnerId + 1;
                 VehicleOwner new_owner = new VehicleOwner()
                 {
+                    OwnerId = newOwnerId,
                     Username = owner.username,
                     Password = owner.password,
                     ProfilePhoto = null,
                     CreateTime = System.DateTime.Now,
                     PhoneNumber = owner.phone_number,
-                    Email = "123@default.xyz",
+                    Email = "暂无",
                     Gender = owner.gender,
                     Birthday = System.DateTime.Now,
                 };
