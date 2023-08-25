@@ -28,6 +28,11 @@ namespace webapi.Controllers.Administrator
             };
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
+        [HttpGet("query")]
+        public ActionResult Query(string title)
+        {
+            return NewContent();
+        }
         [HttpPost]
         public IActionResult PotAnnouncement([FromBody] dynamic _acm)
         {
