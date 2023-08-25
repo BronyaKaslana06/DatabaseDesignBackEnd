@@ -55,7 +55,7 @@ namespace webapi.Controllers.Administrator
                 .OrderBy(sl => sl.SwitchServiceId)
                 .Select(sl => new
                 {
-                    switch_log_id = sl.SwitchServiceId.ToString(),
+                    switch_service_id = sl.SwitchServiceId.ToString(),
                     employee_id = sl.employee.EmployeeId.ToString(),
                     vehicle_id = sl.vehicle.VehicleId.ToString(),
                     switch_time = sl.SwitchTime,

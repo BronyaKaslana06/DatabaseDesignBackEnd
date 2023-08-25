@@ -146,7 +146,7 @@ namespace webapi.Controllers.Administrator
             {
                 return NotFound();
             }
-            owner.OwnerId = long.Parse($"{param.owner_id}");
+            owner.OwnerId = num;
             owner.Gender = $"{param.gender}";
             owner.PhoneNumber = $"{param.phone_number}";
             owner.Password = $"{param.password}";

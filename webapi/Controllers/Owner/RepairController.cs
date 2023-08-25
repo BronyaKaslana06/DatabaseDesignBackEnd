@@ -125,7 +125,7 @@ namespace webapi.Controllers.Administrator
             using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-                bool flag = long.TryParse(_acm.vehicle_id, out long VId);
+                bool flag = long.TryParse($"{_acm.vehicle_id}", out long VId);
                 if (!flag)
                 {
                     var ob = new
@@ -136,8 +136,11 @@ namespace webapi.Controllers.Administrator
                     };
                     return Content(JsonConvert.SerializeObject(ob), "application/json");
                 }
+                long maxMId = _context.MaintenanceItems.Max(o => (long?)o.MaintenanceItemId) ?? 0;
+                long newMId = maxMId + 1;
                 var acm = new MaintenanceItem()
                 {
+                    MaintenanceItemId = newMId,
                     vehicle = _context.Vehicles.FirstOrDefault(v => v.VehicleId == VId) ?? throw new Exception("未找到匹配的车辆"),
                     Title = _acm.order_status,
                     MaintenanceLocation = _acm.maintenance_location,
@@ -169,58 +172,33 @@ namespace webapi.Controllers.Administrator
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
-        [HttpPatch]
-        public IActionResult submit_evaluations([FromBody] dynamic _acm)
-        {
-            _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-
-            bool flag = long .TryParse($"{_acm.maintenance_item_id}",out long id);
-            if (!flag)
-                return NewContent(1, "记录标记非法");
-
-            var acm = _context.MaintenanceItems.Find(id);
-
-            if (acm == null)
-                return NewContent(1, "无记录");
-            else
-            {
-                acm.Score= long.Parse(_acm.evaluations);
-            }
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                return NewContent(1, e.InnerException?.Message + "");
-            }
-
-            return NewContent(0, "success");
-        }
-      
+       
         [HttpPatch]
         public IActionResult update([FromBody] dynamic _acm)
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-            bool flag = long.TryParse(_acm.vehicle_id, out long vid);
-            if (!(long.TryParse(_acm.maintenance_item_id, out long id) && flag))
+            bool flag = long.TryParse($"{_acm.vehicle_id}", out long vid);
+            if (!(long.TryParse($"{_acm.maintenance_item_id}", out long id) && (flag || _acm.vehicle_id == null)))
                 return NewContent(1, "记录标记无效");
 
             var acm = _context.MaintenanceItems.Find(id);
+            var Vehicle = _context.Vehicles.Find(vid);
             if (acm == null)
                 return NewContent(1, "无记录");
+            if (Vehicle == null)
+                return NewContent(1, "车辆不存在");
             else if (_acm.evaluations == null)
             {
-                acm.vehicle.VehicleId = vid;
+                acm.vehicle = Vehicle;
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Note = _acm.remarks;
                 acm.OrderStatus = _acm.order_status == "是" ? 1 : 0;
             }
             else
             {
-                if (!int.TryParse(_acm.evaluations, out int s))
+                if (!double.TryParse($"{_acm.evaluations}", out double s))
                     return NewContent(1, "提交的评价无效");
-                acm.Score = s; 
+                acm.Score = s;
             }
             try
             {
