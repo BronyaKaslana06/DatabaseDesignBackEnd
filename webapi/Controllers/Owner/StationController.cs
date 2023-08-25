@@ -24,12 +24,12 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<SwitchStation>> StationAround(double? longtitude = null, double? latitude = null, int info_num = 0, int info_index = 0)
+        public ActionResult<IEnumerable<SwitchStation>> StationAround(double? longitude = null, double? latitude = null, int info_num = 0, int info_index = 0)
         {
             var stations = _context.SwitchStations.AsQueryable();
             int offset = (info_index - 1) * info_num;
             int limit = info_num;
-            if (longtitude == null && latitude == null || offset < 0 || limit <= 0)
+            if (longitude == null && latitude == null || offset < 0 || limit <= 0)
             {
                 var ob = new
                 {
@@ -41,20 +41,21 @@ namespace webapi.Controllers.Administrator
             var result = _context.SwitchStations
                         .Select(station => new
                         {
-                            station.StationId,
-                            station.StationName,
-                            station.Latitude,
-                            station.Longtitude,
-                            station.QueueLength,
-                            Distance = Calculator.CalculateDistanceInMeters(station.Latitude, station.Longtitude, latitude.Value, longtitude.Value),
-                            station.BatteryCapacity,
-                            station.AvailableBatteryCount,
+                            station_id = station.StationId.ToString(),
+                            station_name = station.StationName,
+                            latitude = station.Latitude,
+                            longitude = station.Longtitude,
+                            waiting_number = station.QueueLength,
+                            opening_time = station.TimeSpan,
+                            distance = Calculator.CalculateDistanceInMeters(station.Latitude, station.Longtitude, latitude.Value, longitude.Value),
+                            cell_num = station.BatteryCapacity,
+                            cell_avb_num = station.AvailableBatteryCount,
                         })
-                        .OrderBy(station => station.Distance)
-                        .Where(station => station.Distance <= 5000)
+                        .AsEnumerable()
+                        .OrderBy(station => station.distance)
                         .Skip(offset)
                         .Take(limit)
-                        .ToArray();
+                        .ToList();
             var obj = new
             {
                 data = result,
@@ -64,9 +65,9 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpGet("detailed-infos")]
-        public ActionResult<IEnumerable<SwitchStation>> StationDetailed(string station_id = "", double? longtitude = null, double? latitude = null)
+        public ActionResult<IEnumerable<SwitchStation>> StationDetailed(string station_id = "", double? longitude = null, double? latitude = null)
         {
-            if (!long.TryParse(station_id, out long id) || longtitude == null || latitude == null)
+            if (!long.TryParse(station_id, out long id) || longitude == null || latitude == null)
             {
                 var obj = new
                 {
@@ -83,25 +84,25 @@ namespace webapi.Controllers.Administrator
                     .OrderBy(item => item.StationId)
                     .Select(item => new
                     {
-                        Batteries = item.batteries.Select(battery => new
+                        battery_array = item.batteries.Select(battery => new
                         {
-                            BatteryId = battery.BatteryId.ToString(),
-                            AvailableStatus = battery.AvailableStatus == 1 ? "可用" : "充电中",
-                            CurrentCapa = battery.CurrentCapacity,
-                            BatteryType = battery.batteryType.BatteryTypeId % 10 == 1 ? "长续航级" : "标准续航级",
+                            battery_id = battery.BatteryId.ToString(),
+                            available_status = battery.AvailableStatus == 1 ? "可用" : "充电中",
+                            current_capacity = battery.CurrentCapacity,
+                            battery_type = battery.batteryType.BatteryTypeId % 10 == 1 ? "长续航级" : "标准续航级",
                         }).ToArray(),
-                        item.ServiceFee,
-                        item.ParkingFee,
-                        item.ElectricityFee,
-                        item.Latitude,
-                        item.Longtitude,
-                        item.TimeSpan,
-                        item.StationName,
-                        Distance = Calculator.CalculateDistanceInMeters(item.Latitude, item.Longtitude, latitude.Value, longtitude.Value),
-                        item.QueueLength,
-                        item.Address
+                        service_fee = item.ServiceFee,
+                        parking_fee = item.ParkingFee,
+                        power_rate = item.ElectricityFee,
+                        latitude = item.Latitude,
+                        longitude = item.Longtitude,
+                        opening_time = item.TimeSpan,
+                        station_name = item.StationName,
+                        waiting_number = item.QueueLength,
+                        address = item.Address,
+                        distance = Calculator.CalculateDistanceInMeters(item.Latitude, item.Longtitude, latitude.Value, longitude.Value),
                     })
-                    .ToArray();
+                    .FirstOrDefault();
                 var obj = new
                 {
                     data = filteredItems,
@@ -130,15 +131,15 @@ namespace webapi.Controllers.Administrator
                 var filteredItems = _context.SwitchStations
                     .Select(item => new
                     {
-                        ID = item.StationId.ToString(),
-                        item.StationName,
-                        item.Latitude,
-                        item.Longtitude,
-                        item.QueueLength,
-                        item.TimeSpan,
-                        item.ServiceFee,
-                        item.ElectricityFee,
-                        item.ParkingFee,
+                        switch_station_id = item.StationId.ToString(),
+                        station_name = item.StationName,
+                        latitude = item.Latitude,
+                        longitude = item.Longtitude,
+                        waiting_number = item.QueueLength,
+                        opening_time = item.TimeSpan,
+                        service_fee = item.ServiceFee,
+                        power_rate = item.ElectricityFee,
+                        parking_fee = item.ParkingFee,
                         Similarity = Calculator.ComputeSimilarityScore(item.StationName, keyword)
                     })
                     .Where(item => item.Similarity >= 0.8)
@@ -171,11 +172,9 @@ public class Calculator
     {
         var dLat = DegreesToRadians(lat2 - lat1);
         var dLon = DegreesToRadians(lon2 - lon1);
-
         var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
                 Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) *
                 Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
         var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
         return EarthRadiusMeters * c;
     }

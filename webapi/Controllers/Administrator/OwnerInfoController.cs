@@ -181,7 +181,7 @@ namespace webapi.Controllers.Administrator
                     ProfilePhoto = null,
                     CreateTime = System.DateTime.Now,
                     PhoneNumber = owner.phone_number,
-                    Email = "123",
+                    Email = "123@default.xyz",
                     Gender = owner.gender,
                     Birthday = System.DateTime.Now,
                 };
