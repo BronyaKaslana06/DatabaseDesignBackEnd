@@ -46,7 +46,7 @@ namespace webapi.Controllers.Administrator
                         vehicle_id = item.VehicleId,
                         plate_number = item.PlateNumber
                     })
-                    .ToArray();
+                    .ToList();
 
                 int totalNum = filteredItems.Count();
                 var obj = new
@@ -92,11 +92,12 @@ namespace webapi.Controllers.Administrator
                     .Select(item => new
                     {
                         vehicle_model = item.vehicleParam.ModelName,
+                        snip = item.vehicleParam.Sinp,
                         purchase_date = item.PurchaseDate,
                         battery_id = item.Battery.BatteryId.ToString(),
                         current_capacity = item.Battery.CurrentCapacity
                     })
-                    .ToArray();
+                    .ToList();
                 int totalNum = filteredItems.Count();
                 var obj = new
                 {

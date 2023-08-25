@@ -112,7 +112,8 @@ namespace webapi.Controllers.Administrator
                     title = item.Title,
                     order_submission_time = item.OrderSubmissionTime,
                     maintenance_location = item.MaintenanceLocation
-                });
+                })
+                .ToList();
             int totalNum = filteredItems.Count();
             var obj = new
             {
