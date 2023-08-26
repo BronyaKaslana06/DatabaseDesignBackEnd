@@ -38,6 +38,7 @@ public partial class Battery
     public Vehicle? vehicle { get; set; }   //nullable
     public List<SwitchLog> switchLogsOn { get; set; } = new List<SwitchLog>(); //nullable
     public List<SwitchLog> switchLogsOff { get; set; } = new List<SwitchLog>();  //nullable
+
     
 }
 
@@ -47,5 +48,7 @@ public enum AvailableStatusEnum
     available = 1,
     onCar = 2,
     discharged = 3,
-    Unknown = 4
+    Booked = 4,
+    Charging = 5,
+    Unknown = 6
 }

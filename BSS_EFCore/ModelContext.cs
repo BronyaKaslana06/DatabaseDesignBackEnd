@@ -51,7 +51,7 @@ public class ModelContext : DbContext
     {
         //optionsBuilder.LogTo(Console.WriteLine);
         //base.OnConfiguring(optionsBuilder);
-        optionsBuilder.UseOracle("Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=123.57.140.176)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)));User ID=C##CAR;password=Tj123456");
+        optionsBuilder.UseOracle("Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=8.130.9.72)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)));User ID=C##CAR;password=TJ123456");
 
     }
 

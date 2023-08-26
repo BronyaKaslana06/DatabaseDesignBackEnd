@@ -17,7 +17,7 @@ public partial class SwitchStation
 
     public int QueueLength { get; set; }
 
-    public double Longtitude { get; set; }
+    public double Longitude { get; set; }
 
     public double Latitude { get; set; }
 
@@ -37,7 +37,6 @@ public partial class SwitchStation
 
     public List<Employee> employees { get; set; } = new List<Employee>();  //至少一个
     public List<Battery> batteries { get; set; } = new List<Battery>();   //可以为0
-    
-    
+    public List<SwitchRequest> switchRequests { get; set; } = new List<SwitchRequest>(); //可以为0
 
 }

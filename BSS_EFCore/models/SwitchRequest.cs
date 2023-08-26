@@ -37,14 +37,16 @@ public partial class SwitchRequest
     public DateTime RequestTime { get; set; }
 
     public string? Position { get; set; }
-    public double Longtitue { get; set; }
+    public double Longitude { get; set; }
     public double Latitude { get; set; }
     public string? Note { get; set; }
 
-
+    public DateTime Date { get; set; }
+    public string? Period { get; set; }
     public Employee employee { get; set; }  //非空
     public VehicleOwner vehicleOwner { get; set; }  //非空
     public Vehicle vehicle { get; set; } //非空
+    public SwitchStation switchStation { get; set; } //非空
 }
 
 public enum SwitchTypeEnum

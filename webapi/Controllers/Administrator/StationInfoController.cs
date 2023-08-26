@@ -106,7 +106,7 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
             if ($"{station.battety_capacity}" != String.Empty)
                 staff.BatteryCapacity = Convert.ToDecimal(station.battety_capacity);
             if ($"{station.longitude}" != String.Empty)
-                staff.Longtitude = Convert.ToDecimal(station.longitude);
+                staff.Longitude = Convert.ToDecimal(station.longitude);
             if ($"{station.latitude}" != String.Empty)
                 staff.Latitude = Convert.ToDecimal(station.latitude);
             if ($"{station.faliure_status}" != String.Empty)
@@ -141,7 +141,7 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
                     StationId = station_id,
                     StationName = $"{station.station_name}",
                     BatteryCapacity = Convert.ToDecimal(station.battety_capacity),
-                    Longtitude = Convert.ToDecimal(station.longitude),
+                    Longitude = Convert.ToDecimal(station.longitude),
                     Latitude = Convert.ToDecimal(station.latitude),
                     FailureStatus = $"{station.faliure_status}" == "是" ? true : false,
                     AvailableBatteryCount = Convert.ToDecimal(station.available_battery_count)
@@ -169,7 +169,7 @@ WHERE positions = '管理员' or employee.employee_id IS NULL "
                     String msg = e.InnerException?.Message + "";
                     if (_context.SwitchStations.Any(t => t.StationId == new_station.StationId))
                         msg = "已有该id的换电站";
-                    else if (_context.SwitchStations.Any(t => (t.Latitude == new_station.Latitude) && (t.Longtitude == new_station.Longtitude)))
+                    else if (_context.SwitchStations.Any(t => (t.Latitude == new_station.Latitude) && (t.Longitude == new_station.Longitude)))
                         msg = "已有该位置的换电站";
                     return NewContent(2, msg);
                 }

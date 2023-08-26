@@ -44,10 +44,10 @@ namespace webapi.Controllers.Administrator
                             station_id = station.StationId.ToString(),
                             station_name = station.StationName,
                             latitude = station.Latitude,
-                            longitude = station.Longtitude,
+                            longitude = station.Longitude,
                             waiting_number = station.QueueLength,
                             opening_time = station.TimeSpan,
-                            distance = Calculator.CalculateDistanceInMeters(station.Latitude, station.Longtitude, latitude.Value, longitude.Value),
+                            distance = Calculator.CalculateDistanceInMeters(station.Latitude, station.Longitude, latitude.Value, longitude.Value),
                             cell_num = station.BatteryCapacity,
                             cell_avb_num = station.AvailableBatteryCount,
                         })
@@ -95,12 +95,12 @@ namespace webapi.Controllers.Administrator
                         parking_fee = item.ParkingFee,
                         power_rate = item.ElectricityFee,
                         latitude = item.Latitude,
-                        longitude = item.Longtitude,
+                        longitude = item.Longitude,
                         opening_time = item.TimeSpan,
                         station_name = item.StationName,
                         waiting_number = item.QueueLength,
                         address = item.Address,
-                        distance = Calculator.CalculateDistanceInMeters(item.Latitude, item.Longtitude, latitude.Value, longitude.Value),
+                        distance = Calculator.CalculateDistanceInMeters(item.Latitude, item.Longitude, latitude.Value, longitude.Value),
                     })
                     .FirstOrDefault();
                 var obj = new
@@ -134,7 +134,7 @@ namespace webapi.Controllers.Administrator
                         switch_station_id = item.StationId.ToString(),
                         station_name = item.StationName,
                         latitude = item.Latitude,
-                        longitude = item.Longtitude,
+                        longitude = item.Longitude,
                         waiting_number = item.QueueLength,
                         opening_time = item.TimeSpan,
                         service_fee = item.ServiceFee,

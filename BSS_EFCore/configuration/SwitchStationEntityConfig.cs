@@ -31,7 +31,7 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("FALIURE_STATUS");
             builder.Property(e => e.Latitude)
                 .HasColumnName("LATITUDE");
-            builder.Property(e => e.Longtitude)
+            builder.Property(e => e.Longitude)
                 .HasColumnName("LONGTITUDE");
             builder.Property(e => e.ServiceFee)
                 .HasColumnName("SERVICE_FEE");
