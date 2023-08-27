@@ -19,12 +19,12 @@ public partial class SwitchRequest
         {
             switch (SwitchType)
             {
-                case (int)SwitchTypeEnum.inPerson:
-                    return SwitchTypeEnum.inPerson;
-                case (int)SwitchTypeEnum.not_inPerson:
-                    return SwitchTypeEnum.not_inPerson;
+                case (int)SwitchTypeEnum.上门换电:
+                    return SwitchTypeEnum.上门换电;
+                case (int)SwitchTypeEnum.预约换电:
+                    return SwitchTypeEnum.预约换电;
                 default:
-                    return SwitchTypeEnum.Unknown;
+                    return SwitchTypeEnum.未知;
             }
         }
         set
@@ -32,7 +32,6 @@ public partial class SwitchRequest
             SwitchType = (int)value;
         }
     }
-
 
     public DateTime RequestTime { get; set; }
 
@@ -43,15 +42,53 @@ public partial class SwitchRequest
 
     public DateTime Date { get; set; }
     public string? Period { get; set; }
+
+    [Obsolete]
+    public int RequestStatus { get; set; }
+    [NotMapped]
+    public RequestStatusEnum requestStatusEnum
+    {
+        get
+        {
+            switch (RequestStatus)
+            {
+                case (int)RequestStatusEnum.待接单:
+                    return RequestStatusEnum.待接单;
+                case (int)RequestStatusEnum.待完成:
+                    return RequestStatusEnum.待完成;
+                case (int)RequestStatusEnum.待评分:
+                    return RequestStatusEnum.待评分;
+                case (int)RequestStatusEnum.已完成:
+                    return RequestStatusEnum.已完成;
+                default:
+                    return RequestStatusEnum.未知;
+            }
+        }
+        set
+        {
+            RequestStatus = (int)value;
+        }
+    }
+
     public Employee employee { get; set; }  //非空
     public VehicleOwner vehicleOwner { get; set; }  //非空
     public Vehicle vehicle { get; set; } //非空
     public SwitchStation switchStation { get; set; } //非空
+    public BatteryType batteryType { get; set; }
 }
 
 public enum SwitchTypeEnum
 {
-    inPerson = 1,
-    not_inPerson = 2,
-    Unknown = 3
+    未知 = 0,
+    上门换电 = 1,
+    预约换电 = 2
+}
+
+public enum RequestStatusEnum
+{
+    未知 = 0,
+    待接单 = 1,
+    待完成 = 2,
+    待评分 = 3,
+    已完成 = 4
 }
