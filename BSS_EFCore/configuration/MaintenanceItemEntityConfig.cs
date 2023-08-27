@@ -32,6 +32,8 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("ORDER_SUBMISSION_TIME");
             builder.Property(e => e.ServiceTime)
                 .HasColumnName("SERVICE_TIME");
+            builder.Property(e => e.AppointTime)
+                .HasColumnName("APPOINT_TIME");
             builder.Property(e => e.Note)
                 .HasColumnName("NOTE");
             builder.Property(e => e.Score)
