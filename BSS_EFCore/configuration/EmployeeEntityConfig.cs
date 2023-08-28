@@ -20,7 +20,7 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("EMPLOYEE_ID");
             builder.Property(e => e.AccountSerial)
                 .ValueGeneratedNever()
-                .HasColumnName("ACCOUNTSERIAL");
+                .HasColumnName("ACCOUNT_SERIAL");
             builder.Property(e => e.CreateTime)
                 .HasColumnName("CREATE_TIME");
             builder.Property(e => e.Gender)
