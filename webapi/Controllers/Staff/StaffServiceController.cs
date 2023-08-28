@@ -28,7 +28,9 @@ namespace webapi.Controllers.Staff
         [HttpGet("door_to_door_service/get_switchrecords")]
         public ActionResult<IEnumerable<Employee>> GetSwitchrecords(long switch_request_id)
         {
-            var query = _context.SwitchRequests.Where(a => a.SwitchRequestId==switch_request_id)
+            
+            //var battery = _context.Batteries.Where(a => a.AvailableStatus == AvailableStatusEnum.available && a.switchStation.);
+            var query = _context.SwitchRequests.Where(a => a.SwitchRequestId == switch_request_id)
             .Select(switch_request => new
             {
                 switch_request_id = switch_request_id,
@@ -39,7 +41,7 @@ namespace webapi.Controllers.Staff
                 position = switch_request.Position,
                 username = switch_request.vehicleOwner.Username,
                 phone_number = switch_request.vehicleOwner.PhoneNumber,
-                remarks = switch_request.Note
+                remarks = switch_request.Note,
             }).ToList();
 
             if (query.Count == 0)
@@ -121,7 +123,7 @@ namespace webapi.Controllers.Staff
         public ActionResult GetMaintenanceArray(long employee_id)
         {
             var maintenance_array = _context.MaintenanceItems
-        .Where(e => e.OrderStatus != (int)OrderStatusEnum.finish)
+        .Where(e => e.OrderStatus != (int)OrderStatusEnum.已完成)
         .Where(e => e.employees.Any(t => t.EmployeeId == employee_id))
             .Select(maintenance_item=>
 new
@@ -160,7 +162,7 @@ new
                 return NewContent(1, "无此维修项");
 
             maintanceItem.ServiceTime = DateTime.Now;
-            maintanceItem.OrderStatusEnum = OrderStatusEnum.finish;
+            maintanceItem.OrderStatusEnum = OrderStatusEnum.已完成;
             return NewContent();
         }
         [HttpPost("doortodoorservice/switchrecords")]

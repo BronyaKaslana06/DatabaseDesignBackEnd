@@ -29,6 +29,7 @@ namespace webapi.Controllers.Administrator
         public ActionResult<IEnumerable<Employee>> GetOwner(long ownerId)
         {
             var owner = _context.VehicleOwners.Find((ownerId));
+            var ownerpos = _context.OwnerPos.FirstOrDefault(a=>a.OwnerId==ownerId);
             if (owner == null)
                 return NewContent(1, "id不存在");
             else
@@ -43,7 +44,7 @@ namespace webapi.Controllers.Administrator
                         user_nickname = "数据库更新，无此项",
                         gender = owner.Gender,
                         birthday = owner.Birthday,
-                        address = owner.ownerpos[0].Address,
+                        address = ownerpos?.Address,
                         phone_number = owner.PhoneNumber,
                         password=owner.Password,
                         email = owner.Email

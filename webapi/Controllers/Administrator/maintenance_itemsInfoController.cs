@@ -216,7 +216,7 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
             {
                 try
                 {
-                    battery_tmp.AvailableStatusEnum = AvailableStatusEnum.onCar;
+                    battery_tmp.AvailableStatusEnum = AvailableStatusEnum.汽车使用中;
                     battery_tmp.CurrChargeTimes = 0;
                     battery_tmp.CurrentCapacity = 70;
                     battery_tmp.ManufacturingDate=DateTime.Now;
