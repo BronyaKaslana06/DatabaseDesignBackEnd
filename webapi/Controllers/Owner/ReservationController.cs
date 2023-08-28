@@ -11,10 +11,11 @@ using static System.Collections.Specialized.BitVector32;
 using System.Drawing.Printing;
 using webapi.Tools;
 using System.Security.Cryptography;
+using System.Collections.Generic;
 
 namespace webapi.Controllers.Administrator
 {
-    [Route("/owner/switch-reservation")]
+    [Route("/owner/[action]")]
     [ApiController]
     public class ReservationController : ControllerBase
     {
@@ -26,7 +27,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpPost]
-        public ActionResult<string> Post_SwitchReservation([FromBody] dynamic _reservation)
+        public ActionResult<string> switch_reservation([FromBody] dynamic _reservation)
         {
             if (_context.Employees == null)
                 return Problem("Entity set 'ModelContext.Employee' is null.");
@@ -96,6 +97,92 @@ namespace webapi.Controllers.Administrator
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
 
+        [HttpGet]
+        public ActionResult<string> battery_replace(int pageIndex, int pageSize, string owner_id)
+        {
+            int offset = (pageIndex - 1) * pageSize;
+            int limit = pageSize;
+            if (offset < 0 || limit <= 0)
+                return BadRequest();
+            if (!string.IsNullOrEmpty(owner_id) && !long.TryParse(owner_id, out long OID))
+            {
+                return BadRequest();
+            }
+
+            var query = _context.SwitchRequests
+            .Where(sr => sr.vehicleOwner.OwnerId == long.Parse(owner_id))
+            .Join(
+                _context.SwitchLogs,
+                sr => sr.SwitchRequestId,
+                sl => sl.switchrequest.SwitchRequestId,
+                (sr, sl) => new
+                {
+                    SwitchRequest = sr,
+                    sl.SwitchTime,
+                    sl.Score
+                })
+            .Skip(offset)
+            .Take(limit);
+
+            var totalData = query.Count();
+            var data = query.ToList();
+
+            if (data == null)
+                return BadRequest();
+            var obj = new
+            {
+                totalData,
+                data
+            };
+
+            return Content(JsonConvert.SerializeObject(obj), "application/json");
+        }
+
+        [HttpPost]
+        public ActionResult<string> review([FromBody] dynamic _review)
+        {
+            using (TransactionScope tx = new TransactionScope())
+            {
+                dynamic review = JsonConvert.DeserializeObject<dynamic>(_review.ToString());
+
+                long switchRequestId = Convert.ToInt64(review.switch_request_id);
+                var switchLog = _context.SwitchLogs.FirstOrDefault(s => s.switchrequest.SwitchRequestId == switchRequestId);
+                switchLog.Score = (int)review.score;
+
+                var switchRequest = _context.SwitchRequests.FirstOrDefault(s => s.SwitchRequestId == switchRequestId);
+                switchRequest.requestStatusEnum = RequestStatusEnum.已完成;
+
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return NotFound();
+                }
+
+                var query = _context.SwitchRequests
+                .Where(sr => sr.SwitchRequestId == switchRequestId)
+                .Join(
+                    _context.SwitchLogs,
+                    sr => sr.SwitchRequestId,
+                    sl => sl.switchrequest.SwitchRequestId,
+                    (sr, sl) => new
+                    {
+                        SwitchRequest = sr,
+                        sl.SwitchTime,
+                        sl.Score
+                    })
+                .FirstOrDefault();
+
+                var obj = new
+                {
+                    switch_request = query,
+                };
+                return Content(JsonConvert.SerializeObject(obj), "application/json");
+            }
+        }
+
         //接口已废弃
         //[HttpPatch("{id}")]
         //public ActionResult<string> Patch_SwitchReservation(int reservation_id, [FromBody] dynamic _reservation)
@@ -106,7 +193,7 @@ namespace webapi.Controllers.Administrator
         //        return NotFound("Reservation not found.");
 
         //    dynamic reservation = JsonConvert.DeserializeObject<dynamic>(_reservation.ToString());
-            
+
         //    request.RequestTime = reservation.updatetime;
         //    request.Date = reservation.reservation_date;
         //    request.Period = reservation.period;
