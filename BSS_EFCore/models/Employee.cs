@@ -9,6 +9,7 @@ public partial class Employee
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long EmployeeId { get; set; }
 
+    public string? AccountSerial { get; set; }
     public string Email { get; set; }
 
     public string? UserName { get; set; }

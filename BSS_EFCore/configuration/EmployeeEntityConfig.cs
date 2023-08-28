@@ -18,6 +18,9 @@ namespace BSS_EFCore.configuration
 
             builder.Property(e => e.EmployeeId)
                 .HasColumnName("EMPLOYEE_ID");
+            builder.Property(e => e.AccountSerial)
+                .ValueGeneratedNever()
+                .HasColumnName("ACCOUNTSERIAL");
             builder.Property(e => e.CreateTime)
                 .HasColumnName("CREATE_TIME");
             builder.Property(e => e.Gender)

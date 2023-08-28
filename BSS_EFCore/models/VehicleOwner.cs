@@ -7,6 +7,8 @@ public partial class VehicleOwner
 {
     public long OwnerId { get; set; }
 
+    public string? AccountSerial { get; set; }
+
     public string? Username { get; set; }
 
     public string Email { get; set; }

@@ -19,6 +19,9 @@ namespace BSS_EFCore.configuration
 
             builder.Property(e => e.AdminId)
                 .HasColumnName("ADMIN_ID");
+            builder.Property(e => e.AccountSerial)
+                .ValueGeneratedNever()
+                .HasColumnName("ACCOUNT_SERIAL");
             builder.Property(e => e.Password)
                 .HasMaxLength(50)
                 .IsUnicode()

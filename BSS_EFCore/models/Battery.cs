@@ -46,9 +46,9 @@ public partial class Battery
 public enum AvailableStatusEnum
 {
     可用 = 1,
-    汽车使用中 = 2,
-    已预定 = 3,
-    充电中 = 4,
-    损坏 = 5,
+    已预定 = 2,
+    充电中 = 3,
+    损坏 = 4,
+    汽车使用中 = 5,
     未知 = 6
 }
