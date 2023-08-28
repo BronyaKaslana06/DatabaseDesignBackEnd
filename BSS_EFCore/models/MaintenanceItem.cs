@@ -19,7 +19,7 @@ public partial class MaintenanceItem
 
     public DateTime OrderSubmissionTime { get; set; }
 
-    public TimeOnly AppointTime { get; set; }
+    public DateTime AppointTime { get; set; }
 
     [Obsolete]
     public int OrderStatus { get; set; }
