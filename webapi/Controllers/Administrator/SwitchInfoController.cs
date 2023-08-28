@@ -61,7 +61,8 @@ namespace webapi.Controllers.Administrator
                     switch_time = sl.SwitchTime,
                     battery_id_on = sl.batteryOn.BatteryId.ToString(),
                     battery_id_off = sl.batteryOff.BatteryId.ToString(),
-                    evaluations = sl.Score.ToString()
+                    evaluations = sl.Evaluation,
+                    score = sl.Score
                 })
                 .Skip(offset)
                 .Take(limit)

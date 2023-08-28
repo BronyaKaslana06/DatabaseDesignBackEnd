@@ -119,7 +119,8 @@ namespace webapi.Controllers.Administrator
                 {
                     SwitchRequest = sr,
                     sl.SwitchTime,
-                    sl.Score
+                    sl.Score,
+                    sl.Evaluation
                 })
             .Skip(offset)
             .Take(limit);
@@ -147,7 +148,8 @@ namespace webapi.Controllers.Administrator
 
                 long switchRequestId = Convert.ToInt64(review.switch_request_id);
                 var switchLog = _context.SwitchLogs.FirstOrDefault(s => s.switchrequest.SwitchRequestId == switchRequestId);
-                switchLog.Score = (int)review.score;
+                switchLog.Score = (double)review.score;
+                switchLog.Evaluation = review.evaluation;
 
                 var switchRequest = _context.SwitchRequests.FirstOrDefault(s => s.SwitchRequestId == switchRequestId);
                 switchRequest.requestStatusEnum = RequestStatusEnum.ÒÑÍê³É;
@@ -171,7 +173,8 @@ namespace webapi.Controllers.Administrator
                     {
                         SwitchRequest = sr,
                         sl.SwitchTime,
-                        sl.Score
+                        sl.Score,
+                        sl.Evaluation
                     })
                 .FirstOrDefault();
 
