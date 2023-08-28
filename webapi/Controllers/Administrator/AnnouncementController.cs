@@ -29,9 +29,27 @@ namespace webapi.Controllers.Administrator
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
         [HttpGet("query")]
-        public ActionResult Query(string title)
+        public ActionResult Query(string title="",string publisher="",string publish_time="",string publish_pos="")
         {
-            return NewContent();
+            DateTime? date=null;
+            long? id = null;
+            if(DateTime.TryParse(publish_time, out DateTime b))
+                date=b.Date;
+            if (long.TryParse(publisher, out var _id))
+                id = _id;
+            var c=_context.News.Where(a =>
+            (a.Title==null? title=="" : a.Title.Contains(title))  &&
+            (id==null? publisher=="": a.administrator.AdminId==id)&&
+            (a.PublishPos==null? publish_pos == "" : a.PublishPos.Contains(publish_pos)) &&
+            (date==null? publish_time=="":a.PublishTime.Date == date)
+            );
+            var a = new
+            {
+                code = 0,
+                msg = "success",
+                announcementArray = c
+            };
+            return Content(JsonConvert.SerializeObject(a), "application/json");
         }
         [HttpPost]
         public IActionResult PotAnnouncement([FromBody] dynamic _acm)
