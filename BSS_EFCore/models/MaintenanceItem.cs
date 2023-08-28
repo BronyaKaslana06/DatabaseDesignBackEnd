@@ -15,6 +15,10 @@ public partial class MaintenanceItem
 
     public string? Title { get; set; }
 
+    public double longitude { get; set; }
+
+    public double latitude { get; set; }
+
     public DateTime ServiceTime { get; set; }
 
     public DateTime OrderSubmissionTime { get; set; }
@@ -32,14 +36,16 @@ public partial class MaintenanceItem
         {
             switch (OrderStatus)
             {
-                case (int)OrderStatusEnum.unhandled:
-                    return OrderStatusEnum.unhandled;
-                case (int)OrderStatusEnum.handling:
-                    return OrderStatusEnum.handling;
-                case (int)OrderStatusEnum.finish:
-                    return OrderStatusEnum.finish;
+                case (int)OrderStatusEnum.待接单:
+                    return OrderStatusEnum.待接单;
+                case (int)OrderStatusEnum.待完成:
+                    return OrderStatusEnum.待完成;
+                case (int)OrderStatusEnum.待评分:
+                    return OrderStatusEnum.待评分;
+                case (int)OrderStatusEnum.已完成:
+                    return OrderStatusEnum.已完成;
                 default:
-                    return OrderStatusEnum.Unknown;
+                    return OrderStatusEnum.未知;
             }
         }
         set
@@ -51,6 +57,8 @@ public partial class MaintenanceItem
 
     public double Score { get; set; }
 
+    public string Evaluation { get; set; }
+
     public List<Employee> employees = new List<Employee>();   //至少一个
     public Vehicle vehicle { get; set; }   // not null
 }
@@ -58,8 +66,9 @@ public partial class MaintenanceItem
 
 public enum OrderStatusEnum
 {
-    unhandled = 1,
-    handling = 2,
-    finish = 3,
-    Unknown=4
+    未知 = 0,
+    待接单 = 1,
+    待完成 = 2,
+    待评分 = 3,
+    已完成 = 4
 }

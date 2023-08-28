@@ -53,7 +53,8 @@ namespace webapi.Controllers.Administrator
                         service_time = joinedData.MaintenanceItem.ServiceTime,
                         order_status = joinedData.MaintenanceItem.OrderStatus,
                         remarks = joinedData.MaintenanceItem.Note,
-                        evaluations = joinedData.MaintenanceItem.Score,
+                        evaluations = joinedData.MaintenanceItem.Evaluation,
+                        score = joinedData.MaintenanceItem.Score,
                         name = joinedData.Employee.Name,
                         phone_number = joinedData.Employee.PhoneNumber
                     })
@@ -110,6 +111,7 @@ namespace webapi.Controllers.Administrator
                     maintenance_item_id = item.MaintenanceItemId,
                     title = item.Title,
                     order_submission_time = item.OrderSubmissionTime,
+                    order_status = item.OrderStatus,
                     maintenance_location = item.MaintenanceLocation
                 })
                 .ToList();
@@ -250,7 +252,7 @@ namespace webapi.Controllers.Administrator
                     Note = _acm.remarks,
                     ServiceTime = DateTime.Now,
                     OrderSubmissionTime = DateTime.Now,
-                    OrderStatus = 0,
+                    OrderStatus = 1,
                     Score = -1,
                 };
 
@@ -295,13 +297,12 @@ namespace webapi.Controllers.Administrator
                 acm.vehicle = Vehicle;
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Note = _acm.remarks;
-                acm.OrderStatus = _acm.order_status == "是" ? 1 : 0;
+                acm.OrderStatus = _acm.order_status;
             }
             else
             {
-                if (!double.TryParse($"{_acm.evaluations}", out double s))
-                    return NewContent(1, "提交的评价无效");
-                acm.Score = s;
+                acm.Evaluation = _acm.evaluations;
+                acm.Score = _acm.score;
             }
             try
             {

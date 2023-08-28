@@ -56,7 +56,7 @@ public partial class Employee
 
     public List<SwitchRequest> switchRequests { get; set; } = new List<SwitchRequest>(); //可以为0
 
-    public SwitchStation? switchStation { get; set; }  //nullable
+    public SwitchStation? switchStation { get; set; }
 
 }
 

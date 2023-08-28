@@ -11,5 +11,7 @@ public partial class BatteryType
 
     public string? TotalCapacity { get; set; }
 
+    public string? Name { get; set; }
+
     public List<Battery> batteries { get; set; } = new List<Battery>();   //至少为1
 }

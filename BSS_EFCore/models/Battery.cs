@@ -45,10 +45,10 @@ public partial class Battery
 
 public enum AvailableStatusEnum
 {
-    available = 1,
-    onCar = 2,
-    discharged = 3,
-    Booked = 4,
-    Charging = 5,
-    Unknown = 6
+    可用 = 1,
+    汽车使用中 = 2,
+    已预定 = 3,
+    充电中 = 4,
+    损坏 = 5,
+    未知 = 6
 }
