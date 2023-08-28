@@ -5,7 +5,7 @@ namespace webapi.Controllers.Staff
 {
     [Route("staff/[controller]")]
     [ApiController]
-    public class SwitchRequestController : ControllerBase
+    public class SwitchStationController : ControllerBase
     {
     }
 }
