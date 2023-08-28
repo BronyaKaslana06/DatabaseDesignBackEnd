@@ -28,11 +28,11 @@ namespace BSS_EFCore.configuration
             builder.Property(e => e.BatteryCapacity)
                 .HasColumnName("BATTERY_CAPACITY");
             builder.Property(e => e.FailureStatus)
-                .HasColumnName("FALIURE_STATUS");
+                .HasColumnName("FAILURE_STATUS");
             builder.Property(e => e.Latitude)
                 .HasColumnName("LATITUDE");
             builder.Property(e => e.Longitude)
-                .HasColumnName("LONGTITUDE");
+                .HasColumnName("LONGITUDE");
             builder.Property(e => e.ServiceFee)
                 .HasColumnName("SERVICE_FEE");
             builder.Property(e => e.StationName)

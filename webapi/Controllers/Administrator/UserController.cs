@@ -43,7 +43,7 @@ namespace webapi.Controllers.Administrator
                         user_nickname = "数据库更新，无此项",
                         gender = owner.Gender,
                         birthday = owner.Birthday,
-                        address = owner.ownerpos.ToArray(),
+                        address = owner.ownerpos[0].Address,
                         phone_number = owner.PhoneNumber,
                         password=owner.Password,
                         email = owner.Email
@@ -67,7 +67,7 @@ namespace webapi.Controllers.Administrator
             owner.Password = _owner.password ?? owner.Password;
             owner.Username = _owner.user_name?? owner.Username;
             owner.Email = _owner.email ?? owner.Email;
-            if(DateTime.TryParse (_owner.birethday,out DateTime b))
+            if (DateTime.TryParse($"{_owner.birthday}",out DateTime b))
                 owner.Birthday=b;
             Console.Write(owner);
             try

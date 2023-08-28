@@ -14,13 +14,13 @@ using System.Transactions;
 
 namespace webapi.Controllers.Staff
 {
-    [Route("staff/my-info/")]
+    [Route("staffs/my-info/")]
     [ApiController]
-    public class StaffController : ControllerBase
+    public class StaffMyInfo : ControllerBase
     {
         private readonly ModelContext _context;
 
-        public StaffController(ModelContext context)
+        public StaffMyInfo(ModelContext context)
         {
             _context = context;
         }
@@ -28,7 +28,8 @@ namespace webapi.Controllers.Staff
         [HttpGet("{employeeId}")]
         public ActionResult<IEnumerable<Employee>> GetOwner(long employeeId)
         {
-            var employee = _context.Employees.Find((employeeId));
+            var employee = _context.Employees.Find(employeeId);
+            var kpi = _context.Kpis.FirstOrDefault(e => e.employeeId == employeeId);
             if (employee == null)
                 return NewContent(1, "id不存在");
             else
@@ -59,23 +60,18 @@ namespace webapi.Controllers.Staff
             }
         }
 
-        [HttpPatch("{ownerId}/information")]
-        public IActionResult ChangeData(long ownerId, [FromBody] dynamic param)
+        [HttpPatch("{employeeId}/edit")]
+        public IActionResult ChangeData(long employeeId, [FromBody] dynamic param)
         {
-            dynamic _owner = JsonConvert.DeserializeObject(Convert.ToString(param));
-            var owner = _context.VehicleOwners.Find(ownerId);
-            if (owner == null)
+            dynamic _employee = JsonConvert.DeserializeObject(Convert.ToString(param));
+            var employee = _context.VehicleOwners.Find(employeeId);
+            if (employee == null)
             {
                 return NewContent(1, "无该用户");
             }
-            owner.Gender = _owner.gender ?? owner.Gender;
-            owner.PhoneNumber = _owner.phone_number ?? owner.PhoneNumber;
-            owner.Password = _owner.password ?? owner.Password;
-            owner.Username = _owner.user_name ?? owner.Username;
-            owner.Email = _owner.email ?? owner.Email;
-            if (DateTime.TryParse(_owner.birethday, out DateTime b))
-                owner.Birthday = b;
-            Console.Write(owner);
+            employee.Gender = _employee.gender ?? employee.Gender;
+            employee.PhoneNumber = _employee.phone_number ?? employee.PhoneNumber;
+            employee.Username = _employee.name ?? employee.Username;
             try
             {
                 _context.SaveChanges();
