@@ -98,7 +98,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpGet]
-        public ActionResult<string> battery_replace(int pageIndex, int pageSize, string owner_id)
+        public ActionResult<string> switch_history(int pageIndex, int pageSize, string owner_id, string order_type)
         {
             int offset = (pageIndex - 1) * pageSize;
             int limit = pageSize;
