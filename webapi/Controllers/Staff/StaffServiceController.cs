@@ -121,7 +121,7 @@ namespace webapi.Controllers.Staff
         public ActionResult GetMaintenanceArray(long employee_id)
         {
             var maintenance_array = _context.MaintenanceItems
-        .Where(e => e.OrderStatus != (int)OrderStatusEnum.finish)
+        .Where(e => e.OrderStatus != (int)OrderStatusEnum.已完成)
         .Where(e => e.employees.Any(t => t.EmployeeId == employee_id))
             .Select(maintenance_item=>
 new
@@ -160,7 +160,7 @@ new
                 return NewContent(1, "无此维修项");
 
             maintanceItem.ServiceTime = DateTime.Now;
-            maintanceItem.OrderStatusEnum = OrderStatusEnum.finish;
+            maintanceItem.OrderStatusEnum = OrderStatusEnum.已完成;
             return NewContent();
         }
         [HttpPost("doortodoorservice/switchrecords")]

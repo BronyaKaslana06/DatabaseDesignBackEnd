@@ -17,8 +17,8 @@ public partial class Battery
     {
         get
         {
-            if (AvailableStatus == null || AvailableStatus <= 0 || AvailableStatus >= 5)
-                AvailableStatus = 4;
+            if (AvailableStatus == null || AvailableStatus <= 0 || AvailableStatus >= 7)
+                AvailableStatus = 6;
             return (AvailableStatusEnum)AvailableStatus;
         }
         set
