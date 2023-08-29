@@ -109,15 +109,31 @@ namespace webapi.Controllers.Administrator
                 return BadRequest();
             }
 
+            RequestStatusEnum Ordertype = RequestStatusEnum.δ֪;
+            if (Enum.TryParse(order_type, out RequestStatusEnum typeEnum))
+                Ordertype = typeEnum;
+            else
+                return NotFound("Order_type error.");
+
             var query = _context.SwitchRequests
-            .Where(sr => sr.vehicleOwner.OwnerId == long.Parse(owner_id))
+            .Where(
+                sr => sr.vehicleOwner.OwnerId == long.Parse(owner_id) &&
+                sr.SwitchType == (int)Ordertype
+            )
             .Join(
                 _context.SwitchLogs,
                 sr => sr.SwitchRequestId,
                 sl => sl.switchrequest.SwitchRequestId,
                 (sr, sl) => new
                 {
-                    SwitchRequest = sr,
+                    sr.SwitchRequestId,
+                    sr.SwitchType,
+                    sr.RequestTime,
+                    sr.Position,
+                    sr.switchStation.StationName,
+                    sr.vehicle.PlateNumber,
+                    sr.vehicle.vehicleParam.ModelName,
+                    sr.batteryType.Name,
                     sl.SwitchTime,
                     sl.Score,
                     sl.Evaluation
