@@ -111,12 +111,13 @@ namespace webapi.Controllers.Administrator
         [HttpPatch]
         public IActionResult PutStaff([FromBody] dynamic _station)
         {
+            _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
             dynamic station = JsonConvert.DeserializeObject(Convert.ToString(_station));
             if(!(long.TryParse($"{station.station_id}", out long station_id) ))//&& long.TryParse($"{station.employee_id}", out long EID)
             {
                 return NewContent(1, "id非法");
             }
-            var staff = _context.SwitchStations.Find(station_id);
+            var staff = _context.SwitchStations.AsTracking().FirstOrDefault(e=>e.StationId==station_id);
 
             if (staff == null)
             {
@@ -147,8 +148,8 @@ namespace webapi.Controllers.Administrator
                 staff.AvailableBatteryCount = cout;
 
             staff.Address = $"{station.station_address}" == String.Empty ? staff.Address : $"{station.station_address}";
-            staff.ServiceFee = float.TryParse($"{station.service_fee}" ,out var k)? staff.ServiceFee : k;
-         
+            staff.ServiceFee = float.TryParse($"{station.service_fee}", out var k) ? k : staff.ServiceFee;
+            staff.ElectricityFee = float.TryParse($"{station.electricity_fee}" ,out var z)?  z: staff.ElectricityFee;
 
             try
             {
@@ -222,7 +223,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpDelete]
-        public IActionResult DeleteStaff(string station_id)
+        public IActionResult DeleteStaff(long station_id)
         {
 
             var station = _context.SwitchStations.Find(station_id);

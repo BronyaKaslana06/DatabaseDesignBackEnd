@@ -22,9 +22,22 @@ namespace webapi.Controllers.Administrator
         [HttpGet("message")]
         public ActionResult<IEnumerable<Employee>> GetPage_()
         {
+            var query = _context.News.Select(
+                e => new
+                {
+                    title = e.Title,
+                    publish_pos = e.PublishPos,
+                    contents = e.Contents,
+                    publisher = e.administrator.AdminId,
+                    publish_time = e.PublishTime,
+                    announcement_id = e.AnnouncementId
+                }
+            ).ToList();
             var a = new
             {
-                announcementArray = OracleHelper.SelectSql("select * from News"),
+                code=0,
+                msg="success",
+                announcementArray = query,
             };
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
@@ -40,9 +53,16 @@ namespace webapi.Controllers.Administrator
             var c=_context.News.Where(a =>
             (a.Title==null? title=="" : a.Title.Contains(title))  &&
             (id==null? publisher=="": a.administrator.AdminId==id)&&
-            (a.PublishPos==null? publish_pos == "" : a.PublishPos.Contains(publish_pos)) &&
+            (a.PublishPos==null? publish_pos == "" : a.PublishPos==publish_pos) &&
             (date==null? publish_time=="":a.PublishTime.Date == date)
-            );
+            ).Select(e=>new{
+                title=e.Title,
+                publish_pos=e.PublishPos,
+                contents=e.Contents,
+                publisher=e.administrator.AdminId,
+                publish_time=e.PublishTime,
+                announcement_id=e.AnnouncementId
+            }).ToList();
             var a = new
             {
                 code = 0,
@@ -63,7 +83,8 @@ namespace webapi.Controllers.Administrator
                 Contents = _acm.contents,
                 PublishTime = DateTime.Now,
                 Title = _acm.title,
-                PublishPos = _acm.publish_Pos
+                PublishPos = _acm.publish_Pos,
+                administrator=_context.Administrators.Find(long.Parse($" {_acm.publisher}"))
             };
             _context.Add(acm);
 
@@ -97,6 +118,7 @@ namespace webapi.Controllers.Administrator
                 //acm.PublishTime = Convert.ToDateTime(_acm.publish_time);
                 acm.Title = _acm.title;
                 acm.PublishPos = _acm.publish_Pos;
+                acm.administrator=_context.Administrators.Find(long.Parse($"{_acm.publisher}"))?? acm.administrator;
             }
             try{
                 _context.SaveChanges();

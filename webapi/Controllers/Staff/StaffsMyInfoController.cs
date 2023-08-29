@@ -51,8 +51,8 @@ namespace webapi.Controllers.Staff
                         },
                         performance = new
                         {
-                            total_performance=employee.kpi.TotalPerformance,
-                            score=employee.kpi.Score
+                            total_performance=kpi?.TotalPerformance,
+                            score=kpi?.Score
                         }
                     }
                 };
