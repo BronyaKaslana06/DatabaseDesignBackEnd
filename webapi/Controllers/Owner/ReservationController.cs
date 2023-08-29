@@ -98,7 +98,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpGet]
-        public ActionResult<string> battery_replace(int pageIndex, int pageSize, string owner_id)
+        public ActionResult<string> battery_replace(int pageIndex, int pageSize, string owner_id, string order_type="已完成")
         {
             int offset = (pageIndex - 1) * pageSize;
             int limit = pageSize;
@@ -109,9 +109,18 @@ namespace webapi.Controllers.Administrator
                 return BadRequest();
             }
 
+            RequestStatusEnum Ordertype = RequestStatusEnum.未知;
+            if (Enum.TryParse(order_type, out RequestStatusEnum typeEnum))
+                Ordertype = typeEnum;
+            else
+                return NotFound("Order_type error.");
+
             var query = _context.SwitchRequests
-            .Where(sr => sr.vehicleOwner.OwnerId == long.Parse(owner_id))
-            .Join(
+               .Where(
+                sr => sr.vehicleOwner.OwnerId == long.Parse(owner_id) &&
+                sr.SwitchType == (int)Ordertype
+                )
+               .Join(
                 _context.SwitchLogs,
                 sr => sr.SwitchRequestId,
                 sl => sl.switchrequest.SwitchRequestId,
@@ -122,8 +131,8 @@ namespace webapi.Controllers.Administrator
                     sl.Score,
                     sl.Evaluation
                 })
-            .Skip(offset)
-            .Take(limit);
+               .Skip(offset)
+               .Take(limit);
 
             var totalData = query.Count();
             var data = query.ToList();
