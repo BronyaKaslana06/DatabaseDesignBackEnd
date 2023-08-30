@@ -12,6 +12,8 @@ using System.Drawing.Printing;
 using webapi.Tools;
 using System.Security.Cryptography;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 
 namespace webapi.Controllers.Administrator
 {
@@ -27,78 +29,97 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpPost]
-        public ActionResult<string> switch_reservation([FromBody] dynamic _reservation)
+        public ActionResult<string> switch_request([FromBody] dynamic _reservation)
         {
-            if (_context.Employees == null)
-                return Problem("Entity set 'ModelContext.Employee' is null.");
-
-            dynamic reservation = JsonConvert.DeserializeObject<dynamic>(_reservation.ToString());
-
-            long owner_id = Convert.ToInt64(reservation.owner_id);
-            var owner = _context.VehicleOwners.FirstOrDefault(s => s.OwnerId == owner_id);
-            if (owner == null)
-                return NotFound("Owner not found.");
-
-            long vehicle_id = Convert.ToInt64(reservation.vehicle_id);
-            var vehicle = _context.Vehicles.FirstOrDefault(s => s.VehicleId == vehicle_id);
-            if (vehicle == null)
-                return NotFound("Vehicle not found.");
-
-            long station_id = Convert.ToInt64(reservation.station_id);
-            var station = _context.SwitchStations.FirstOrDefault(s => s.StationId == station_id);
-            if (station == null)
-                return NotFound("Station not found.");
-
-            SwitchRequest switchRequest = new SwitchRequest()
+            using (TransactionScope tx = new TransactionScope())
             {
-                vehicleOwner = owner,
-                RequestTime = DateTime.Now,
-                vehicle = vehicle,
-                Position = reservation.owner_address,
-                Longitude = Convert.ToDouble(reservation.longitude),
-                Latitude = Convert.ToDouble(reservation.latitude),
-                Note = reservation.additional_info,
-                Date = Convert.ToDateTime(reservation.date),
-                Period = reservation.period,
-                switchStation = station
-            };
-            //换电方式->枚举类
-            if (Enum.TryParse(reservation.replace_type, out SwitchTypeEnum typeEnum))
-                switchRequest.SwitchTypeEnum = typeEnum;
-            else
-                return NotFound("Replace_type error.");
-            //根据换电方式设置请求状态
-            switch (switchRequest.SwitchTypeEnum)
-            {
-                case SwitchTypeEnum.上门换电:
-                    switchRequest.requestStatusEnum = RequestStatusEnum.待接单;
-                    break;
-                case SwitchTypeEnum.预约换电:
-                    switchRequest.requestStatusEnum = RequestStatusEnum.待完成;
-                    break;
-                default:
+                if (_context.Employees == null)
+                    return Problem("Entity set 'ModelContext.Employee' is null.");
+
+                dynamic reservation = JsonConvert.DeserializeObject<dynamic>(_reservation.ToString());
+
+                long owner_id = Convert.ToInt64(reservation.owner_id);
+                var owner = _context.VehicleOwners.FirstOrDefault(s => s.OwnerId == owner_id);
+                if (owner == null)
+                    return NotFound("Owner not found.");
+
+                long vehicle_id = Convert.ToInt64(reservation.vehicle_id);
+                var vehicle = _context.Vehicles.FirstOrDefault(s => s.VehicleId == vehicle_id);
+                if (vehicle == null)
+                    return NotFound("Vehicle not found.");
+
+                long station_id = Convert.ToInt64(reservation.station_id);
+                var station = _context.SwitchStations.FirstOrDefault(s => s.StationId == station_id);
+                if (station == null)
+                    return NotFound("Station not found.");
+
+                string battery_type = reservation.battery_type;
+                var batteryType = _context.BatteryTypes.FirstOrDefault(s => s.Name == battery_type);
+                if (batteryType == null)
+                    return NotFound("Battery_type not found.");
+
+                var employee = _context.Employees.FirstOrDefault(e => e.switchStation == station);
+
+                SwitchRequest switchRequest = new SwitchRequest()
+                {
+                    SwitchRequestId = 9999999999999,
+                    vehicleOwner = owner,
+                    RequestTime = DateTime.Now,
+                    vehicle = vehicle,
+                    Position = reservation.owner_address,
+                    Longitude = Convert.ToDouble(reservation.longitude),
+                    Latitude = Convert.ToDouble(reservation.latitude),
+                    Note = reservation.additional_info,
+                    Date = Convert.ToDateTime(reservation.date),
+                    Period = reservation.period,
+                    switchStation = station,
+                    batteryType = batteryType,
+                    employee = employee
+                };
+                //换电方式->枚举类
+                if (Enum.TryParse(reservation.replace_type.ToString(), out SwitchTypeEnum typeEnum))
+                    switchRequest.SwitchTypeEnum = typeEnum;
+                else
                     return NotFound("Replace_type error.");
-            }
+                //根据换电方式设置请求状态
+                switch (switchRequest.SwitchTypeEnum)
+                {
+                    case SwitchTypeEnum.上门换电:
+                        switchRequest.requestStatusEnum = RequestStatusEnum.待接单;
+                        break;
+                    case SwitchTypeEnum.预约换电:
+                        switchRequest.requestStatusEnum = RequestStatusEnum.待完成;
+                        //预约换电可以直接预定电池
+                        var battery = _context.Batteries.FirstOrDefault(s => s.batteryType.Name == battery_type && s.switchStation == station);
+                        if (battery == null)
+                            return NotFound("Battery not found.");
+                        battery.AvailableStatusEnum = AvailableStatusEnum.已预定;
 
-            _context.SwitchRequests.Add(switchRequest);
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException)
-            {
-                return Conflict();
-            }
+                        break;
+                    default:
+                        return NotFound("Replace_type error.");
+                }
 
-            var obj = new
-            {
-                reservation_id = switchRequest.SwitchRequestId,
-            };
-            return Content(JsonConvert.SerializeObject(obj), "application/json");
+                _context.SwitchRequests.Add(switchRequest);
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    return Conflict();
+                }
+
+                var obj = new
+                {
+                    reservation_id = switchRequest.SwitchRequestId,
+                };
+                return Content(JsonConvert.SerializeObject(obj), "application/json");
+            }
         }
 
         [HttpGet]
-        public ActionResult<string> battery_replace(int pageIndex, int pageSize, string owner_id, string order_type="已完成")
+        public ActionResult<string> switch_history(int pageIndex, int pageSize, string owner_id, string order_type="已完成")
         {
             int offset = (pageIndex - 1) * pageSize;
             int limit = pageSize;
@@ -115,24 +136,25 @@ namespace webapi.Controllers.Administrator
             else
                 return NotFound("Order_type error.");
 
-            var query = _context.SwitchRequests
-               .Where(
-                sr => sr.vehicleOwner.OwnerId == long.Parse(owner_id) &&
-                sr.SwitchType == (int)Ordertype
-                )
-               .Join(
-                _context.SwitchLogs,
-                sr => sr.SwitchRequestId,
-                sl => sl.switchrequest.SwitchRequestId,
-                (sr, sl) => new
+            var query = (
+                from sr in _context.SwitchRequests
+                where sr.vehicleOwner.OwnerId == long.Parse(owner_id) && sr.RequestStatus == (int)Ordertype
+                select new
                 {
-                    SwitchRequest = sr,
-                    sl.SwitchTime,
-                    sl.Score,
-                    sl.Evaluation
-                })
-               .Skip(offset)
-               .Take(limit);
+                    switch_request_id = sr.SwitchRequestId,
+                    switch_type = sr.SwitchTypeEnum.ToString(),
+                    request_time = sr.RequestTime,
+                    position = sr.Position,
+                    station_name = sr.switchStation.StationName,
+                    station_address = sr.switchStation.Address,
+                    licence_plate = sr.vehicle.PlateNumber,
+                    vehicle_model = sr.vehicle.vehicleParam.ModelName,
+                    battery_type = sr.batteryType.Name,
+                    employee_id = (order_type == "待接单" ? "" : sr.employee.EmployeeId.ToString()),
+                    switch_date = sr.Date,
+                    switch_period = sr.Period,
+                    order_type = sr.requestStatusEnum.ToString()
+                }).Skip(offset).Take(limit);
 
             var totalData = query.Count();
             var data = query.ToList();
@@ -141,7 +163,8 @@ namespace webapi.Controllers.Administrator
                 return BadRequest();
             var obj = new
             {
-                totalData,
+                code = 0,
+                msg = "success",
                 data
             };
 

@@ -59,23 +59,22 @@ namespace webapi.Controllers.Staff
         public ActionResult GetMaintenanceArray(long employee_id)
         {
             var maintenance_array = _context.MaintenanceItems
-        .Where(e => e.OrderStatus != (int)OrderStatusEnum.已完成)
-        .Where(e => e.employees.Any(t => t.EmployeeId == employee_id))
-            .Select(maintenance_item=>
-new
-{
-    maintenance_location = maintenance_item.MaintenanceLocation,
-    plate_number = maintenance_item.vehicle.PlateNumber,
-    vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
-    order_status = maintenance_item.OrderStatusEnum,
-    title = maintenance_item.Title,
-    order_submission_time = maintenance_item.OrderSubmissionTime,
-    service_time = maintenance_item.ServiceTime,
-    remarks = maintenance_item.Note,
-    username = maintenance_item.vehicle.vehicleOwner.Username,
-    phone_number = maintenance_item.vehicle.vehicleOwner.PhoneNumber,
-}
-            ).ToList();
+                .Where(e => e.OrderStatus != (int)OrderStatusEnum.已完成)
+                .Where(e => e.employees.Any(t => t.EmployeeId == employee_id))
+                .Select(maintenance_item=> new
+                {
+                    maintenance_location = maintenance_item.MaintenanceLocation,
+                    plate_number = maintenance_item.vehicle.PlateNumber,
+                    vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
+                    order_status = maintenance_item.OrderStatusEnum,
+                    title = maintenance_item.Title,
+                    order_submission_time = maintenance_item.OrderSubmissionTime,
+                    service_time = maintenance_item.ServiceTime,
+                    remarks = maintenance_item.Note,
+                    username = maintenance_item.vehicle.vehicleOwner.Username,
+                    phone_number = maintenance_item.vehicle.vehicleOwner.PhoneNumber,
+                }
+                ).ToList();
 
             var a = new
             {
