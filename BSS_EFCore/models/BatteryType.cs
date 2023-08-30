@@ -15,5 +15,5 @@ public partial class BatteryType
 
     public List<Battery> batteries { get; set; } = new List<Battery>();   //至少为1
 
-    public List<SwitchRequest> switchRequests { get; set; } = new List<SwitchRequest>();
+    public List<SwitchRequest> switchRequests { get; set; } = new List<SwitchRequest>();  //可空
 }
