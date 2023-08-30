@@ -9,7 +9,7 @@ using static ASPNETCoreWebAPI_Layer.Controllers.maintenance_itemsInfoController;
 
 namespace ASPNETCoreWebAPI_Layer.Controllers
 {
-    [Route("[controller]/[action]")]
+    [Route("administrator/[controller]/[action]")]
     [ApiController]
     public class maintenance_itemsInfoController : ControllerBase
     {
@@ -29,7 +29,7 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// <param name="order_status"></param>    ///取值为unhandled    handling     finish    Unknown
         /// <returns></returns>
         [HttpGet]    
-        public ActionResult<object> Message(string? maintenance_items_id, string? vehicle_id,
+        public ActionResult<object> Message(int pageIndex, int pageSize, string? maintenance_items_id, string? vehicle_id,
             string? maintenance_location, string? order_status)
         {
             IEnumerable<MaintenanceItem> tmp = null;
@@ -50,8 +50,8 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
                 vehicle_id = e.vehicle.VehicleId,
                 maintenance_location = e.MaintenanceItemId,
                 order_status = e.OrderStatusEnum.ToString()
-            });
-            return new JsonResult(res);
+            }).Skip((pageIndex-1)*pageSize).Take(pageSize);
+            return Ok(res);
         }
 
 
@@ -185,58 +185,62 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
             }
         }
 
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         [HttpGet]
-        public string tes(long id)  
+        public async Task<ActionResult<object>> TableMessage(int pageIndex, int pageSize)
         {
-            return modelContext.Batteries.Where(e=>e.BatteryId==id).Select(a=>a.vehicle.VehicleId).FirstOrDefault().ToString();
+
         }
-        [HttpPost("{id}/{id2}")] 
-        public string Demo2([FromRoute(Name = "id")] string d1, [FromRoute(Name = "id")] string d2) 
-        {
-            Battery battery_tmp = new Battery(); 
-            BatteryType batteryType_tmp = new BatteryType();
-            using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    battery_tmp.AvailableStatusEnum = AvailableStatusEnum.汽车使用中;
-                    battery_tmp.CurrChargeTimes = 0;
-                    battery_tmp.CurrentCapacity = 70;
-                    battery_tmp.ManufacturingDate=DateTime.Now;
 
-                    batteryType_tmp.MaxChargeTimes = 1000;
-                    batteryType_tmp.TotalCapacity = "98.67KWh";
 
-                    battery_tmp.batteryType = batteryType_tmp;
 
-                    modelContext.Batteries.Add(battery_tmp);
-                    modelContext.BatteryTypes.Add(batteryType_tmp);
-                    modelContext.SaveChangesAsync();
-                    tx.Complete();
-                }
-                catch (Exception ex)
-                {
-                    return "Error: " + ex.Message + $"d1+d2={d1+d2}";
-                }
-            }
-            return "success:"+battery_tmp.ToString()+batteryType_tmp.ToString() + $"d1={d1+d2}";
-        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //    [HttpGet]
+    //    public string tes(long id)  
+    //    {
+    //        return modelContext.Batteries.Where(e=>e.BatteryId==id).Select(a=>a.vehicle.VehicleId).FirstOrDefault().ToString();
+    //    }
+    //    [HttpPost("{id}/{id2}")] 
+    //    public string Demo2([FromRoute(Name = "id")] string d1, [FromRoute(Name = "id")] string d2) 
+    //    {
+    //        Battery battery_tmp = new Battery(); 
+    //        BatteryType batteryType_tmp = new BatteryType();
+    //        using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+    //        {
+    //            try
+    //            {
+    //                battery_tmp.AvailableStatusEnum = AvailableStatusEnum.汽车使用中;
+    //                battery_tmp.CurrChargeTimes = 0;
+    //                battery_tmp.CurrentCapacity = 70;
+    //                battery_tmp.ManufacturingDate=DateTime.Now;
+
+    //                batteryType_tmp.MaxChargeTimes = 1000;
+    //                batteryType_tmp.TotalCapacity = "98.67KWh";
+
+    //                battery_tmp.batteryType = batteryType_tmp;
+
+    //                modelContext.Batteries.Add(battery_tmp);
+    //                modelContext.BatteryTypes.Add(batteryType_tmp);
+    //                modelContext.SaveChangesAsync();
+    //                tx.Complete();
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                return "Error: " + ex.Message + $"d1+d2={d1+d2}";
+    //            }
+    //        }
+    //        return "success:"+battery_tmp.ToString()+batteryType_tmp.ToString() + $"d1={d1+d2}";
+    //    }
     }
 }

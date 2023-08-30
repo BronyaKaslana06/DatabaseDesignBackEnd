@@ -84,6 +84,41 @@ namespace webapi.Controllers.Staff
             return NewContent();
         }
 
+        [HttpGet("switch-records/query")]
+        public ActionResult<object> Query(string employee_id,List<string> switch_request_id,string vehicle_id,
+            string switch_type,string startDate,string endDate)
+        {
+            var tmp = _context.SwitchLogs.Include(e => e.employee).Include(f=>f.switchrequest).Where(c => c.employee.EmployeeId == long.Parse(employee_id));
+            if (switch_type != null)
+            {
+                if (Enum.TryParse(switch_type, out SwitchTypeEnum os_enum))
+                    tmp = tmp.Where(c => c.switchrequest.SwitchTypeEnum == os_enum);
+                else
+                    return BadRequest("fail to convert order_status");
+            }
+            if (startDate != null && endDate != null) 
+            {
+                // 定义日期时间字符串的格式化
+                string format = "yyyy-MM-dd";
+                // 尝试将字符串转换为 DateTime
+                if (DateTime.TryParseExact(startDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
+                    DateTime.TryParseExact(endDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
+                {
+                    ;
+                }
+                else
+                {
+                    return BadRequest("fail to convert service_time");
+                }
+            }
+
+            var res = tmp.Select(a => new
+            {
+                switch_request_id = a.SwitchServiceId,
+                request_time = a.SwitchTime
+            });
+            return null;
+        }
 
         ContentResult NewContent(int _code = 0, string _msg = "success")
         {

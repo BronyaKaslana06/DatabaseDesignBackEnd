@@ -15,9 +15,16 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    //app.UseSwagger();
+    //app.UseSwaggerUI();
 }
+
+string format = "yyyy-MM-dd HH:mm:ss";
+if(DateTime.TryParseExact("2023-10-12 10:12:30", format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
+    DateTime.TryParseExact("2023-11-11 23:22:35", format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
+    Console.WriteLine(result2-result1);
+
+
 
 app.UseHttpsRedirection();
 
