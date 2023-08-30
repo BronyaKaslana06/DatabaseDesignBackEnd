@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using System.Linq;
 
 namespace webapi.Controllers.Administrator
 {
@@ -178,14 +179,15 @@ namespace webapi.Controllers.Administrator
             using (TransactionScope tx = new TransactionScope())
             {
                 dynamic review = JsonConvert.DeserializeObject<dynamic>(_review.ToString());
-
                 long switchRequestId = Convert.ToInt64(review.switch_request_id);
-                var switchLog = _context.SwitchLogs.FirstOrDefault(s => s.switchrequest.SwitchRequestId == switchRequestId);
-                switchLog.Score = (double)review.score;
-                switchLog.Evaluation = review.evaluation;
 
-                var switchRequest = _context.SwitchRequests.FirstOrDefault(s => s.SwitchRequestId == switchRequestId);
+                var switchRequest = _context.SwitchRequests.Where(s => s.SwitchRequestId == switchRequestId).FirstOrDefault();
                 switchRequest.requestStatusEnum = RequestStatusEnum.已完成;
+
+                
+                var switchLog = _context.SwitchLogs.Where(s => s.switchrequest.SwitchRequestId == switchRequestId).DefaultIfEmpty().ToList();
+                switchLog[0].Score = (double)review.score;
+                switchLog[0].Evaluation = review.evaluation;
 
                 try
                 {
@@ -219,35 +221,5 @@ namespace webapi.Controllers.Administrator
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
-
-        //接口已废弃
-        //[HttpPatch("{id}")]
-        //public ActionResult<string> Patch_SwitchReservation(int reservation_id, [FromBody] dynamic _reservation)
-        //{
-
-        //    var request = _context.SwitchRequests.FirstOrDefault(s => s.SwitchRequestId == reservation_id);
-        //    if (request == null)
-        //        return NotFound("Reservation not found.");
-
-        //    dynamic reservation = JsonConvert.DeserializeObject<dynamic>(_reservation.ToString());
-
-        //    request.RequestTime = reservation.updatetime;
-        //    request.Date = reservation.reservation_date;
-        //    request.Period = reservation.period;
-        //    request.Position = reservation.owner_address;
-        //    request.Longitude = reservation.longitude;
-        //    request.Latitude = reservation.latitude;
-
-        //    try
-        //    {
-        //        _context.SaveChanges();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return NoContent();
-        //}
     }
 }

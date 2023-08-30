@@ -14,4 +14,6 @@ public partial class BatteryType
     public string? Name { get; set; }
 
     public List<Battery> batteries { get; set; } = new List<Battery>();   //至少为1
+
+    public List<SwitchRequest> switchRequests { get; set; } = new List<SwitchRequest>();
 }

@@ -34,6 +34,7 @@ namespace BSS_EFCore.configuration
 
             builder.HasOne<VehicleOwner>(e => e.vehicleOwner).WithMany(a => a.switchRequests).IsRequired();
             builder.HasOne<Vehicle>(e => e.vehicle).WithMany(a=>a.switchRequests).IsRequired();
+            builder.HasOne<BatteryType>(e=>e.batteryType).WithMany(a=>a.switchRequests).IsRequired();
         }
     }
 }

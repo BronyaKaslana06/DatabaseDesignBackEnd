@@ -188,7 +188,7 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         [HttpGet]
         public async Task<ActionResult<object>> TableMessage(int pageIndex, int pageSize)
         {
-
+            return NotFound();
         }
 
 

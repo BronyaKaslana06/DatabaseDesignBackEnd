@@ -23,10 +23,12 @@ namespace webapi.Controllers.Staff
         [HttpGet]
         public ActionResult<string> detail(string switch_request_id)
         {
-            var request = _context.SwitchRequests.FirstOrDefault(s => s.SwitchRequestId ==Convert.ToInt64(switch_request_id));
+            long request_id = Convert.ToInt64(switch_request_id);
+            Console.WriteLine(request_id);
+            var request = _context.SwitchRequests.FirstOrDefault(s => s.SwitchRequestId == request_id);
             if (request == null)
                 return NotFound("Request not found.");
-
+            Console.WriteLine(request_id);
             var log = from  r in _context.SwitchLogs
                       where r.switchrequest == request
                       select new
@@ -37,9 +39,10 @@ namespace webapi.Controllers.Staff
                           batteryOffId = r.batteryOff.BatteryId,
                           switch_time = r.SwitchTime
                       };
-
+            long ss = request_id;
+            Console.WriteLine(request_id);
             var query = from sr in _context.SwitchRequests
-                        where sr.SwitchRequestId == Convert.ToInt64(switch_request_id)
+                        where sr.SwitchRequestId == request_id
                         select new
                         {
                             switch_request_id = sr.SwitchRequestId,
@@ -61,25 +64,25 @@ namespace webapi.Controllers.Staff
                             order_status = sr.requestStatusEnum.ToString()
                         };
 
-            if (query.Count()==0)
+            if (query == null || query.Count()==0)
                 return NotFound("无该请求！");
 
             var data = new
             {
                 switch_request = query.ToList()[0],
-                switch_log = log.Count() == 0 ? new
+                switch_log = (log == null ||log.Count() == 0) ? new
                 {
                     score = (double)-1,
                     evaluation = "",
                     batteryOnId = (long)-1,
                     batteryOffId = (long)-1,
                     switch_time = DateTime.MaxValue
-                } : log.ToList()[0]
+                } : log.DefaultIfEmpty().ToList()[0]
             };
 
             var a = new
             {
-                code = 200,
+                code = 0,
                 msg = "success",
                 data
             };
@@ -89,19 +92,19 @@ namespace webapi.Controllers.Staff
         [HttpGet]
         public ActionResult<string> doortodoor(string station_id, string employee_id, string request_status)
         {
-            //var station = _context.SwitchStations.Where(e => e.StationId == station_id);
-            //if (station == null)
-            //    return NotFound("Station not found.");
+            var station = _context.SwitchStations.Where(e => e.StationId == Convert.ToInt64(station_id)).DefaultIfEmpty().FirstOrDefault();
+            if (station == null)
+                return NotFound("Station not found.");
             if (request_status == "待接单")
             {
                 employee_id = "-1";
             }
-            //else
-            //{
-            //    var employee = _context.Employees.Where(e => e.EmployeeId == employee_id);
-            //    if (employee == null)
-            //        return NotFound("Employee not found.");
-            //}
+            else
+            {
+                var employee = _context.Employees.Where(e => e.EmployeeId ==Convert.ToInt64(employee_id)).DefaultIfEmpty().FirstOrDefault();
+                if (employee == null)
+                    return NotFound("Employee not found.");
+            }
 
             RequestStatusEnum Ordertype = RequestStatusEnum.未知;
             if (Enum.TryParse(request_status, out RequestStatusEnum typeEnum))
@@ -143,13 +146,14 @@ namespace webapi.Controllers.Staff
             {
                 return NotFound("Request_status error.");
             }
-            //var station = _context.SwitchStations.FirstOrDefault(s => s.StationId == station_id);
-            //if (station == null)
-            //    return NotFound("Station not found.");
+            var station = _context.SwitchStations.Where(e => e.StationId == Convert.ToInt64(station_id)).DefaultIfEmpty().FirstOrDefault();
+            if (station == null)
+                return NotFound("Station not found.");
 
-            //var employee = _context.Employees.FirstOrDefault(s => s.EmployeeId == employee_id);
-            //if (employee == null)
-            //    return NotFound("Employee not found.");
+            var employee = _context.Employees.Where(e => e.EmployeeId == Convert.ToInt64(employee_id)).DefaultIfEmpty().FirstOrDefault();
+            if (employee == null)
+                return NotFound("Employee not found.");
+            
 
             RequestStatusEnum Ordertype = RequestStatusEnum.未知;
             if (Enum.TryParse(request_status, out RequestStatusEnum typeEnum))
@@ -193,11 +197,11 @@ namespace webapi.Controllers.Staff
                 dynamic body = JsonConvert.DeserializeObject<dynamic>(_body.ToString());
 
                 long employee_id = Convert.ToInt64(body.employee_id);
-                var employee = _context.Employees.FirstOrDefault(s => s.EmployeeId == employee_id);
+                var employee = _context.Employees.Where(s => s.EmployeeId == employee_id).DefaultIfEmpty().FirstOrDefault();
                 if (employee == null)
                     return NotFound("Employee not found.");
                 long request_id = Convert.ToInt64(body.switch_request_id);
-                var request = _context.SwitchRequests.FirstOrDefault(s => s.SwitchRequestId == request_id);
+                var request = _context.SwitchRequests.Where(s => s.SwitchRequestId == request_id).DefaultIfEmpty().FirstOrDefault();
                 if (request == null)
                     return NotFound("Switch request not found.");
 
@@ -206,8 +210,9 @@ namespace webapi.Controllers.Staff
                 request.employee = employee;
                 request.requestStatusEnum = RequestStatusEnum.待完成;
 
-                string? barry_type = request.batteryType.Name;
-                var battery = _context.Batteries.FirstOrDefault(s => s.batteryType.Name == barry_type);
+                Console.WriteLine(request.batteryType);
+                long barry_type_id = request.batteryType.BatteryTypeId;
+                var battery = _context.Batteries.Where(s => s.batteryType.BatteryTypeId == barry_type_id).DefaultIfEmpty().ToList()[0];
                 if (battery == null)
                     return NotFound("Battery not found.");
                 battery.AvailableStatusEnum = AvailableStatusEnum.已预定;
