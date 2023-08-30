@@ -38,8 +38,6 @@ public partial class Battery
     public Vehicle? vehicle { get; set; }   //nullable
     public List<SwitchLog> switchLogsOn { get; set; } = new List<SwitchLog>(); //nullable
     public List<SwitchLog> switchLogsOff { get; set; } = new List<SwitchLog>();  //nullable
-
-    
 }
 
 

@@ -232,7 +232,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpDelete]
-        public IActionResult DeleteStaff(string station_id)
+        public IActionResult DeleteStaff(long station_id)
         {
 
             var station = _context.SwitchStations.Find(station_id);
@@ -241,7 +241,20 @@ namespace webapi.Controllers.Administrator
                 return NewContent(1,"找不到该station");
             }
 
+            var employees= _context.Employees.Where(e => e.switchStation.StationId == station_id).ToList();
+            var batteries = _context.Batteries.Where(e => e.switchStation.StationId == station_id).ToList();
+            foreach (var e in employees)
+            {
+                e.switchStation = null;
+            }
+
+            foreach (var e in station.batteries)
+            {
+                e.switchStation = null;
+            }
+
             _context.SwitchStations.Remove(station);
+
             try
             {
                 _context.SaveChanges();

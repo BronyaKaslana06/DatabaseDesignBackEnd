@@ -53,7 +53,7 @@ namespace webapi.Controllers.Administrator
             var c=_context.News.Where(a =>
             (a.Title==null? title=="" : a.Title.Contains(title))  &&
             (id==null? publisher=="": a.administrator.AdminId==id)&&
-            (a.PublishPos==null? publish_pos == "" : a.PublishPos==publish_pos) &&
+            (a.PublishPos==null? publish_pos == "" : a.PublishPos.Contains(publish_pos)) &&
             (date==null? publish_time=="":a.PublishTime.Date == date)
             ).Select(e=>new{
                 title=e.Title,
@@ -83,11 +83,11 @@ namespace webapi.Controllers.Administrator
                 Contents = _acm.contents,
                 PublishTime = DateTime.Now,
                 Title = _acm.title,
-                PublishPos = _acm.publish_Pos,
+                PublishPos = _acm.publish_pos,
                 administrator=_context.Administrators.Find(long.Parse($" {_acm.publisher}"))
             };
-            _context.Add(acm);
 
+            _context.Add(acm);
             try
             {
                 _context.SaveChanges();
@@ -117,11 +117,11 @@ namespace webapi.Controllers.Administrator
                 acm.Contents = _acm.contents;
                 //acm.PublishTime = Convert.ToDateTime(_acm.publish_time);
                 acm.Title = _acm.title;
-                acm.PublishPos = _acm.publish_Pos;
-                acm.administrator=_context.Administrators.Find(long.Parse($"{_acm.publisher}"))?? acm.administrator;
+                acm.PublishPos = _acm.publish_pos;
+                if(long.TryParse($"{_acm.publisher}",out var b))
+                    acm.administrator=_context.Administrators.Find(b);
             }
             try{
-                _context.News.Add(acm);
                 _context.SaveChanges();
             }
             catch(DbUpdateException e)
