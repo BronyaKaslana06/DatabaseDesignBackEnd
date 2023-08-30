@@ -46,7 +46,7 @@ namespace webapi.Controllers.Administrator
             && ((status!=null&& e.FailureStatus == status) || faliure_status == ""))
             .Select(e=>new{
                 station_id=e.StationId,
-                employee_id=e.employees.FirstOrDefault(a=>a.switchStation.StationId==e.StationId&&a.Position== (int)PositionEnum.换电站管理员),
+                employee_id=e.employees.FirstOrDefault(a=>a.switchStation.StationId==e.StationId&&a.Position== (int)PositionEnum.换电站管理员).EmployeeId,
                 station_name=e.StationName,
                 longitude=e.Longitude,
                 latitude=e.Latitude,
@@ -147,8 +147,8 @@ namespace webapi.Controllers.Administrator
                 switch_station.AvailableBatteryCount = cout;
 
             switch_station.Address = $"{station.station_address}" == String.Empty ? switch_station.Address : $"{station.station_address}";
-            switch_station.ServiceFee = float.TryParse($"{station.service_fee}" ,out var k)? switch_station.ServiceFee : k;
-            switch_station.ElectricityFee= float.TryParse($"{station.electricity_fee}",out var t)? switch_station.ElectricityFee : t;
+            switch_station.ServiceFee = float.TryParse($"{station.service_fee}" ,out var k)? k:switch_station.ServiceFee;
+            switch_station.ElectricityFee= float.TryParse($"{station.electricity_fee}",out var t)? t:switch_station.ElectricityFee ;
             try
             {
                 _context.SaveChanges();
