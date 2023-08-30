@@ -26,7 +26,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpGet("query")]
-        public ActionResult<IEnumerable<Employee>> GetPage_(int pageIndex=1, int pageSize=1, string station_name = "", long station_id = -1, long employee_id = -1,string faliure_status="")
+        public ActionResult<IEnumerable<Employee>> GetPage_(int pageIndex=1, int pageSize=1, string station_name = "", long station_id = -1,string faliure_status="")
         {
             int offset = (pageIndex - 1) * pageSize;
             int limit = pageSize;
@@ -38,19 +38,18 @@ namespace webapi.Controllers.Administrator
                 status=true;
             else if(faliure_status=="否")
                 status=false;
+         
             var query = _context.SwitchStations
             .Where(e =>
             (e.StationId == station_id || station_id == -1)
-            && e.StationName.Contains(station_name)
-            && (e.employees.Any(a => a.EmployeeId == employee_id&&a.Position==(int)PositionEnum.换电站管理员) || employee_id == -1)
+            && e.StationName==null? station_name=="":e.StationName.Contains(station_name)
             && ((status!=null&& e.FailureStatus == status) || faliure_status == ""))
             .Select(e=>new{
                 station_id=e.StationId,
-                employee_id=e.employees.FirstOrDefault(a=>a.switchStation.StationId==e.StationId&&a.Position== (int)PositionEnum.换电站管理员).EmployeeId,
                 station_name=e.StationName,
                 longitude=e.Longitude,
                 latitude=e.Latitude,
-                faliure_status=faliure_status,
+                faliure_status=e.FailureStatus==true?"是":"否",
                 battety_capacity=e.BatteryCapacity,
                 available_battery_count=e.AvailableBatteryCount,
                 electricity_fee=e.ElectricityFee,
