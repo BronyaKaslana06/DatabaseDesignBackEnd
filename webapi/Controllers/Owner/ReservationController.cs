@@ -114,6 +114,7 @@ namespace webapi.Controllers.Administrator
                 {
                     reservation_id = switchRequest.SwitchRequestId,
                 };
+                tx.Complete();
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
@@ -214,6 +215,7 @@ namespace webapi.Controllers.Administrator
                 {
                     switch_request = query,
                 };
+                tx.Complete();
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
