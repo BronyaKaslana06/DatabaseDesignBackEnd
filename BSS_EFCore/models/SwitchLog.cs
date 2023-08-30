@@ -21,5 +21,6 @@ public partial class SwitchLog
 
     public Employee employee { get; set; }    //not null
 
+    public long switchRequestId { get; set; }
     public SwitchRequest switchrequest { get; set; }    //not null
 }

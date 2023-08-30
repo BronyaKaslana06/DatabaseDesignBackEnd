@@ -33,7 +33,8 @@ namespace BSS_EFCore.configuration
 
             builder.HasOne<Vehicle>(d => d.vehicle).WithMany(p=>p.SwitchLogs).IsRequired();
 
-
+            builder.HasOne<SwitchRequest>(d => d.switchrequest).WithOne(p => p.switchLog)
+                .HasForeignKey<SwitchLog>(c => c.switchRequestId).IsRequired();
         }
     }
 }

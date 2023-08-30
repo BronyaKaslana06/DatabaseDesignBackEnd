@@ -113,16 +113,8 @@ namespace Idcreator
                 allIds = new List<long>();
                 allIds=
                 _context.Administrators.Select(a => a.AdminId).ToList().Union(
-                _context.Batteries.Select(a => a.BatteryId).ToList()).ToList().Union(
                 _context.Employees.Select(a => a.EmployeeId).ToList()).ToList().Union(
-                _context.Kpis.Select(a => a.KpiId).ToList()).ToList().Union(
-                _context.MaintenanceItems.Select(a=>a.MaintenanceItemId).ToList()).ToList().Union(
-                _context.News.Select(a=>a.AnnouncementId).ToList()).ToList().Union(
-                _context.SwitchLogs.Select(a=>a.SwitchServiceId).ToList()).ToList().Union(
-                _context.SwitchRequests.Select(a=>a.SwitchRequestId).ToList()).ToList().Union(
-                _context.SwitchStations.Select(a=>a.StationId).ToList()).ToList().Union(
-                _context.VehicleOwners.Select(a=>a.OwnerId).ToList()).ToList().Union(
-                _context.Vehicles.Select(a=>a.VehicleId).ToList()).ToList();
+                _context.VehicleOwners.Select(a=>a.OwnerId).ToList()).ToList();
             }
 
             if (allIds == null)

@@ -19,7 +19,7 @@ public partial class MaintenanceItem
 
     public double latitude { get; set; }
 
-    public DateTime ServiceTime { get; set; }
+    public DateTime? ServiceTime { get; set; }
 
     public DateTime OrderSubmissionTime { get; set; }
 

@@ -15,6 +15,8 @@ public partial class Vehicle
 
     public Battery Battery { get; set; }   //非空
 
+    public int Mileage { get; set; }  
+
     public List<MaintenanceItem> maintenanceItems { get; set; } = new List<MaintenanceItem>();  //可以为0
     public List<SwitchRequest> switchRequests { get; set; } = new List<SwitchRequest>();  //可以为0
 

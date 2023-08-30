@@ -53,7 +53,6 @@ namespace BSS_EFCore.Migrations
                         .HasColumnName("ACCOUNT_SERIAL");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Password")
@@ -154,7 +153,6 @@ namespace BSS_EFCore.Migrations
                         .HasColumnName("CREATE_TIME");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Gender")
@@ -293,7 +291,7 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("BINARY_DOUBLE")
                         .HasColumnName("SCORE");
 
-                    b.Property<DateTime>("ServiceTime")
+                    b.Property<DateTime?>("ServiceTime")
                         .HasColumnType("TIMESTAMP(7)")
                         .HasColumnName("SERVICE_TIME");
 
@@ -408,9 +406,6 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("BINARY_DOUBLE")
                         .HasColumnName("SCORE");
 
-                    b.Property<long>("SwitchRequestId")
-                        .HasColumnType("NUMBER(19)");
-
                     b.Property<DateTime>("SwitchTime")
                         .HasColumnType("TIMESTAMP(7)")
                         .HasColumnName("SWITCH_TIME");
@@ -424,18 +419,22 @@ namespace BSS_EFCore.Migrations
                     b.Property<long>("batteryOnBatteryId")
                         .HasColumnType("NUMBER(19)");
 
+                    b.Property<long>("switchRequestId")
+                        .HasColumnType("NUMBER(19)");
+
                     b.HasKey("SwitchServiceId")
                         .HasName("SYS_C009138");
 
                     b.HasIndex("EmployeeId");
-
-                    b.HasIndex("SwitchRequestId");
 
                     b.HasIndex("VehicleId");
 
                     b.HasIndex("batteryOffBatteryId");
 
                     b.HasIndex("batteryOnBatteryId");
+
+                    b.HasIndex("switchRequestId")
+                        .IsUnique();
 
                     b.ToTable("SWITCH_LOG", "C##CAR");
                 });
@@ -594,6 +593,9 @@ namespace BSS_EFCore.Migrations
                     b.Property<long>("BatteryId")
                         .HasColumnType("NUMBER(19)");
 
+                    b.Property<int>("Mileage")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<string>("PlateNumber")
                         .HasColumnType("NVARCHAR2(2000)")
                         .HasColumnName("PLATE_NUMBER");
@@ -643,7 +645,6 @@ namespace BSS_EFCore.Migrations
                         .HasColumnName("CREATE_TIME");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(true)
                         .HasColumnType("NVARCHAR2(50)")
@@ -827,12 +828,6 @@ namespace BSS_EFCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EntityFramework.Models.SwitchRequest", "switchrequest")
-                        .WithMany()
-                        .HasForeignKey("SwitchRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("EntityFramework.Models.Vehicle", "vehicle")
                         .WithMany("SwitchLogs")
                         .HasForeignKey("VehicleId")
@@ -851,6 +846,12 @@ namespace BSS_EFCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EntityFramework.Models.SwitchRequest", "switchrequest")
+                        .WithOne("switchLog")
+                        .HasForeignKey("EntityFramework.Models.SwitchLog", "switchRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("batteryOff");
 
                     b.Navigation("batteryOn");
@@ -865,7 +866,7 @@ namespace BSS_EFCore.Migrations
             modelBuilder.Entity("EntityFramework.Models.SwitchRequest", b =>
                 {
                     b.HasOne("EntityFramework.Models.BatteryType", "batteryType")
-                        .WithMany()
+                        .WithMany("switchRequests")
                         .HasForeignKey("BatteryTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -949,6 +950,8 @@ namespace BSS_EFCore.Migrations
             modelBuilder.Entity("EntityFramework.Models.BatteryType", b =>
                 {
                     b.Navigation("batteries");
+
+                    b.Navigation("switchRequests");
                 });
 
             modelBuilder.Entity("EntityFramework.Models.Employee", b =>
@@ -959,6 +962,12 @@ namespace BSS_EFCore.Migrations
                     b.Navigation("switchLogs");
 
                     b.Navigation("switchRequests");
+                });
+
+            modelBuilder.Entity("EntityFramework.Models.SwitchRequest", b =>
+                {
+                    b.Navigation("switchLog")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EntityFramework.Models.SwitchStation", b =>
