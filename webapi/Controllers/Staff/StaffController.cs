@@ -89,13 +89,15 @@ namespace webapi.Controllers.Staff
         }
 
 
-        ContentResult NewContent(int _code = 0, string _msg = "success")
+        ContentResult NewContent(int _code = 0, string _msg = "success", string dataName = "data", object data = null)
         {
-            var a = new
-            {
-                code = _code,
-                msg = _msg
-            };
+
+            var a = new Dictionary<string, object>();
+            a.Add("code", _code);
+            a.Add("msg", _msg);
+            if (data != null)
+                a.Add(dataName, data);
+            
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
     }

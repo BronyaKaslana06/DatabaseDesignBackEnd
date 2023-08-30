@@ -4,6 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Numerics;
+using EntityFramework.Context;
+using Microsoft.AspNetCore.Mvc;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 namespace Idcreator
 {
     public class SnowflakeIDcreator
@@ -79,7 +85,61 @@ namespace Idcreator
         /// <returns></returns>
         private static long timeGen()
         {
-            return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            return (long)(DateTime.UtcNow -  DateTime.Today).TotalMilliseconds;
         }
+    }
+
+
+    public class EasyIDCreator: IPrincipalAccessor
+    {
+        static List<long>? allIds = null;
+        static Random rand=null;
+        private static ModelContext _context;
+        public EasyIDCreator(IHttpContextAccessor httpContextAccessor)
+        {
+            var _httpContextAccessor = httpContextAccessor;
+            _context = httpContextAccessor.HttpContext.RequestServices.GetService<ModelContext>();
+        }
+        static ModelContext GetContext([FromServices] ModelContext modelContext)
+        {
+            return modelContext;
+        }
+        public static long CreateId(ModelContext context)
+        {
+            if (_context == null)
+            { 
+                rand=new Random();
+                _context = context;
+                allIds = new List<long>();
+                allIds=
+                _context.Administrators.Select(a => a.AdminId).ToList().Union(
+                _context.Batteries.Select(a => a.BatteryId).ToList()).ToList().Union(
+                _context.Employees.Select(a => a.EmployeeId).ToList()).ToList().Union(
+                _context.Kpis.Select(a => a.KpiId).ToList()).ToList().Union(
+                _context.MaintenanceItems.Select(a=>a.MaintenanceItemId).ToList()).ToList().Union(
+                _context.News.Select(a=>a.AnnouncementId).ToList()).ToList().Union(
+                _context.SwitchLogs.Select(a=>a.SwitchServiceId).ToList()).ToList().Union(
+                _context.SwitchRequests.Select(a=>a.SwitchRequestId).ToList()).ToList().Union(
+                _context.SwitchStations.Select(a=>a.StationId).ToList()).ToList().Union(
+                _context.VehicleOwners.Select(a=>a.OwnerId).ToList()).ToList().Union(
+                _context.Vehicles.Select(a=>a.VehicleId).ToList()).ToList();
+            }
+
+            if (allIds == null)
+                return SnowflakeIDcreator.nextId();
+
+            while (true)
+            {
+                long a = rand.NextInt64(1000000000, 9999999999);
+                if (allIds.Any(b=>b==a)==false)
+                {
+                    allIds.Add(a);
+                    return a;
+                }
+            }
+        } 
+    }
+    public interface IPrincipalAccessor
+    {
     }
 }

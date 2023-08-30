@@ -47,7 +47,7 @@ namespace webapi.Controllers.Administrator
             .Select(e=>new{
                 station_id=e.StationId,
                 employee_id=e.employees.FirstOrDefault(a=>a.switchStation.StationId==e.StationId&&a.Position== (int)PositionEnum.换电站管理员),
-                station_name=station_name,
+                station_name=e.StationName,
                 longitude=e.Longitude,
                 latitude=e.Latitude,
                 faliure_status=faliure_status,
@@ -172,19 +172,20 @@ namespace webapi.Controllers.Administrator
                 {
                     return NewContent(1, "id非法");
                 }
-                SwitchStation staff = new SwitchStation();
+                SwitchStation switch_station = new SwitchStation();
+                switch_station.StationId = Idcreator.SnowflakeIDcreator.nextId();
                 if ($"{station.station_name}" != String.Empty)
-                    staff.StationName = $"{station.station_name}";
+                    switch_station.StationName = $"{station.station_name}";
                 if (int.TryParse($"{station.battety_capacity}", out var battety_capacity))
-                    staff.BatteryCapacity = battety_capacity;
+                    switch_station.BatteryCapacity = battety_capacity;
                 if (double.TryParse($"{station.longitude}", out var longi))
-                    staff.Longitude = longi;
+                    switch_station.Longitude = longi;
                 if (double.TryParse($"{station.latitude}", out var lan))
-                    staff.Latitude = lan;
+                    switch_station.Latitude = lan;
                 if ($"{station.faliure_status}" != String.Empty)
-                    staff.FailureStatus = $"{station.faliure_status}" == "是" ? true : false;
+                    switch_station.FailureStatus = $"{station.faliure_status}" == "是" ? true : false;
                 if (int.TryParse($"{station.available_battery_count}", out var cout))
-                    staff.AvailableBatteryCount = cout;
+                    switch_station.AvailableBatteryCount = cout;
                 // var employee = _context.Employees.Find($"{station.employee_id}");
                 // if (employee == null)
                 // {
@@ -196,8 +197,17 @@ namespace webapi.Controllers.Administrator
                 // }
 
                 //new_station.employees = new List<Employee> { employee };
+                switch_station.Address = $"{station.station_address}" == String.Empty ? switch_station.Address : $"{station.station_address}";
+                switch_station.ServiceFee = float.TryParse($"{station.service_fee}", out var k) ? k : switch_station.ServiceFee;
+                switch_station.ElectricityFee = float.TryParse($"{station.electricity_fee}", out var z) ? z : switch_station.ElectricityFee;
 
-                _context.SwitchStations.Add(staff);
+                switch_station.ParkingFee = "0";
+                switch_station.City = "";
+                switch_station.TimeSpan = "";
+                switch_station.QueueLength = 0;
+                switch_station.Tags = "";
+
+                _context.SwitchStations.Add(switch_station);
                 try
                 {
                     _context.SaveChanges();
@@ -205,9 +215,9 @@ namespace webapi.Controllers.Administrator
                 catch (DbUpdateException e)
                 {
                     String msg = e.InnerException?.Message + "";
-                    if (_context.SwitchStations.Any(t => t.StationId == staff.StationId))
+                    if (_context.SwitchStations.Any(t => t.StationId == switch_station.StationId))
                         msg = "已有该id的换电站";
-                    else if (_context.SwitchStations.Any(t => (t.Latitude == staff.Latitude) && (t.Longitude == staff.Longitude)))
+                    else if (_context.SwitchStations.Any(t => (t.Latitude == switch_station.Latitude) && (t.Longitude == switch_station.Longitude)))
                         msg = "已有该位置的换电站";
                     return NewContent(2, msg);
                 }

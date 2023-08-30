@@ -56,8 +56,8 @@ public partial class SwitchRequest
                     return RequestStatusEnum.待接单;
                 case (int)RequestStatusEnum.待完成:
                     return RequestStatusEnum.待完成;
-                case (int)RequestStatusEnum.待评分:
-                    return RequestStatusEnum.待评分;
+                case (int)RequestStatusEnum.待评价:
+                    return RequestStatusEnum.待评价;
                 case (int)RequestStatusEnum.已完成:
                     return RequestStatusEnum.已完成;
                 default:
@@ -89,6 +89,6 @@ public enum RequestStatusEnum
     未知 = 0,
     待接单 = 1,
     待完成 = 2,
-    待评分 = 3,
+    待评价 = 3,
     已完成 = 4
 }
