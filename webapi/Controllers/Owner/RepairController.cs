@@ -7,6 +7,7 @@ using EntityFramework.Models;
 using Idcreator;
 using System.Transactions;
 using System.Globalization;
+using Microsoft.AspNetCore.Http;
 
 namespace webapi.Controllers.Administrator
 {
@@ -49,9 +50,12 @@ namespace webapi.Controllers.Administrator
                         maintenance_location = joinedData.MaintenanceItem.MaintenanceLocation,
                         plate_number = joinedData.Vehicle.PlateNumber,
                         title = joinedData.MaintenanceItem.Title,
-                        order_submission_time = joinedData.MaintenanceItem.OrderSubmissionTime,
-                        service_time = joinedData.MaintenanceItem.ServiceTime,
-                        order_status = joinedData.MaintenanceItem.OrderStatus,
+                        order_submission_time = joinedData.MaintenanceItem.OrderSubmissionTime.ToString(),
+                        service_time = joinedData.MaintenanceItem.ServiceTime.ToString(),
+                        longtitude = joinedData.MaintenanceItem.longitude,
+                        latitude = joinedData.MaintenanceItem.latitude,
+                        appoint_time = joinedData.MaintenanceItem.AppointTime.ToString(),
+                        order_status = Enum.GetName(typeof(int), joinedData.MaintenanceItem.OrderStatus),
                         remarks = joinedData.MaintenanceItem.Note,
                         evaluations = joinedData.MaintenanceItem.Evaluation,
                         score = joinedData.MaintenanceItem.Score,
@@ -111,7 +115,7 @@ namespace webapi.Controllers.Administrator
                     maintenance_item_id = item.MaintenanceItemId,
                     title = item.Title,
                     order_submission_time = item.OrderSubmissionTime,
-                    order_status = item.OrderStatus,
+                    order_status = Enum.GetName(typeof(int), item.OrderStatus),
                     maintenance_location = item.MaintenanceLocation
                 })
                 .ToList();
@@ -246,14 +250,16 @@ namespace webapi.Controllers.Administrator
                 var acm = new MaintenanceItem()
                 {
                     MaintenanceItemId = newMId,
-                    vehicle = _context.Vehicles.FirstOrDefault(v => v.VehicleId == VId) ?? throw new Exception("未找到匹配的车辆"),
-                    Title = _acm.order_status,
+                    vehicle = _context.Vehicles.DefaultIfEmpty().FirstOrDefault(v => v.VehicleId == VId) ?? throw new Exception("未找到匹配的车辆"),
+                    Title = _acm.title,
                     MaintenanceLocation = _acm.maintenance_location,
                     Note = _acm.remarks,
-                    ServiceTime = DateTime.Now,
-                    OrderSubmissionTime = DateTime.Now,
+                    AppointTime = DateTime.Parse(_acm.appoint_time),
                     OrderStatus = 1,
-                    Score = -1,
+                    ServiceTime = null,
+                    OrderSubmissionTime = DateTime.Now,
+                    longitude = _acm.longitude,
+                    latitude = _acm.latitude
                 };
 
                 _context.Add(acm);
@@ -298,6 +304,9 @@ namespace webapi.Controllers.Administrator
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Note = _acm.remarks;
                 acm.OrderStatus = _acm.order_status;
+                acm.AppointTime = DateTime.Parse(_acm.appoint_time);
+                acm.latitude = _acm.latitude;
+                acm.longitude = _acm.longitude;
             }
             else
             {

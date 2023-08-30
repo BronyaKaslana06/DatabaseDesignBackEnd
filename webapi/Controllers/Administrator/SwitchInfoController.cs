@@ -26,7 +26,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpGet("query")]
-        public ActionResult<IEnumerable<Employee>> GetPage_(int page_index, int page_size, string switch_service_id = "", string employee_id = "", string vehicle_id = "")
+        public ActionResult<IEnumerable<SwitchLog>> GetPage_(int page_index, int page_size, string switch_service_id = "", string employee_id = "", string vehicle_id = "")
         {
             int offset = (page_index - 1) * page_size;
             int limit = page_size;
@@ -58,7 +58,7 @@ namespace webapi.Controllers.Administrator
                     switch_service_id = sl.SwitchServiceId.ToString(),
                     employee_id = sl.employee.EmployeeId.ToString(),
                     vehicle_id = sl.vehicle.VehicleId.ToString(),
-                    switch_time = sl.SwitchTime,
+                    switch_time = sl.SwitchTime.ToString(),
                     battery_id_on = sl.batteryOn.BatteryId.ToString(),
                     battery_id_off = sl.batteryOff.BatteryId.ToString(),
                     evaluations = sl.Evaluation,
@@ -66,6 +66,7 @@ namespace webapi.Controllers.Administrator
                 })
                 .Skip(offset)
                 .Take(limit)
+                .DefaultIfEmpty()
                 .ToList();
 
             var totalNum = _context.SwitchLogs.Count();

@@ -48,7 +48,7 @@ namespace webapi.Controllers.Staff
                         station_name = e.switchStation.StationName,
                         longitude = e.switchStation.Longitude,
                         latitude = e.switchStation.Latitude,
-                        faliure_status = e.switchStation.FailureStatus,
+                        faliure_status = e.switchStation.FailureStatus == true ? "是":"否",
                         battery_capacity = e.switchStation.BatteryCapacity,
                         available_battery_count = e.switchStation.AvailableBatteryCount
                     })
@@ -108,8 +108,13 @@ namespace webapi.Controllers.Staff
         public IActionResult BatteryUpdate([FromBody] dynamic param)
         {
             dynamic _param = JsonConvert.DeserializeObject(Convert.ToString(param));
-            var bty = _context.Batteries.Find(_param.battery_id);
+            var bty = _context.Batteries.Find($"{_param.battery_id}");
             if (bty == null)
+            {
+                return NewContent(1, "查询电池不存在");
+            }
+            var station = _context.SwitchStations.Find($"{_param.station_id}");
+            if (station == null)
             {
                 return NewContent(1, "查询电池不存在");
             }
@@ -119,6 +124,7 @@ namespace webapi.Controllers.Staff
                 if (Enum.TryParse(_param.available_status, out AvailableStatusEnum availableStatus))
                 {
                     bty.AvailableStatusEnum = availableStatus;
+                    bty.switchStation = station;
                 }
                 else
                 {
@@ -158,16 +164,7 @@ namespace webapi.Controllers.Staff
                     };
                     return Content(JsonConvert.SerializeObject(ob), "application/json");
                 }
-                if (!long.TryParse($"{battery.battery_type_id}", out long btid))
-                {
-                    var ob = new
-                    {
-                        code = 1,
-                        msg = "站点id无效",
-                        battery_id = "0"
-                    };
-                    return Content(JsonConvert.SerializeObject(ob), "application/json");
-                }
+                long btid = $"{battery.battery_type_id}" == "标准续航型" ? 1 : 2;
                 long maxBtyId = _context.Batteries.Max(o => (long?)o.BatteryId) ?? 0;
                 long newBtyId = maxBtyId + 1;
                 Battery new_bty = new Battery()
@@ -224,7 +221,7 @@ namespace webapi.Controllers.Staff
                 {
                     return NewContent(1, "找不到该车主");
                 }
-
+                
                 _context.VehicleOwners.Remove(bty);
                 try
                 {
