@@ -173,7 +173,7 @@ namespace webapi.Controllers.Administrator
                     return NewContent(1, "id非法");
                 }
                 SwitchStation switch_station = new SwitchStation();
-                switch_station.StationId = Idcreator.SnowflakeIDcreator.nextId();
+                switch_station.StationId = _context.SwitchStations.Select(e => e.StationId).Max()+1;
                 if ($"{station.station_name}" != String.Empty)
                     switch_station.StationName = $"{station.station_name}";
                 if (int.TryParse($"{station.battety_capacity}", out var battety_capacity))
