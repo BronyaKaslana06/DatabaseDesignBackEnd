@@ -116,9 +116,9 @@ namespace webapi.Controllers.Administrator
             {
                 return NewContent(1, "id非法");
             }
-            var staff = _context.SwitchStations.Find(station_id);
+            var switch_station = _context.SwitchStations.Find(station_id);
 
-            if (staff == null)
+            if (switch_station == null)
             {
                 return NewContent(1,"没找到该station");
             }
@@ -134,22 +134,21 @@ namespace webapi.Controllers.Administrator
 
             //staff.StationId = $"{station.station_id}";
             if ($"{station.station_name}" != String.Empty)
-                staff.StationName = $"{station.station_name}";
+                switch_station.StationName = $"{station.station_name}";
             if (int.TryParse($"{station.battety_capacity}",out var battety_capacity))
-                staff.BatteryCapacity = battety_capacity;
+                switch_station.BatteryCapacity = battety_capacity;
             if (double.TryParse($"{station.longitude}" ,out var longi))
-                staff.Longitude = longi;
+                switch_station.Longitude = longi;
             if (double.TryParse($"{station.latitude}" ,out var lan))
-                staff.Latitude = lan;
+                switch_station.Latitude = lan;
             if ($"{station.faliure_status}" != String.Empty)
-                staff.FailureStatus = $"{station.faliure_status}" == "是" ? true : false;
+                switch_station.FailureStatus = $"{station.faliure_status}" == "是" ? true : false;
             if (int.TryParse($"{station.available_battery_count}", out var cout))
-                staff.AvailableBatteryCount = cout;
+                switch_station.AvailableBatteryCount = cout;
 
-            staff.Address = $"{station.station_address}" == String.Empty ? staff.Address : $"{station.station_address}";
-            staff.ServiceFee = float.TryParse($"{station.service_fee}" ,out var k)? staff.ServiceFee : k;
-         
-
+            switch_station.Address = $"{station.station_address}" == String.Empty ? switch_station.Address : $"{station.station_address}";
+            switch_station.ServiceFee = float.TryParse($"{station.service_fee}" ,out var k)? switch_station.ServiceFee : k;
+            switch_station.ElectricityFee= float.TryParse($"{station.electricity_fee}",out var t)? switch_station.ElectricityFee : t;
             try
             {
                 _context.SaveChanges();
@@ -206,6 +205,7 @@ namespace webapi.Controllers.Administrator
                 switch_station.TimeSpan = "";
                 switch_station.QueueLength = 0;
                 switch_station.Tags = "";
+                
 
                 _context.SwitchStations.Add(switch_station);
                 try
