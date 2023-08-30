@@ -130,6 +130,7 @@ namespace webapi.Controllers.Administrator
 
             Employee new_employee = new Employee()
             {
+                Email = employee.Email,
                 UserName = employee.username,
                 Password = "123456",
                 CreateTime = DateTime.Now,

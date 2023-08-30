@@ -90,7 +90,7 @@ namespace webapi.Controllers.Administrator
                             battery_id = battery.BatteryId.ToString(),
                             available_status = battery.AvailableStatus == 1 ? "可用" : "充电中",
                             current_capacity = battery.CurrentCapacity,
-                            battery_type = battery.batteryType.BatteryTypeId % 10 == 1 ? "长续航级" : "标准续航级",
+                            battery_type = battery.batteryType.BatteryTypeId == 1 ? "长续航级" : "标准续航级",
                         }).ToArray(),
                         service_fee = item.ServiceFee,
                         parking_fee = item.ParkingFee,
@@ -129,7 +129,7 @@ namespace webapi.Controllers.Administrator
             try
             {
 
-                var filteredItems = _context.SwitchStations
+                var query = _context.SwitchStations
                     .Select(item => new
                     {
                         switch_station_id = item.StationId.ToString(),
@@ -143,10 +143,14 @@ namespace webapi.Controllers.Administrator
                         parking_fee = item.ParkingFee,
                         Similarity = Calculator.ComputeSimilarityScore(item.StationName, keyword)
                     })
-                    .Where(item => item.Similarity >= 0.8)
-                    .OrderByDescending(item => item.Similarity)
                     .Take(25)
-                    .ToArray();
+                    .ToList();
+
+                var filteredItems = query
+                    .Where(item => item.Similarity > (double)0)
+                    .OrderByDescending(item => item.Similarity)
+                    .ToList();
+
                 var obj = new
                 {
                     switch_stationArray = filteredItems,
@@ -158,6 +162,7 @@ namespace webapi.Controllers.Administrator
                 var obj = new
                 {
                     switch_stationArray = "",
+                    mag = ex.InnerException?.Message
                 };
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }

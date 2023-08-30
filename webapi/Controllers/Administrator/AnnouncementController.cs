@@ -22,7 +22,6 @@ namespace webapi.Controllers.Administrator
         [HttpGet("message")]
         public ActionResult<IEnumerable<Employee>> GetPage_()
         {
-            Console.WriteLine(EasyIDCreator.CreateId(_context));
             var query = _context.News.Select(
                 e => new
                 {

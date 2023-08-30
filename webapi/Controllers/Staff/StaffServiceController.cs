@@ -25,70 +25,6 @@ namespace webapi.Controllers.Staff
             _context = context;
         }
 
-        [HttpGet("door_to_door_service/get_switchrecords")]
-        public ActionResult<IEnumerable<Employee>> GetSwitchrecords(long switch_request_id)
-        {
-            
-            //var battery = _context.Batteries.Where(a => a.AvailableStatus == AvailableStatusEnum.available && a.switchStation.);
-            var query = _context.SwitchRequests.Where(a => a.SwitchRequestId == switch_request_id)
-            .Select(switch_request => new
-            {
-                switch_request_id = switch_request_id,
-                plate_number = switch_request.vehicle.PlateNumber,
-                vehicle_model = switch_request.vehicle.vehicleParam.ModelName,
-                longtitude = switch_request.Longitude,
-                latitude = switch_request.Latitude,
-                position = switch_request.Position,
-                username = switch_request.vehicleOwner.Username,
-                phone_number = switch_request.vehicleOwner.PhoneNumber,
-                remarks = switch_request.Note,
-            }).ToList();
-
-            if (query.Count == 0)
-            {
-                return NewContent(1, "无该请求！");
-            }
-
-            var a = new
-                {
-                    code = 0,
-                    msg = "success",
-                    data = query[0]
-                };
-                return Content(JsonConvert.SerializeObject(a), "application/json");
-            }
-    
-        [HttpGet("door_to_door_service/get_switch_array")]
-        public ActionResult<IEnumerable<Employee>> GetSwitchArray(long employee_id)
-        {
-            var query = _context.SwitchRequests.Where(a => a.employee.EmployeeId == employee_id)
-            .Select(switch_request => new
-            {
-                switch_request_id = employee_id,
-                plate_number = switch_request.vehicle.PlateNumber,
-                vehicle_model = switch_request.vehicle.vehicleParam.ModelName,
-                longtitude = switch_request.Longitude,
-                latitude = switch_request.Latitude,
-                position = switch_request.Position,
-                username = switch_request.vehicleOwner.Username,
-                phone_number = switch_request.vehicleOwner.PhoneNumber,
-            }).ToList();
-
-            if(query.Count==0)
-            {
-                return NewContent(1, "无该员工！");
-            }
-
-            var a = new
-            {
-                code = 0,
-                msg = "success",
-                switch_request_array = query
-            };
-            return Content(JsonConvert.SerializeObject(a), "application/json");
-
-        }
-
         [HttpGet("door_to_door_service/get_maintenance_item")]
         public ActionResult<IEnumerable<Employee>> GetMaintenanceItem(long maintenance_item_id)
         {
@@ -123,23 +59,22 @@ namespace webapi.Controllers.Staff
         public ActionResult GetMaintenanceArray(long employee_id)
         {
             var maintenance_array = _context.MaintenanceItems
-        .Where(e => e.OrderStatus != (int)OrderStatusEnum.已完成)
-        .Where(e => e.employees.Any(t => t.EmployeeId == employee_id))
-            .Select(maintenance_item=>
-new
-{
-    maintenance_location = maintenance_item.MaintenanceLocation,
-    plate_number = maintenance_item.vehicle.PlateNumber,
-    vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
-    order_status = maintenance_item.OrderStatusEnum,
-    title = maintenance_item.Title,
-    order_submission_time = maintenance_item.OrderSubmissionTime,
-    service_time = maintenance_item.ServiceTime,
-    remarks = maintenance_item.Note,
-    username = maintenance_item.vehicle.vehicleOwner.Username,
-    phone_number = maintenance_item.vehicle.vehicleOwner.PhoneNumber,
-}
-            ).ToList();
+                .Where(e => e.OrderStatus != (int)OrderStatusEnum.已完成)
+                .Where(e => e.employees.Any(t => t.EmployeeId == employee_id))
+                .Select(maintenance_item=> new
+                {
+                    maintenance_location = maintenance_item.MaintenanceLocation,
+                    plate_number = maintenance_item.vehicle.PlateNumber,
+                    vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
+                    order_status = maintenance_item.OrderStatusEnum,
+                    title = maintenance_item.Title,
+                    order_submission_time = maintenance_item.OrderSubmissionTime,
+                    service_time = maintenance_item.ServiceTime,
+                    remarks = maintenance_item.Note,
+                    username = maintenance_item.vehicle.vehicleOwner.Username,
+                    phone_number = maintenance_item.vehicle.vehicleOwner.PhoneNumber,
+                }
+                ).ToList();
 
             var a = new
             {
