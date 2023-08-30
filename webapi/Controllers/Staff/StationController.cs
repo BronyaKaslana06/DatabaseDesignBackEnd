@@ -138,54 +138,73 @@ namespace webapi.Controllers.Staff
             return NewContent();
         }
 
-
         [HttpPost("battery/add")]
-        public IActionResult batteryadd([FromBody] dynamic param)
+        public ActionResult<string> PostBattery([FromBody] dynamic _battery)
         {
-            dynamic _param = JsonConvert.DeserializeObject(Convert.ToString(param));
-            if (_context.Batteries == null)
+            using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                return Problem("Entity set 'ModelContext.Batteries' is null.");
-            }
-            if(!long.TryParse(_param.battery_type_id, out long btid) || btid != 1 && btid != 2)
-            {
-                return Problem("电池类型非法");
-            }
-            long maxBtyId = _context.Batteries.Max(o => (long?)o.BatteryId) ?? 0;
-            long newBtyId = maxBtyId + 1;
-            Battery new_bty = new Battery()
-            {
-                BatteryId = newBtyId,
-                AvailableStatus = 1,
-                CurrentCapacity = 100.00,
-                CurrChargeTimes = 0,
-                ManufacturingDate = System.DateTime.Now,
-                batteryType = _context.BatteryTypes.Find(btid)
-            };
-            _context.Batteries.Add(new_bty);
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                var a = new
+                if (_context.Batteries == null)
                 {
-                    code = 1,
-                    msg = e.InnerException?.Message
+                    return Problem("Entity set 'ModelContext.Batteries' is null.");
+                }
+                dynamic battery = JsonConvert.DeserializeObject(Convert.ToString(_battery));
+                if(!long.TryParse($"{battery.station_id}", out long sid))
+                {
+                    var ob = new
+                    {
+                        code = 1,
+                        msg = "站点id无效",
+                        battery_id = "0"
+                    };
+                    return Content(JsonConvert.SerializeObject(ob), "application/json");
+                }
+                if (!long.TryParse($"{battery.battery_type_id}", out long btid))
+                {
+                    var ob = new
+                    {
+                        code = 1,
+                        msg = "站点id无效",
+                        battery_id = "0"
+                    };
+                    return Content(JsonConvert.SerializeObject(ob), "application/json");
+                }
+                long maxBtyId = _context.Batteries.Max(o => (long?)o.BatteryId) ?? 0;
+                long newBtyId = maxBtyId + 1;
+                Battery new_bty = new Battery()
+                {
+                    BatteryId = newBtyId,
+                    AvailableStatus = 1,
+                    CurrentCapacity = 100.00,
+                    CurrChargeTimes = 0,
+                    ManufacturingDate = battery.manufacturing_date,
+                    switchStation = _context.SwitchStations.Find(sid),
+                    batteryType = _context.BatteryTypes.Find(btid)
                 };
+                _context.Batteries.Add(new_bty);
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateException e)
+                {
+                    var a = new
+                    {
+                        code = 1,
+                        msg = e.InnerException?.Message
+                    };
 
-                return Conflict(a);
+                    return Conflict(a);
+                }
+                var obj = new
+                {
+                    code = 0,
+                    msg = "success",
+                    battery_id = newBtyId
+                };
+                return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
-            var obj = new
-            {
-                code = 0,
-                msg = "success",
-                battery_id = newBtyId
-            };
-            return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
-
+        
         [HttpDelete("battery/delete")]
         public IActionResult batterydelete([FromBody] dynamic param)
         {
@@ -196,7 +215,7 @@ namespace webapi.Controllers.Staff
                 {
                     return Problem("Entity set 'ModelContext.Batteries' is null.");
                 }
-                if (!long.TryParse(_param.battery_id, out long bid))
+                if (!long.TryParse($"{_param.battery_id}", out long bid))
                 {
                     return Problem("电池id非法");
                 }

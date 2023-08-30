@@ -32,7 +32,6 @@ namespace BSS_EFCore.configuration
             builder.Property(e => e.SwitchType)
                 .HasColumnName("SWITCH_TYPE");
 
-            builder.HasOne<Employee>(e => e.employee).WithMany(a => a.switchRequests).IsRequired();
             builder.HasOne<VehicleOwner>(e => e.vehicleOwner).WithMany(a => a.switchRequests).IsRequired();
             builder.HasOne<Vehicle>(e => e.vehicle).WithMany(a=>a.switchRequests).IsRequired();
         }

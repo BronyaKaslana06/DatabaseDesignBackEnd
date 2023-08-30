@@ -188,7 +188,6 @@ namespace webapi.Controllers.Administrator
                     Gender = owner.gender,
                     Birthday = System.DateTime.Now,
                 };
-                Console.WriteLine("\n\n\n\n" + new_owner.OwnerId + "\n\n\n\n");
                 _context.VehicleOwners.Add(new_owner);
                 try
                 {
