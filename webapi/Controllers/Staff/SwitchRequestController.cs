@@ -140,7 +140,7 @@ namespace webapi.Controllers.Staff
         }
 
         [HttpGet]
-        public ActionResult<string> reservation(string station_id, string employee_id, string request_status)
+        public ActionResult<string> reservation(string station_id, string request_status)
         {
             if (request_status == "待接单")
             {
@@ -148,12 +148,7 @@ namespace webapi.Controllers.Staff
             }
             var station = _context.SwitchStations.Where(e => e.StationId == Convert.ToInt64(station_id)).DefaultIfEmpty().FirstOrDefault();
             if (station == null)
-                return NotFound("Station not found.");
-
-            var employee = _context.Employees.Where(e => e.EmployeeId == Convert.ToInt64(employee_id)).DefaultIfEmpty().FirstOrDefault();
-            if (employee == null)
-                return NotFound("Employee not found.");
-            
+                return NotFound("Station not found.");   
 
             RequestStatusEnum Ordertype = RequestStatusEnum.未知;
             if (Enum.TryParse(request_status, out RequestStatusEnum typeEnum))
@@ -163,8 +158,7 @@ namespace webapi.Controllers.Staff
             var query = _context.SwitchRequests
                 .Where(a => a.switchStation.StationId == Convert.ToInt64(station_id) &&
                 a.SwitchType == (int)SwitchTypeEnum.预约换电 &&
-                a.RequestStatus == (int)Ordertype &&
-                a.employee.EmployeeId == Convert.ToInt64(employee_id)
+                a.RequestStatus == (int)Ordertype
                 )
                 .Select(switch_request => new
                 {
@@ -201,7 +195,7 @@ namespace webapi.Controllers.Staff
                 if (employee == null)
                     return NotFound("Employee not found.");
                 long request_id = Convert.ToInt64(body.switch_request_id);
-                var request = _context.SwitchRequests.Where(s => s.SwitchRequestId == request_id).DefaultIfEmpty().FirstOrDefault();
+                var request = _context.SwitchRequests.Include(a => a.batteryType).Where(s => s.SwitchRequestId == request_id).DefaultIfEmpty().FirstOrDefault();
                 if (request == null)
                     return NotFound("Switch request not found.");
 
@@ -210,7 +204,6 @@ namespace webapi.Controllers.Staff
                 request.employee = employee;
                 request.requestStatusEnum = RequestStatusEnum.待完成;
 
-                Console.WriteLine(request.batteryType);
                 long barry_type_id = request.batteryType.BatteryTypeId;
                 var battery = _context.Batteries.Where(s => s.batteryType.BatteryTypeId == barry_type_id).DefaultIfEmpty().ToList()[0];
                 if (battery == null)
@@ -237,7 +230,13 @@ namespace webapi.Controllers.Staff
             {
                 dynamic body = JsonConvert.DeserializeObject<dynamic>(_body.ToString());
                 long request_id = Convert.ToInt64(body.switch_request_id);
-                var request = _context.SwitchRequests.FirstOrDefault(s => s.SwitchRequestId == request_id);
+                var request = _context.SwitchRequests
+                    .Include(a => a.batteryType)
+                    .Include(b => b.switchStation)
+                    .Include(c => c.vehicle)
+                    .Include(d => d.employee)
+                    .Include(e => e.vehicleOwner)
+                    .FirstOrDefault(s => s.SwitchRequestId == request_id);
                 if (request == null)
                     return NotFound("Switch request not found.");
                 if (request.RequestStatus != (int)RequestStatusEnum.待完成)

@@ -26,9 +26,9 @@ namespace webapi.Controllers
         [HttpPost("login")]
         public ActionResult LoginCheck([FromBody] dynamic _user)
         {
-            dynamic user = JsonConvert.DeserializeObject(Convert.ToString(_user));
-            string em = $"{user.email}";
-            string password = $"{user.password}";
+            dynamic user = JsonConvert.DeserializeObject<dynamic>(Convert.ToString(_user));
+            string em = user.email;
+            string password = user.password;
             string[] table_name = { "vehicle_owner", "employee", "administrator" };
             string[] user_id_type = { "owner_id", "employee_id", "admin_id" };
             var query1 = _context.VehicleOwners
@@ -82,18 +82,18 @@ namespace webapi.Controllers
         {
             using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                dynamic user = JsonConvert.DeserializeObject(Convert.ToString(_user));
-                string user_type = $"{user.user_type}" ?? string.Empty;
+                dynamic user = JsonConvert.DeserializeObject<dynamic>(Convert.ToString(_user));
+                string user_type = user.user_type ?? string.Empty;
                 //可注册的用户类型：员工/车主
                 if (user_type == string.Empty || user_type != "0" && user_type != "1")
                     return NoContent();
                 //员工和车主共用的参数
-                string username = $"{user.username}" ?? "新用户";
-                string password = $"{user.password}" ?? "123456";
-                string nickname = $"{user.nickname}" ?? "蔚来";
-                string gender = $"{user.gender}" ?? "男";
-                DateTime create_time = Convert.ToDateTime($"{user.create_time}" ?? System.DateTime.Now.ToString());
-                string phone_number = $"{user.phone_number}" ?? string.Empty;
+                string username = user.username ?? "新用户";
+                string password = user.password ?? "123456";
+                string nickname = user.nickname ?? "蔚来";
+                string gender = user.gender ?? "男";
+                DateTime create_time = Convert.ToDateTime(user.create_time) ?? System.DateTime.Now.ToString();
+                string phone_number = user.phone_number ?? string.Empty;
                 //定义返回对象
                 dynamic obj = new ExpandoObject();
                 obj.data = new
@@ -104,10 +104,8 @@ namespace webapi.Controllers
                 if (user_type == "0") //注册车主
                 {
                     //生成新id
-                    string sql = "SELECT MAX(owner_id) FROM VEHICLE_OWNER";
-                    DataTable df = OracleHelper.SelectSql(sql);
-                    int df_count = Convert.IsDBNull(df.Rows[0][0]) ? 0000000 : Convert.ToInt32(df.Rows[0][0]) + 1;
-                    long uid = SnowflakeIDcreator.nextId();
+                    long snake = Idcreator.EasyIDCreator.CreateId(_context);
+                    long uid = Convert.ToInt64(user_type + snake.ToString());
                     obj.data = new
                     {
                         user_id = uid
@@ -149,7 +147,7 @@ namespace webapi.Controllers
                 }
                 else if (user_type == "1") //注册员工
                 {
-                    string invite_code = $"{user.invite_code}" ?? string.Empty;
+                    string invite_code = user.invite_code ?? string.Empty;
                     if (invite_code != "123456")
                     {
                         obj.data = new

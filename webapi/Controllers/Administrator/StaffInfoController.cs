@@ -128,8 +128,11 @@ namespace webapi.Controllers.Administrator
             long switchStationId = Convert.ToInt64(employee.station_id);
             var switchStation = _context.SwitchStations.FirstOrDefault(s => s.StationId == switchStationId);
 
+            long snake = Idcreator.EasyIDCreator.CreateId(_context);
+            long uid = Convert.ToInt64("1" + snake.ToString());
             Employee new_employee = new Employee()
             {
+                EmployeeId = uid,
                 Email = employee.Email,
                 UserName = employee.username,
                 Password = "123456",

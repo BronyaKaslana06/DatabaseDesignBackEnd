@@ -121,7 +121,7 @@ namespace webapi.Controllers.Administrator
         }
 
         [HttpGet]
-        public ActionResult<string> switch_history(int pageIndex, int pageSize, string owner_id, string order_type="已完成")
+        public ActionResult<string> switch_history(int pageIndex, int pageSize, string owner_id, string order_status="已完成")
         {
             int offset = (pageIndex - 1) * pageSize;
             int limit = pageSize;
@@ -133,7 +133,7 @@ namespace webapi.Controllers.Administrator
             }
 
             RequestStatusEnum Ordertype = RequestStatusEnum.未知;
-            if (Enum.TryParse(order_type, out RequestStatusEnum typeEnum))
+            if (Enum.TryParse(order_status, out RequestStatusEnum typeEnum))
                 Ordertype = typeEnum;
             else
                 return NotFound("Order_type error.");
@@ -152,7 +152,7 @@ namespace webapi.Controllers.Administrator
                     licence_plate = sr.vehicle.PlateNumber,
                     vehicle_model = sr.vehicle.vehicleParam.ModelName,
                     battery_type = sr.batteryType.Name,
-                    employee_id = (order_type == "待接单" ? "" : sr.employee.EmployeeId.ToString()),
+                    employee_id = (order_status == "待接单" ? "" : sr.employee.EmployeeId.ToString()),
                     switch_date = sr.Date,
                     switch_period = sr.Period,
                     order_type = sr.requestStatusEnum.ToString()
