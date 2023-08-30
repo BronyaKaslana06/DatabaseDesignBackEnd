@@ -22,6 +22,7 @@ namespace webapi.Controllers.Administrator
         [HttpGet("message")]
         public ActionResult<IEnumerable<Employee>> GetPage_()
         {
+            Console.WriteLine(EasyIDCreator.CreateId(_context));
             var query = _context.News.Select(
                 e => new
                 {
@@ -121,6 +122,7 @@ namespace webapi.Controllers.Administrator
                 acm.administrator=_context.Administrators.Find(long.Parse($"{_acm.publisher}"))?? acm.administrator;
             }
             try{
+                _context.News.Add(acm);
                 _context.SaveChanges();
             }
             catch(DbUpdateException e)
@@ -134,7 +136,7 @@ namespace webapi.Controllers.Administrator
         public IActionResult DelAnnouncement([FromBody] dynamic _acm)
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-            string id = $"{_acm.announcement_id}";
+            long? id = _acm.announcement_id;
             if (id == null)
                 return NewContent(1, "请输入id");
             var acm = _context.News.Find(id);
