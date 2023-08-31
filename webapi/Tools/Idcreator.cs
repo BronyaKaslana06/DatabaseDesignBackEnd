@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Idcreator
 {
@@ -92,10 +92,10 @@ namespace Idcreator
     }
 
 
-
-    public class EasyIDCreator
+    public class EasyIDCreator: IPrincipalAccessor
     {
-        static List<string>? allIds = null;
+        static List<long>? allIds = null;
+        static List<string>? allId = null;
         static Random rand=null;
         private static ModelContext _context;
         public EasyIDCreator(IHttpContextAccessor httpContextAccessor)
@@ -107,7 +107,7 @@ namespace Idcreator
         {
             return modelContext;
         }
-        public static string CreateId(ModelContext context, EntityType entityType)
+        public static string CreateId_New(ModelContext context, EntityType entityType)
         {
             if (_context == null)
             {
@@ -117,13 +117,13 @@ namespace Idcreator
                 switch (entityType)
                 {
                     case EntityType.Administrator:
-                        allIds = _context.Administrators.Select(a => "2" + a.AdminId).ToList();
+                        allId = _context.Administrators.Select(a => "2" + a.AccountSerial).ToList();
                         break;
                     case EntityType.Employee:
-                        allIds = _context.Employees.Select(a => "1" + a.EmployeeId).ToList();
+                        allId = _context.Employees.Select(a => "1" + a.AccountSerial).ToList();
                         break;
                     case EntityType.VehicleOwner:
-                        allIds = _context.VehicleOwners.Select(a => "0" + a.OwnerId).ToList();
+                        allId = _context.VehicleOwners.Select(a => "0" + a.AccountSerial).ToList();
                         break;
                     default:
                         throw new ArgumentException("Invalid entity type");
@@ -137,7 +137,7 @@ namespace Idcreator
 
             while (true)
             {
-                string id = rand.Next(0, 100000000).ToString("D8"); 
+                string id = rand.Next(0, 100000000).ToString("D8");
                 string idWithPrefix = entityType switch
                 {
                     EntityType.Administrator => "2" + id,
@@ -146,48 +146,49 @@ namespace Idcreator
                     _ => throw new ArgumentException("Invalid entity type")
                 };
 
-                if (!allIds.Contains(idWithPrefix))
+                if (!allId.Contains(idWithPrefix))
                 {
-                    allIds.Add(idWithPrefix);
+                    allId.Add(idWithPrefix);
                     return idWithPrefix;
                 }
             }
         }
 
-        
+        public static long CreateId(ModelContext context)
+        {
+            if (_context == null)
+            { 
+                rand=new Random();
+                _context = context;
+                allIds = new List<long>();
+                allIds=
+                _context.Administrators.Select(a => a.AdminId).ToList().Union(
+                _context.Employees.Select(a => a.EmployeeId).ToList()).ToList().Union(
+                _context.VehicleOwners.Select(a=>a.OwnerId).ToList()).ToList();
+            }
 
+            if (allIds == null)
+                return SnowflakeIDcreator.nextId();
+
+            while (true)
+            {
+                long a = rand.NextInt64(10000000, 99999999);
+                if (allIds.Any(b=>b==a)==false)
+                {
+                    allIds.Add(a);
+                    return a;
+                }
+            }
+        } 
     }
-}
-
     public enum EntityType
     {
         Administrator,
         Employee,
         VehicleOwner
     }
-    public enum IdentityType
+
+    public interface IPrincipalAccessor
     {
-        车主 = 0,
-        员工 = 1,
-        管理员 = 2,
-        其他 = -1
     }
-
-    //public class AutoIncrementIDcreator
-    //{
-    //    public static long CreateId<T>(DbSet<T> list) where T : class
-    //    {
-    //        var primaryKeyProperty = list.EntityType.FindPrimaryKey().Properties.FirstOrDefault();
-
-    //        if (primaryKeyProperty != null)
-    //        {
-    //            var allEntities = list.AsEnumerable(); // Retrieve all entities from the database
-
-    //            var maxId = allEntities.Max(e => (long)primaryKeyProperty.GetGetter().GetClrValue(e));
-
-    //            return maxId + 1;
-    //        }
-
-    //        return -1;
-    //    }
-    //}
+}
