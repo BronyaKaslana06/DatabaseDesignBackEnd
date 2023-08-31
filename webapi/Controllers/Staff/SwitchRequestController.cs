@@ -249,10 +249,10 @@ namespace webapi.Controllers.Staff
 
                 var station = request.switchStation;
                 var battery_type = request.batteryType;
-                var batteryOn = _context.Batteries.FirstOrDefault(s =>
+                var batteryOn = _context.Batteries.Where(s =>
                 s.switchStation == station &&
                 s.batteryType == battery_type &&
-                s.AvailableStatus == (int)AvailableStatusEnum.已预定);
+                s.AvailableStatus == (int)AvailableStatusEnum.已预定).DefaultIfEmpty().FirstOrDefault();
                 if (batteryOn == null)
                     return NotFound("Staion has no battery.");
 
