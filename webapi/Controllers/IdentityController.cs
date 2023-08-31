@@ -42,8 +42,9 @@ namespace webapi.Controllers
                     return NewContent(
                         new
                         {
-                            user_type = user_type.ToString(),
+                            user_type = (int)user_type,
                             user_id = owner.OwnerId,
+                            account_serial = owner.AccountSerial,
                             username = owner.Username,
                             phone_number = owner.PhoneNumber,
                             gender = owner.Gender,
@@ -61,8 +62,9 @@ namespace webapi.Controllers
                     return NewContent(
                         new
                         {
-                            user_type = user_type.ToString(),
+                            user_type = (int)user_type,
                             user_id = staff.EmployeeId,
+                            account_serial = staff.AccountSerial,
                             username = staff.UserName,
                             phone_number = staff.PhoneNumber,
                             gender = staff.Gender,
@@ -79,8 +81,9 @@ namespace webapi.Controllers
                     return NewContent(
                         new
                         {
-                            user_type = user_type.ToString(),
+                            user_type = (int)user_type,
                             user_id = admin.AdminId,
+                            account_serial = admin.AccountSerial,
                             email = admin.Email
                         });
                 default:
@@ -94,9 +97,9 @@ namespace webapi.Controllers
             using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 dynamic user = JsonConvert.DeserializeObject<dynamic>(Convert.ToString(_user));
-                string usertype = user.user_type ?? string.Empty;
+                int usertype = user.user_type ?? -1;
                 //可注册的用户类型：员工/车主
-                if (usertype == string.Empty || usertype != "0" && usertype != "1")
+                if (usertype < 0 || usertype > 2 )
                     return NoContent();
                 IdentityType user_type = (IdentityType)Convert.ToInt32(usertype);
                 //员工和车主共用的参数
@@ -112,20 +115,17 @@ namespace webapi.Controllers
                 {
                     user_id = "-1"
                 };
-                obj.msg = "注册成功";
+                obj.msg = "注册失败";
                 if (user_type == IdentityType.车主) //注册车主
                 {
                     //生成新id
                     long snake = Idcreator.EasyIDCreator.CreateId(_context);
-                    long uid = Convert.ToInt64(((int)user_type).ToString() + snake.ToString());
-                    obj.data = new
-                    {
-                        user_id = uid
-                    };
+                    string uid = ((int)user_type).ToString() + snake.ToString();
                     //定义新tuple
                     VehicleOwner owner = new VehicleOwner
                     {
-                        OwnerId = uid,
+                        OwnerId = _context.VehicleOwners.Max(x=>x.OwnerId) + 1,
+                        AccountSerial = uid,
                         Username = username,
                         Password = password,
                         CreateTime = create_time,
@@ -134,12 +134,20 @@ namespace webapi.Controllers
                         Gender = gender,
                         Birthday = Convert.ToDateTime(user.birthday == null ? "2000-01-01" : user.birthday),   
                     };
+                    try
+                    {
+                        _context.SaveChanges();
+                    }
+                    catch (DbUpdateException)
+                    {
+                        return Conflict();
+                    }
+                    _context.VehicleOwners.Add(owner);
                     OwnerPos OP = new OwnerPos
                     {
-                        OwnerId = uid,
+                        OwnerId = owner.OwnerId,
                         Address = user.address ?? string.Empty
                     };
-                    _context.VehicleOwners.Add(owner);
                     _context.OwnerPos.Add(OP);
                     try
                     {
@@ -149,6 +157,12 @@ namespace webapi.Controllers
                     {
                         return Conflict();
                     }
+                    obj.data = new
+                    {
+                        account_serial = uid,
+                        user_id = owner.OwnerId
+                    };
+                    obj.msg = "注册成功";
                 }
                 else if (user_type == IdentityType.员工) //注册员工
                 {
@@ -165,14 +179,11 @@ namespace webapi.Controllers
                     }
                     //生成新id
                     long snake = Idcreator.EasyIDCreator.CreateId(_context);
-                    long uid = Convert.ToInt64(((int)user_type).ToString() + snake.ToString());
-                    obj.data = new
-                    {
-                        user_id = uid
-                    };
+                    string uid = ((int)user_type).ToString() + snake.ToString();
                     Employee employee = new Employee
                     {
-                        EmployeeId = uid,
+                        EmployeeId = _context.Employees.Max(x => x.EmployeeId) + 1,
+                        AccountSerial = uid,
                         UserName = username,
                         Password = password,
                         Name = nickname,
@@ -192,6 +203,12 @@ namespace webapi.Controllers
                     {
                         return Conflict();
                     }
+                    obj.msg = "注册成功";
+                    obj.data = new
+                    {
+                        account_serial = uid,
+                        user_id = employee.EmployeeId
+                    };
                 }
                 tx.Complete();
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
