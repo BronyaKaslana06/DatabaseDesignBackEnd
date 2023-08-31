@@ -45,12 +45,13 @@ namespace webapi.Controllers.Administrator
             && e.StationName==null? station_name=="":e.StationName.Contains(station_name)
             && ((status!=null&& e.FailureStatus == status) || faliure_status == ""))
             .Select(e=>new{
+                
                 station_id=e.StationId,
                 station_name=e.StationName,
                 longitude=e.Longitude,
                 latitude=e.Latitude,
                 faliure_status=e.FailureStatus==true?"是":"否",
-                battety_capacity=e.BatteryCapacity,
+                battery_capacity=e.BatteryCapacity,
                 available_battery_count=e.AvailableBatteryCount,
                 electricity_fee=e.ElectricityFee,
                 service_fee=e.ServiceFee,
@@ -134,8 +135,8 @@ namespace webapi.Controllers.Administrator
             //staff.StationId = $"{station.station_id}";
             if ($"{station.station_name}" != String.Empty)
                 switch_station.StationName = $"{station.station_name}";
-            if (int.TryParse($"{station.battety_capacity}",out var battety_capacity))
-                switch_station.BatteryCapacity = battety_capacity;
+            if (int.TryParse($"{station.battery_capacity}",out var battery_capacity))
+                switch_station.BatteryCapacity = battery_capacity;
             if (double.TryParse($"{station.longitude}" ,out var longi))
                 switch_station.Longitude = longi;
             if (double.TryParse($"{station.latitude}" ,out var lan))
@@ -170,8 +171,8 @@ namespace webapi.Controllers.Administrator
                 switch_station.StationId = _context.SwitchStations.Select(e => e.StationId).Max()+1;
                 if ($"{station.station_name}" != String.Empty)
                     switch_station.StationName = $"{station.station_name}";
-                if (int.TryParse($"{station.battety_capacity}", out var battety_capacity))
-                    switch_station.BatteryCapacity = battety_capacity;
+                if (int.TryParse($"{station.battery_capacity}", out var battery_capacity))
+                    switch_station.BatteryCapacity = battery_capacity;
                 if (double.TryParse($"{station.longitude}", out var longi))
                     switch_station.Longitude = longi;
                 if (double.TryParse($"{station.latitude}", out var lan))

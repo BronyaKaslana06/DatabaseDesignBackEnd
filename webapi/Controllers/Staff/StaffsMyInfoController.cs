@@ -28,8 +28,7 @@ namespace webapi.Controllers.Staff
         [HttpGet("{employeeId}")]
         public ActionResult<IEnumerable<Employee>> GetOwner(long employeeId)
         {
-            var employee = _context.Employees.Find(employeeId);
-            var kpi = _context.Kpis.FirstOrDefault(e => e.employeeId == employeeId);
+            var employee = _context.Employees.Include(a=>a.kpi).FirstOrDefault(a=>a.EmployeeId==employeeId);
             if (employee == null)
                 return NewContent(1, "id不存在");
             else
@@ -42,17 +41,15 @@ namespace webapi.Controllers.Staff
                     {
                         personalInfo = new
                         {
-                            username = employee.UserName,
                             phone_number = employee.PhoneNumber,
-                            identify_number = employee.IdentityNumber,
                             name = employee.Name,
                             gender = employee.Gender,
-                            postions = employee.PositionEnum
+                            postions = employee.PositionEnum.ToString()
                         },
                         performance = new
                         {
-                            total_performance=employee.kpi.TotalPerformance,
-                            score=employee.kpi.Score
+                            total_performance= employee.kpi==null? -1: employee.kpi.TotalPerformance,
+                            score= employee.kpi == null ? -1 : employee.kpi.Score
                         }
                     }
                 };
@@ -64,14 +61,14 @@ namespace webapi.Controllers.Staff
         public IActionResult ChangeData(long employeeId, [FromBody] dynamic param)
         {
             dynamic _employee = JsonConvert.DeserializeObject(Convert.ToString(param));
-            var employee = _context.VehicleOwners.Find(employeeId);
+            var employee = _context.Employees.Find(employeeId);
             if (employee == null)
             {
                 return NewContent(1, "无该用户");
             }
             employee.Gender = _employee.gender ?? employee.Gender;
             employee.PhoneNumber = _employee.phone_number ?? employee.PhoneNumber;
-            employee.Username = _employee.name ?? employee.Username;
+            employee.Name= _employee.name ?? employee.Name;
             try
             {
                 _context.SaveChanges();
