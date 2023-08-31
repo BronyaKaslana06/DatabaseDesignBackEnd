@@ -57,7 +57,7 @@ public partial class MaintenanceItem
 
     public double Score { get; set; }
 
-    public string Evaluation { get; set; }
+    public string? Evaluation { get; set; }
 
 
 
