@@ -92,9 +92,10 @@ namespace Idcreator
     }
 
 
+
     public class EasyIDCreator
     {
-        static List<long>? allIds = null;
+        static List<string>? allIds = null;
         static Random rand=null;
         private static ModelContext _context;
         public EasyIDCreator(IHttpContextAccessor httpContextAccessor)
@@ -106,34 +107,64 @@ namespace Idcreator
         {
             return modelContext;
         }
-        public static long CreateId(ModelContext context)
+        public static string CreateId(ModelContext context, EntityType entityType)
         {
             if (_context == null)
-            { 
-                rand=new Random();
+            {
+                rand = new Random();
                 _context = context;
-                allIds = new List<long>();
-                allIds=
-                _context.Administrators.Select(a => a.AdminId).ToList().Union(
-                _context.Employees.Select(a => a.EmployeeId).ToList()).ToList().Union(
-                _context.VehicleOwners.Select(a=>a.OwnerId).ToList()).ToList();
+
+                switch (entityType)
+                {
+                    case EntityType.Administrator:
+                        allIds = _context.Administrators.Select(a => "2" + a.AdminId).ToList();
+                        break;
+                    case EntityType.Employee:
+                        allIds = _context.Employees.Select(a => "1" + a.EmployeeId).ToList();
+                        break;
+                    case EntityType.VehicleOwner:
+                        allIds = _context.VehicleOwners.Select(a => "0" + a.OwnerId).ToList();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid entity type");
+                }
             }
 
             if (allIds == null)
-                return SnowflakeIDcreator.nextId();
+            {
+                return "Invalid";
+            }
 
             while (true)
             {
-                long a = rand.NextInt64(10000000, 99999999);
-                if (allIds.Any(b=>b==a)==false)
+                string id = rand.Next(0, 100000000).ToString("D8"); 
+                string idWithPrefix = entityType switch
                 {
-                    allIds.Add(a);
-                    return a;
+                    EntityType.Administrator => "2" + id,
+                    EntityType.Employee => "1" + id,
+                    EntityType.VehicleOwner => "0" + id,
+                    _ => throw new ArgumentException("Invalid entity type")
+                };
+
+                if (!allIds.Contains(idWithPrefix))
+                {
+                    allIds.Add(idWithPrefix);
+                    return idWithPrefix;
                 }
             }
-        } 
-    }
+        }
 
+        
+
+    }
+}
+
+    public enum EntityType
+    {
+        Administrator,
+        Employee,
+        VehicleOwner
+    }
     public enum IdentityType
     {
         车主 = 0,
@@ -160,4 +191,3 @@ namespace Idcreator
     //        return -1;
     //    }
     //}
-}
