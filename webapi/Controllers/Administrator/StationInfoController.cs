@@ -166,10 +166,6 @@ namespace webapi.Controllers.Administrator
             using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 dynamic station = JsonConvert.DeserializeObject(Convert.ToString(_station));
-                if (!(long.TryParse($"{station.station_id}", out long station_id)))
-                {
-                    return NewContent(1, "id非法");
-                }
                 SwitchStation switch_station = new SwitchStation();
                 switch_station.StationId = _context.SwitchStations.Select(e => e.StationId).Max()+1;
                 if ($"{station.station_name}" != String.Empty)
