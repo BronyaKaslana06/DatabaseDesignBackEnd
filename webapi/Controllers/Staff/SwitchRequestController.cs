@@ -239,13 +239,13 @@ namespace webapi.Controllers.Staff
                     .Include(f => f.vehicle.Battery)
                     .FirstOrDefault(s => s.SwitchRequestId == request_id);
                 if (request == null)
-                    return NotFound("Switch request not found.");
+                    return NewContent(1,"Switch request not found.");
                 if (request.RequestStatus != (int)RequestStatusEnum.待完成)
-                    return BadRequest("订单状态不是待完成，无法接单！");
+                    return NewContent(1,"订单状态不是待完成，无法接单！");
 
                 var batteryOff = request.vehicle.Battery;
                 if (batteryOff == null)
-                    return NotFound("Vehicle has no battery.");
+                    return NewContent(1,"Vehicle has no battery.");
 
                 var station = request.switchStation;
                 var battery_type = request.batteryType;
@@ -254,7 +254,7 @@ namespace webapi.Controllers.Staff
                 s.batteryType == battery_type &&
                 s.AvailableStatus == (int)AvailableStatusEnum.已预定).DefaultIfEmpty().FirstOrDefault();
                 if (batteryOn == null)
-                    return NotFound("Staion has no battery.");
+                    return NewContent(1, "Staion has no battery.");
 
                 batteryOn.AvailableStatusEnum = AvailableStatusEnum.汽车使用中;
                 batteryOff.AvailableStatusEnum = AvailableStatusEnum.充电中;
@@ -289,7 +289,7 @@ namespace webapi.Controllers.Staff
                 }
                 catch (DbUpdateException)
                 {
-                    return Conflict("数据库修改失败");
+                    return NewContent(1,"数据库修改失败");
                 }
 
                 var obj = new
@@ -312,6 +312,16 @@ namespace webapi.Controllers.Staff
                 tx.Complete();
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
+        }
+
+        ContentResult NewContent(int _code = 0, string _msg = "success")
+        {
+            var a = new
+            {
+                code = _code,
+                msg = _msg
+            };
+            return Content(JsonConvert.SerializeObject(a), "application/json");
         }
     }
 }
