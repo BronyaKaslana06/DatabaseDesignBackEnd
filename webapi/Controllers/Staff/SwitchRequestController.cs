@@ -157,7 +157,7 @@ namespace webapi.Controllers.Staff
                 return NotFound("Order_type error.");
             var query = _context.SwitchRequests
                 .Where(a => a.switchStation.StationId == Convert.ToInt64(station_id) &&
-                a.SwitchType == (int)SwitchTypeEnum.预约换电 &&
+                a.SwitchType == (int)SwitchTypeEnum.到店换电 &&
                 a.RequestStatus == (int)Ordertype
                 )
                 .Select(switch_request => new

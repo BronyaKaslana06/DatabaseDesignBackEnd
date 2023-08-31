@@ -90,7 +90,7 @@ namespace webapi.Controllers.Owner
                     case SwitchTypeEnum.上门换电:
                         switchRequest.requestStatusEnum = RequestStatusEnum.待接单;
                         break;
-                    case SwitchTypeEnum.预约换电:
+                    case SwitchTypeEnum.到店换电:
                         switchRequest.requestStatusEnum = RequestStatusEnum.待完成;
                         //预约换电可以直接预定电池
                         var battery = _context.Batteries.FirstOrDefault(s => s.batteryType.Name == battery_type && s.switchStation == station);

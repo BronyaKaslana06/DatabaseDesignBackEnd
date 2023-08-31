@@ -21,8 +21,8 @@ public partial class SwitchRequest
             {
                 case (int)SwitchTypeEnum.上门换电:
                     return SwitchTypeEnum.上门换电;
-                case (int)SwitchTypeEnum.预约换电:
-                    return SwitchTypeEnum.预约换电;
+                case (int)SwitchTypeEnum.到店换电:
+                    return SwitchTypeEnum.到店换电;
                 default:
                     return SwitchTypeEnum.未知;
             }
@@ -85,7 +85,7 @@ public enum SwitchTypeEnum
 {
     未知 = 0,
     上门换电 = 1,
-    预约换电 = 2
+    到店换电 = 2
 }
 
 public enum RequestStatusEnum
