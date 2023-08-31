@@ -141,7 +141,7 @@ namespace webapi.Controllers.Admin
                 return NewContent(1, "id格式错误");
             }
             var owner = _context.VehicleOwners.Find(num);
-            var pos = _context.OwnerPos.Find(num);
+            var pos = _context.OwnerPos.DefaultIfEmpty().FirstOrDefault();
             if (owner == null || pos == null)
             {
                 return NotFound();
@@ -179,6 +179,7 @@ namespace webapi.Controllers.Admin
                 VehicleOwner new_owner = new VehicleOwner()
                 {
                     OwnerId = newOwnerId,
+                    AccountSerial = EasyIDCreator.CreateId_New(_context, Idcreator.EntityType.VehicleOwner),
                     Username = owner.username,
                     Password = owner.password,
                     ProfilePhoto = null,

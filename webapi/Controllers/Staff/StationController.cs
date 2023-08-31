@@ -66,8 +66,22 @@ namespace webapi.Controllers.Staff
         }
 
         [HttpGet("battery")]
-        public ActionResult<IEnumerable<Battery>> battery(string station_id = "", string available_status = "", string battery_type_id = "")
+        public ActionResult<IEnumerable<Battery>> battery(int pageIndex = 0, int pageSize = 0, string station_id = "", string available_status = "", string battery_type_id = "")
         {
+            int offset = (pageIndex - 1) * pageSize;
+            int limit = pageSize;
+
+            if (offset < 0 || limit <= 0)
+            {
+                var errorResponse = new
+                {
+                    code = 1,
+                    msg = "页码或页大小非正",
+                    totalData = 0,
+                    data = "",
+                };
+                return Content(JsonConvert.SerializeObject(errorResponse), "application/json");
+            }
             if (!long.TryParse(station_id, out long id))
             {
                 var obj = new
@@ -96,6 +110,8 @@ namespace webapi.Controllers.Staff
                         battery_type_id = b.batteryType.BatteryTypeId,
                         isEditing = false
                     })
+                    .Skip(offset)
+                    .Take(limit)
                     .ToList();
 
             var totalNum = query.Count();

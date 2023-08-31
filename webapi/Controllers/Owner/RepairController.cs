@@ -106,7 +106,7 @@ namespace webapi.Controllers.Owner
                 };
                 return Content(JsonConvert.SerializeObject(errorObj), "application/json");
             }
-
+            string orderStatusName;
             var filteredItems = _context.MaintenanceItems
                 .Where(item => item.OrderSubmissionTime >= parsedStartTime && item.OrderSubmissionTime <= parsedEndTime && item.vehicle.VehicleId.ToString() == vehicle_id)
                 .OrderBy(item => item.MaintenanceItemId)
@@ -115,7 +115,7 @@ namespace webapi.Controllers.Owner
                     maintenance_item_id = item.MaintenanceItemId,
                     title = item.Title,
                     order_submission_time = item.OrderSubmissionTime,
-                    order_status = Enum.GetName(typeof(int), item.OrderStatus),
+                    order_status = item.OrderStatusEnum.ToString(),
                     maintenance_location = item.MaintenanceLocation
                 })
                 .ToList();
@@ -325,11 +325,9 @@ namespace webapi.Controllers.Owner
             return NewContent(0,"success");
         }
         [HttpDelete]
-        public IActionResult delete([FromBody] dynamic _acm)
+        public IActionResult delete(string maintenance_item_id = "")
         {
-            _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-
-            bool flag = long.TryParse($"{_acm.maintenance_item_id}", out long id);
+            bool flag = long.TryParse(maintenance_item_id, out long id);
             if (!flag)
                 return NewContent(1, "记录标记无效");
 
