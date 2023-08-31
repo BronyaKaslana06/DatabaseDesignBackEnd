@@ -54,8 +54,7 @@ namespace webapi.Controllers.Admin
             (a.Title==null? title=="" : a.Title.Contains(title))  &&
             (id==null? publisher=="": a.administrator.AdminId==id)&&
             (a.PublishPos==null? publish_pos == "" : a.PublishPos.Contains(publish_pos)) &&
-            (date==null? publish_time=="":a.PublishTime.Date == date)&&
-            (a.Contents ==null? contents=="":a.Contents.Contains(contents))
+            (date==null? publish_time=="":a.PublishTime.Date == date)
             ).OrderByDescending(a => a.PublishTime).Select(e=>new{
                 title=e.Title,
                 publish_pos=e.PublishPos,
@@ -64,6 +63,21 @@ namespace webapi.Controllers.Admin
                 publish_time=e.PublishTime,
                 announcement_id=e.AnnouncementId
             }).ToList();
+
+            if (contents != null)
+            {
+                int l = c.Count();
+                for (int i = 0; i < l; i++)
+                {
+                    var item = c[i];
+                    if (item.contents == null || !item.contents.Contains(contents))
+                    {
+                        c.Remove(item);
+                        i--;
+                        l--;
+                    }
+                }
+            }
             var a = new
             {
                 code = 0,
