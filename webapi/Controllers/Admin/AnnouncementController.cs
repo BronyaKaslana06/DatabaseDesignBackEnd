@@ -22,7 +22,7 @@ namespace webapi.Controllers.Admin
         [HttpGet("message")]
         public ActionResult<IEnumerable<Employee>> GetPage_()
         {
-            var query = _context.News.Select(
+            var query = _context.News.OrderByDescending(a=>a.PublishTime).Select(
                 e => new
                 {
                     title = e.Title,
@@ -42,7 +42,7 @@ namespace webapi.Controllers.Admin
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
         [HttpGet("query")]
-        public ActionResult Query(string title="",string publisher="",string publish_time="",string publish_pos="")
+        public ActionResult Query(string title="",string publisher="",string publish_time="",string publish_pos="",string contents="")
         {
             DateTime? date=null;
             long? id = null;
@@ -54,8 +54,9 @@ namespace webapi.Controllers.Admin
             (a.Title==null? title=="" : a.Title.Contains(title))  &&
             (id==null? publisher=="": a.administrator.AdminId==id)&&
             (a.PublishPos==null? publish_pos == "" : a.PublishPos.Contains(publish_pos)) &&
-            (date==null? publish_time=="":a.PublishTime.Date == date)
-            ).Select(e=>new{
+            (date==null? publish_time=="":a.PublishTime.Date == date)&&
+            (a.Contents ==null? contents=="":a.Contents.Contains(contents))
+            ).OrderByDescending(a => a.PublishTime).Select(e=>new{
                 title=e.Title,
                 publish_pos=e.PublishPos,
                 contents=e.Contents,
