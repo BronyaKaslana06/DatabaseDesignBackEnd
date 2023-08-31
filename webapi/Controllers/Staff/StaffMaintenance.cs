@@ -34,7 +34,7 @@ namespace webapi.Controllers.Staff
                 maintenance_location = maintenance_item.MaintenanceLocation,
                 plate_number = maintenance_item.vehicle.PlateNumber,
                 vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
-                order_status = maintenance_item.OrderStatusEnum.ToString(),
+                order_status =(OrderStatusEnum)maintenance_item.OrderStatus,
                 title = maintenance_item.Title,
                 order_submission_time = maintenance_item.OrderSubmissionTime,
                 appoint_time=maintenance_item.AppointTime,
@@ -59,19 +59,19 @@ namespace webapi.Controllers.Staff
             }
         }
         [HttpGet("maintanence/doortodoor")]
-        public ActionResult GetMaintenanceArray(long employee_id , string order_status)
+        public ActionResult GetMaintenanceArray(long employee_id , string order_status="待完成")
         {
             bool isEmployee = false;
-            OrderStatusEnum orderStatusEnum;
+            int orderStatusEnum;
             if (order_status == OrderStatusEnum.待完成.ToString())
             {
-                isEmployee = true;
-                orderStatusEnum = OrderStatusEnum.待完成;
+                isEmployee = false;
+                orderStatusEnum = (int)OrderStatusEnum.待完成;
             }
             else if (order_status == OrderStatusEnum.待接单.ToString())
             {
-                isEmployee = false;
-                orderStatusEnum = OrderStatusEnum.待接单;
+                isEmployee = true;
+                orderStatusEnum = (int)OrderStatusEnum.待接单;
             }
             else
             {
@@ -79,19 +79,18 @@ namespace webapi.Controllers.Staff
             }
 
             var maintenance_array = _context.MaintenanceItems
-                   .Where(e => e.OrderStatusEnum == orderStatusEnum&&
+                   .Where(e => e.OrderStatus == orderStatusEnum&&
                    (isEmployee || e.employees.Any(e => e.EmployeeId == employee_id)))
                    .Select(maintenance_item => new
                    {
-                       maintenance_location = maintenance_item.MaintenanceLocation,
+                       maintenance_item_id=maintenance_item.MaintenanceItemId,
+                       vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
                        vehicle_id = maintenance_item.vehicle.VehicleId,
                        plate_number = maintenance_item.vehicle.PlateNumber,
-                       vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
-                       order_status = maintenance_item.OrderStatusEnum,
                        title = maintenance_item.Title,
-                       username = maintenance_item.vehicle.vehicleOwner.Username,
                        phone_number = maintenance_item.vehicle.vehicleOwner.PhoneNumber,
-                   }
+                       username = maintenance_item.vehicle.vehicleOwner.Username,
+                       }
                    ).ToList();
             var a = new
             {
@@ -112,7 +111,7 @@ namespace webapi.Controllers.Staff
             if (!long.TryParse($"{body.employee_id}", out var employee_id))
                 return NewContent(3, "id非法");
 
-            var maintanceItem = _context.MaintenanceItems.Find(maintenance_item_id);
+            var maintanceItem = _context.MaintenanceItems.Include(a=>a.employees).FirstOrDefault(a=>a.MaintenanceItemId==maintenance_item_id);
 
             if (maintanceItem == null)
                 return NewContent(2, "无此id的维修项");
@@ -123,6 +122,7 @@ namespace webapi.Controllers.Staff
                 return NewContent(4, "无此id的员工");
 
             maintanceItem.employees.Add(employee);
+            maintanceItem.OrderStatusEnum = OrderStatusEnum.待完成;
             _context.SaveChanges();
 
             return NewContent();
