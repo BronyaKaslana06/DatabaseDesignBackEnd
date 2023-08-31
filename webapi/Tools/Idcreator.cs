@@ -188,6 +188,15 @@ namespace Idcreator
         VehicleOwner
     }
 
+    public enum IdentityType
+    {
+        车主 = 0,
+        员工 = 1,
+        管理员 = 2
+    //        return -1;
+    //    }
+    //}
+    }
     public interface IPrincipalAccessor
     {
     }
