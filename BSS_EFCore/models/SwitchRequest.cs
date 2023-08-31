@@ -70,6 +70,9 @@ public partial class SwitchRequest
         }
     }
 
+
+
+
     public Employee employee { get; set; }  //非空
     public VehicleOwner vehicleOwner { get; set; }  //非空
     public Vehicle vehicle { get; set; } //非空

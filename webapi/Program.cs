@@ -1,4 +1,5 @@
 using EntityFramework.Context;
+using EntityFramework.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,8 @@ if (app.Environment.IsDevelopment())
 //if(DateTime.TryParseExact("2023-10-12 10:12:30", format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
 //    DateTime.TryParseExact("2023-11-11 23:22:35", format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
 //    Console.WriteLine(result2-result1);
-
+//OrderStatusEnum a = OrderStatusEnum.´ýÆÀ·Ö;
+//Console.WriteLine(a.ToString());
 
 
 app.UseHttpsRedirection();

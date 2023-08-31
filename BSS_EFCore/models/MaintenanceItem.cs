@@ -59,6 +59,10 @@ public partial class MaintenanceItem
 
     public string Evaluation { get; set; }
 
+
+
+
+
     public List<Employee> employees = new List<Employee>();   //至少一个
     public Vehicle vehicle { get; set; }   // not null
 }

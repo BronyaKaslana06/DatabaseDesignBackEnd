@@ -21,20 +21,20 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         }
 
         /// <summary>
-        /// 订单信息查询
+        /// lgy 订单信息查询
         /// </summary>
         /// <param name="maintenance_items_id"></param>
         /// <param name="vehicle_id"></param>
-        /// <param name="maintenance_location"></param>
-        /// <param name="order_status"></param>    ///取值为unhandled    handling     finish    Unknown
+        /// <param name="maintenance_location"></param>    //只要包含即可
+        /// <param name="order_status"></param>    ///取值为 待接单 待完成 待评分 已完成
         /// <returns></returns>
         [HttpGet]    
         public ActionResult<object> Message(int pageIndex, int pageSize, string? maintenance_items_id, string? vehicle_id,
             string? maintenance_location, string? order_status)
         {
-            IEnumerable<MaintenanceItem> tmp = null;
+            IEnumerable<MaintenanceItem> tmp = modelContext.MaintenanceItems;
             if (!string.IsNullOrEmpty(maintenance_items_id))
-                tmp = modelContext.MaintenanceItems.Where(e => e.MaintenanceItemId == long.Parse(maintenance_items_id));
+                tmp = tmp.Where(e => e.MaintenanceItemId == long.Parse(maintenance_items_id));
             if (!string.IsNullOrEmpty (vehicle_id) && tmp!=null)
                 tmp=tmp.Where(e=>e.vehicle.VehicleId==long.Parse(vehicle_id));
             if (!string.IsNullOrEmpty(maintenance_location) && tmp != null)
@@ -68,7 +68,7 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
             public List<mntnc_item_update> items { get; set; } = new List<mntnc_item_update>();
         }
         /// <summary>
-        /// 更新订单信息
+        /// lgy 更新订单信息
         /// </summary>
         /// <param name="Mntnc_Items"></param>
         /// <returns></returns>
@@ -104,7 +104,7 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
 
 
         /// <summary>
-        /// 删除订单信息
+        /// lgy 删除订单信息
         /// </summary>
         /// <param name="maintenance_items_id"></param>
         /// <returns></returns>
@@ -141,7 +141,11 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         {
             public List<mntnc_item_add> items { get; set; } = new List<mntnc_item_add>();
         }
-
+        /// <summary>
+        /// lgy 添加订单信息
+        /// </summary>
+        /// <param name="Mntnc_Items_add"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<string>> Addition([FromBody]mntnc_items_add Mntnc_Items_add)
         {
@@ -185,10 +189,24 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
             }
         }
 
+
+        /// <summary>
+        /// lgy 获取订单信息
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<object>> TableMessage(int pageIndex, int pageSize)
         {
-            return NotFound();
+            var res = modelContext.MaintenanceItems.Skip((pageIndex - 1) * pageSize).Take(pageSize).Include(c=>c.vehicle).Select(a => new
+            {
+                maintenance_items_id = a.MaintenanceItemId.ToString(),
+                vehicle_id = a.vehicle.VehicleId.ToString(),
+                maintenance_location = a.MaintenanceLocation,
+                order_status = a.OrderStatusEnum.ToString()
+            }).ToList();
+            return Ok(res);
         }
 
 

@@ -81,19 +81,28 @@ namespace webapi.Controllers.Staff
             return NewContent();
         }
 
+        /// <summary>
+        /// lgy  员工查看个人换电记录
+        /// </summary>
+        /// <param name="employee_id"></param>
+        /// <param name="switch_type"></param>
+        /// <param name="request_status"></param>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <returns></returns>     
         [HttpGet("switch-records/query")]
-        public ActionResult<object> Query(string employee_id,List<string> switch_request_id,string vehicle_id,
-            string switch_type,string startDate,string endDate)
+        public ActionResult<object> SRQuery(string employee_id, string? switch_type, string? startDate, string? endDate)
         {
-            var tmp = _context.SwitchLogs.Include(e => e.employee).Include(f=>f.switchrequest).Where(c => c.employee.EmployeeId == long.Parse(employee_id));
-            if (switch_type != null)
+            var tmp = _context.SwitchLogs.Include(e => e.employee).Include(f => f.switchrequest).Where(c => c.employee.EmployeeId == long.Parse(employee_id));
+            if (!string.IsNullOrEmpty(switch_type))
             {
-                if (Enum.TryParse(switch_type, out SwitchTypeEnum os_enum))
-                    tmp = tmp.Where(c => c.switchrequest.SwitchTypeEnum == os_enum);
+                if (Enum.TryParse(switch_type, out SwitchTypeEnum st_enum))
+                    tmp = tmp.Where(c => c.switchrequest.SwitchTypeEnum == st_enum);
                 else
-                    return BadRequest("fail to convert order_status");
+                    return BadRequest("fail to convert switch_type");
             }
-            if (startDate != null && endDate != null) 
+
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
             {
                 // 定义日期时间字符串的格式化
                 string format = "yyyy-MM-dd";
@@ -101,20 +110,100 @@ namespace webapi.Controllers.Staff
                 if (DateTime.TryParseExact(startDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
                     DateTime.TryParseExact(endDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
                 {
-                    ;
+                    tmp = tmp.Where(e => e.SwitchTime < result2 && e.SwitchTime > result1);
                 }
                 else
                 {
-                    return BadRequest("fail to convert service_time");
+                    return BadRequest("fail to convert startDate or endDate");
                 }
             }
 
+
+            tmp = tmp.OrderBy(e => e.SwitchTime);
             var res = tmp.Select(a => new
             {
                 switch_request_id = a.SwitchServiceId,
-                request_time = a.SwitchTime
+                service_time = a.SwitchTime,
             });
-            return null;
+            return Ok(res);
+
+        }
+
+
+        /// <summary>
+        /// lgy  员工查看个人维修记录
+        /// </summary>
+        /// <param name="employee_id"></param>
+        /// <param name="maintenance_location"></param>    //只要包含即可查出
+        /// <param name="order_status"></param>      //已完成或待评分 维修项按照serviceTime排序，其他按照appointTime
+        /// <param name="startDate"></param>   //已完成或待评分 维修项按照serviceTime查找，其他按照appointTime查找
+        /// <param name="endDate"></param>
+        /// <returns></returns>
+        [HttpGet("repair-records/query")]
+        public ActionResult<object> RRQuery(string employee_id, string? maintenance_location, string? order_status,
+            string? startDate, string? endDate)
+        {
+            var tmp = _context.MaintenanceItems.Include(a => a.employees)
+                .Where(e => e.employees.Exists(f => f.EmployeeId == long.Parse(employee_id)));
+
+            if (!string.IsNullOrEmpty(maintenance_location))
+            {
+                tmp = tmp.Where(e => e.MaintenanceLocation.Contains(maintenance_location));
+            }
+
+            OrderStatusEnum os_enum = OrderStatusEnum.未知;
+            if (!string.IsNullOrEmpty(order_status))
+            {
+                if (Enum.TryParse(order_status, out os_enum))
+                {
+                    tmp = tmp.Where(c => c.OrderStatusEnum == os_enum);
+                    if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
+                    {
+                        tmp = tmp.OrderBy(e => e.ServiceTime).ThenBy(c => c.AppointTime);
+                    }
+                    else
+                    {
+                        tmp = tmp.OrderBy(e => e.AppointTime).ThenBy(f => f.OrderSubmissionTime);
+                    }
+                }
+                else
+                {
+                    return BadRequest("fail to convert order_status");
+                }
+            }
+
+            if (startDate != null && endDate != null)
+            {
+                // 定义日期时间字符串的格式化
+                string format = "yyyy-MM-dd";
+                // 尝试将字符串转换为 DateTime
+                if (DateTime.TryParseExact(startDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
+                    DateTime.TryParseExact(endDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
+                {
+                    if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
+                        tmp = tmp.Where(e => e.ServiceTime < result2 && e.ServiceTime > result1);
+                    else if (os_enum != OrderStatusEnum.未知)
+                        tmp = tmp.Where(e => e.AppointTime < result2 && e.AppointTime > result1);
+                }
+                else
+                {
+                    return BadRequest("fail to convert startDate or endDate");
+                }
+            }
+
+            var res = tmp.Select(e => new
+            {
+                maintenance_items_id = e.MaintenanceItemId,
+                maintenance_location = e.MaintenanceLocation,
+                remarks = e.Note,
+                evaluations = e.Evaluation,
+                score = e.Score,
+                order_submission_time = e.OrderSubmissionTime,
+                appoint_time = e.AppointTime,
+                service_time = e.ServiceTime,
+                order_status = e.OrderStatusEnum
+            });
+            return Ok(res);
         }
 
         ContentResult NewContent(int _code = 0, string _msg = "success")

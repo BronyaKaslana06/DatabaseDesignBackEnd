@@ -22,7 +22,7 @@ namespace webapi.Controllers.Administrator
             int totalOrders=modelContext.SwitchRequests.Count();
             int totalStations=modelContext.SwitchStations.Count();
             int totalStuff=modelContext.Employees.Count();
-            return new JsonResult(
+            return Ok(
                 new {totalUsers=totalUsers, 
                 totalOrders=totalOrders, 
                 totalStations=totalStations, 

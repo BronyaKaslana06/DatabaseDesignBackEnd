@@ -13,6 +13,10 @@ public partial class SwitchLog
 
     public string Evaluation { get; set; }
 
+
+
+
+
     public Battery batteryOn { get; set; } //非空
 
     public Battery batteryOff { get; set; } //非空
