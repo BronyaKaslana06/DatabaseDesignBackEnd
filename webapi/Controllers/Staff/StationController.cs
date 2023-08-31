@@ -12,6 +12,7 @@ using EntityFramework.Context;
 using EntityFramework.Models;
 using System.Transactions;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace webapi.Controllers.Staff
 {
@@ -79,12 +80,16 @@ namespace webapi.Controllers.Staff
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
 
+            int availableStatusValue = (int)Enum.Parse(typeof(AvailableStatusEnum), available_status, ignoreCase: true);
+
             var query = _context.Batteries
-                    .Where(b => b.switchStation.StationId == id && battery_type_id == "" ? true : b.batteryType.BatteryTypeId.ToString() == battery_type_id && available_status == "" ? true : Enum.GetName(typeof(AvailableStatusEnum), b.AvailableStatusEnum) == available_status)
+                    .Where(b => b.switchStation.StationId == id &&
+                    (battery_type_id == "" || b.batteryType.Name == battery_type_id) &&
+                    (available_status == "" || b.AvailableStatus == availableStatusValue))
                     .Select(b => new
                     {
                         battery_id = b.BatteryId.ToString(),
-                        available_status = Enum.GetName(typeof(AvailableStatusEnum), b.AvailableStatusEnum),
+                        available_status = ((AvailableStatusEnum)b.AvailableStatus).ToString(),
                         current_capacity = b.CurrentCapacity,
                         curr_charge_times = b.CurrChargeTimes,
                         manufacturing_date = b.ManufacturingDate.ToString(),
@@ -93,7 +98,7 @@ namespace webapi.Controllers.Staff
                     })
                     .ToList();
 
-            var totalNum = _context.VehicleOwners.Count();
+            var totalNum = query.Count();
             var responseObj = new
             {
                 code = 0,
