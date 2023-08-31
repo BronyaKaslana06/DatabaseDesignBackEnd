@@ -14,7 +14,7 @@ using System.Transactions;
 
 namespace webapi.Controllers.Staff
 {
-    [Route("staff/my-info/")]
+    [Route("staffs/my-info/")]
     [ApiController]
     public class StaffController : ControllerBase
     {
