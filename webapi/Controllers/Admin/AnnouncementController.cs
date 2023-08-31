@@ -6,7 +6,7 @@ using EntityFramework.Context;
 using EntityFramework.Models;
 using Idcreator;
 
-namespace webapi.Controllers.Administrator
+namespace webapi.Controllers.Admin
 {
     [Route("administrator/announcement")]
     [ApiController]

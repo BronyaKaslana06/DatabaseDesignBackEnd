@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace webapi.Controllers.Administrator
+namespace webapi.Controllers.Admin
 {
     [Route("administrator/[controller]/[action]")]
     [ApiController]

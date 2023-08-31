@@ -17,7 +17,7 @@ using EntityFramework.Models;
 using Idcreator;
 using System.Transactions;
 
-namespace webapi.Controllers.Administrator
+namespace webapi.Controllers.Admin
 {
     [Route("administrator/owner-info")]
     [ApiController]

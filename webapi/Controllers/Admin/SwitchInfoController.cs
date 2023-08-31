@@ -12,7 +12,7 @@ using EntityFramework.Context;
 using EntityFramework.Models;
 using Oracle.ManagedDataAccess.Client;
 
-namespace webapi.Controllers.Administrator
+namespace webapi.Controllers.Admin
 {
     [Route("administrator/switch-info")]
     [ApiController]

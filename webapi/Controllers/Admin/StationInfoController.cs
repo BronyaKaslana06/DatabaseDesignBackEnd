@@ -12,7 +12,7 @@ using EntityFramework.Context;
 using EntityFramework.Models;
 using System.Transactions;
 
-namespace webapi.Controllers.Administrator
+namespace webapi.Controllers.Admin
 {
     [Route("administrator/stationInfo")]
     [ApiController]

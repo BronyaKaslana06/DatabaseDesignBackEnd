@@ -210,6 +210,45 @@ namespace webapi.Controllers
                         user_id = employee.EmployeeId
                     };
                 }
+                else if(user_type == IdentityType.管理员)
+                {
+                    string invite_code = user.invite_code ?? string.Empty;
+                    if (invite_code != "123456")
+                    {
+                        obj.data = new
+                        {
+                            code = 1,
+                            msg = "注册码无效",
+                            user_id = "-1"
+                        };
+                        return Content(JsonConvert.SerializeObject(obj), "application/json");
+                    }
+                    //生成新id
+                    long snake = Idcreator.EasyIDCreator.CreateId(_context);
+                    string uid = ((int)user_type).ToString() + snake.ToString();
+                    Administrator admin = new Administrator
+                    {
+                        AdminId = _context.Administrators.Max(x => x.AdminId) + 1,
+                        AccountSerial = uid,
+                        Email = user.email,
+                        Password = password
+                    };
+                    _context.Administrators.Add(admin);
+                    try
+                    {
+                        _context.SaveChanges();
+                    }
+                    catch (DbUpdateException)
+                    {
+                        return Conflict();
+                    }
+                    obj.msg = "注册成功";
+                    obj.data = new
+                    {
+                        account_serial = uid,
+                        user_id = admin.AdminId
+                    };
+                }
                 tx.Complete();
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }

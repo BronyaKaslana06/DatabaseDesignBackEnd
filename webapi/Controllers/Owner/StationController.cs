@@ -11,7 +11,7 @@ using static System.Collections.Specialized.BitVector32;
 using System.Drawing.Printing;
 using webapi.Tools;
 
-namespace webapi.Controllers.Administrator
+namespace webapi.Controllers.Owner
 {
     [Route("owner/stations")]
     [ApiController]

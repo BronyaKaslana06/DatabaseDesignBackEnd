@@ -17,7 +17,7 @@ using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace webapi.Controllers.Administrator
+namespace webapi.Controllers.Owner
 {
     [Route("/owner")]
     [ApiController]

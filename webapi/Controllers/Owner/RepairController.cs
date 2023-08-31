@@ -9,7 +9,7 @@ using System.Transactions;
 using System.Globalization;
 using Microsoft.AspNetCore.Http;
 
-namespace webapi.Controllers.Administrator
+namespace webapi.Controllers.Owner
 {
     [Route("owner/repair_reservation/[action]")]
     [ApiController]
