@@ -29,7 +29,7 @@ namespace webapi.Controllers.Staff
             if (request == null)
                 return NotFound("Request not found.");
             Console.WriteLine(request_id);
-            var log = from  r in _context.SwitchLogs
+            var log = from r in _context.SwitchLogs
                       where r.switchrequest == request
                       select new
                       {
@@ -64,13 +64,13 @@ namespace webapi.Controllers.Staff
                             order_status = sr.requestStatusEnum.ToString()
                         };
 
-            if (query == null || query.Count()==0)
+            if (query == null || query.Count() == 0)
                 return NotFound("无该请求！");
 
             var data = new
             {
                 switch_request = query.ToList()[0],
-                switch_log = (log == null ||log.Count() == 0) ? new
+                switch_log = (log == null || log.Count() == 0) ? new
                 {
                     score = (double)-1,
                     evaluation = "",
@@ -101,7 +101,7 @@ namespace webapi.Controllers.Staff
             }
             else
             {
-                var employee = _context.Employees.Where(e => e.EmployeeId ==Convert.ToInt64(employee_id)).DefaultIfEmpty().FirstOrDefault();
+                var employee = _context.Employees.Where(e => e.EmployeeId == Convert.ToInt64(employee_id)).DefaultIfEmpty().FirstOrDefault();
                 if (employee == null)
                     return NotFound("Employee not found.");
             }
@@ -112,10 +112,10 @@ namespace webapi.Controllers.Staff
             else
                 return NotFound("Order_type error.");
             var query = _context.SwitchRequests
-                .Where(a => a.switchStation.StationId == Convert.ToInt64(station_id) && 
+                .Where(a => a.switchStation.StationId == Convert.ToInt64(station_id) &&
                 a.SwitchType == (int)SwitchTypeEnum.上门换电 &&
                 a.RequestStatus == (int)Ordertype &&
-                (Convert.ToInt64(employee_id) >0? a.employee.EmployeeId== Convert.ToInt64(employee_id):true)
+                (Convert.ToInt64(employee_id) > 0 ? a.employee.EmployeeId == Convert.ToInt64(employee_id) : true)
                 )
                 .Select(switch_request => new
                 {
@@ -148,7 +148,7 @@ namespace webapi.Controllers.Staff
             }
             var station = _context.SwitchStations.Where(e => e.StationId == Convert.ToInt64(station_id)).DefaultIfEmpty().FirstOrDefault();
             if (station == null)
-                return NotFound("Station not found.");   
+                return NotFound("Station not found.");
 
             RequestStatusEnum Ordertype = RequestStatusEnum.未知;
             if (Enum.TryParse(request_status, out RequestStatusEnum typeEnum))
@@ -199,7 +199,7 @@ namespace webapi.Controllers.Staff
                 if (request == null)
                     return NotFound("Switch request not found.");
 
-                if(request.RequestStatus != (int)RequestStatusEnum.待接单)
+                if (request.RequestStatus != (int)RequestStatusEnum.待接单)
                     return BadRequest("订单状态不是待接单，无法接单！");
                 request.employee = employee;
                 request.requestStatusEnum = RequestStatusEnum.待完成;
@@ -239,13 +239,13 @@ namespace webapi.Controllers.Staff
                     .Include(f => f.vehicle.Battery)
                     .FirstOrDefault(s => s.SwitchRequestId == request_id);
                 if (request == null)
-                    return NewContent(1,"Switch request not found.");
+                    return NewContent(1, "Switch request not found.");
                 if (request.RequestStatus != (int)RequestStatusEnum.待完成)
-                    return NewContent(1,"订单状态不是待完成，无法接单！");
+                    return NewContent(1, "订单状态不是待完成，无法接单！");
 
                 var batteryOff = request.vehicle.Battery;
                 if (batteryOff == null)
-                    return NewContent(1,"Vehicle has no battery.");
+                    return NewContent(1, "Vehicle has no battery.");
 
                 var station = request.switchStation;
                 var battery_type = request.batteryType;
@@ -289,7 +289,7 @@ namespace webapi.Controllers.Staff
                 }
                 catch (DbUpdateException)
                 {
-                    return NewContent(1,"数据库修改失败");
+                    return NewContent(1, "数据库修改失败");
                 }
 
                 var obj = new

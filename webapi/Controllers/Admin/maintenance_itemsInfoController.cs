@@ -2,8 +2,10 @@
 using EntityFramework.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Transactions;
 using static ASPNETCoreWebAPI_Layer.Controllers.maintenance_itemsInfoController;
 
@@ -23,34 +25,50 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// <summary>
         /// lgy 订单信息查询
         /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
         /// <param name="maintenance_items_id"></param>
         /// <param name="vehicle_id"></param>
         /// <param name="maintenance_location"></param>    //只要包含即可
-        /// <param name="order_status"></param>    ///取值为 待接单 待完成 待评分 已完成
+        /// <param name="order_status"></param>    ///取值为 待接单 待完成 待评分 已完成 
         /// <returns></returns>
         [HttpGet]    
         public ActionResult<object> Message(int pageIndex, int pageSize, string? maintenance_items_id, string? vehicle_id,
             string? maintenance_location, string? order_status)
         {
-            IEnumerable<MaintenanceItem> tmp = modelContext.MaintenanceItems;
+            var tmp = (modelContext.MaintenanceItems.Include(e => e.vehicle)).Select(a=>a);
+
             if (!string.IsNullOrEmpty(maintenance_items_id))
                 tmp = tmp.Where(e => e.MaintenanceItemId == long.Parse(maintenance_items_id));
-            if (!string.IsNullOrEmpty (vehicle_id) && tmp!=null)
-                tmp=tmp.Where(e=>e.vehicle.VehicleId==long.Parse(vehicle_id));
-            if (!string.IsNullOrEmpty(maintenance_location) && tmp != null)
-                tmp = tmp.Where(e => e.MaintenanceLocation == maintenance_location);
-            if (!string.IsNullOrEmpty (order_status) && tmp != null)
-                tmp=tmp.Where(e=>e.OrderStatusEnum.ToString()==order_status);
 
-            if (tmp == null)
-                return NotFound("No results found.");
-            var res = tmp.Select(e => new
+            if (!string.IsNullOrEmpty (vehicle_id) && tmp.Any())
+                tmp=tmp.Where(e=>e.vehicle.VehicleId==long.Parse(vehicle_id));
+
+            if (!string.IsNullOrEmpty(maintenance_location) && tmp.Any())
+                tmp = tmp.Where(e => e.MaintenanceLocation == maintenance_location);
+
+            if (!string.IsNullOrEmpty (order_status) && tmp.Any())
             {
-                maintenance_items_id = e.MaintenanceItemId,
-                vehicle_id = e.vehicle.VehicleId,
-                maintenance_location = e.MaintenanceItemId,
+                if (Enum.TryParse(order_status, out OrderStatusEnum os_enum))
+                {
+                    tmp = tmp.Where(e => e.OrderStatus ==(int)os_enum);
+                }
+                else
+                {
+                    return BadRequest("fail to convert order_status");
+                }
+            }
+
+            if (!tmp.Any())
+                return NotFound("No results found.");
+
+            var res=tmp.OrderBy(c => c.MaintenanceItemId).Skip((pageIndex - 1) * pageSize).Take(pageSize).Select(e => new
+            {
+                maintenance_items_id = e.MaintenanceItemId.ToString(),
+                vehicle_id = e.vehicle.VehicleId.ToString(),
+                maintenance_location = e.MaintenanceLocation,
                 order_status = e.OrderStatusEnum.ToString()
-            }).Skip((pageIndex-1)*pageSize).Take(pageSize);
+            });
             return Ok(res);
         }
 
@@ -146,48 +164,49 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// </summary>
         /// <param name="Mntnc_Items_add"></param>
         /// <returns></returns>
-        [HttpPost]
-        public async Task<ActionResult<string>> Addition([FromBody]mntnc_items_add Mntnc_Items_add)
-        {
-            using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var items = Mntnc_Items_add.items;
-                    foreach (var item in items)
-                    {
-                        MaintenanceItem tmp = new MaintenanceItem();
-                        tmp.vehicle=modelContext.Vehicles.Single(e=>e.VehicleId==long.Parse(item.vehicle_id));
-                        tmp.MaintenanceLocation = item.mntnc_loc;
-                        if (Enum.TryParse(item.order_status, out OrderStatusEnum os_enum))
-                            tmp.OrderStatusEnum = os_enum;
-                        else
-                            return BadRequest("fail to convert order_status");
+        //[HttpPost]
+        //public async Task<ActionResult<string>> Addition([FromBody]mntnc_items_add Mntnc_Items_add)
+        //{
+        //    using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        //    {
+        //        try
+        //        {
+        //            var items = Mntnc_Items_add.items;
+        //            foreach (var item in items)
+        //            {
+        //                MaintenanceItem tmp = new MaintenanceItem();
+        //                tmp.vehicle=modelContext.Vehicles.Single(e=>e.VehicleId==long.Parse(item.vehicle_id));
+        //                tmp.MaintenanceLocation = item.mntnc_loc;
+        //                if (Enum.TryParse(item.order_status, out OrderStatusEnum os_enum))
+        //                    tmp.OrderStatusEnum = os_enum;
+        //                else
+        //                    return BadRequest("fail to convert order_status");
 
-                        // 定义日期时间字符串的格式化
-                        string format = "yyyy-MM-dd HH:mm:ss";
-                        // 尝试将字符串转换为 DateTime
-                        if (DateTime.TryParseExact(item.service_time, format, null, System.Globalization.DateTimeStyles.None, out DateTime result))
-                        {
-                            tmp.ServiceTime = result;
-                        }
-                        else
-                        {
-                            return BadRequest("fail to convert service_time");
-                        }
+        //                // 定义日期时间字符串的格式化
+        //                string format = "yyyy-MM-dd HH:mm:ss";
+        //                // 尝试将字符串转换为 DateTime
+        //                if (DateTime.TryParseExact(item.service_time, format, null, System.Globalization.DateTimeStyles.None, out DateTime result))
+        //                {
+        //                    tmp.ServiceTime = result;
+        //                }
+        //                else
+        //                {
+        //                    return BadRequest("fail to convert service_time");
+        //                }
 
-                        await modelContext.MaintenanceItems.AddAsync(tmp);
-                    }
-                    await modelContext.SaveChangesAsync();
-                    tx.Complete();
-                    return Ok("Success");
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest("Add Fail:" + ex.Message);
-                }
-            }
-        }
+        //                await modelContext.MaintenanceItems.AddAsync(tmp);
+        //                await Console.Out.WriteLineAsync(tmp.MaintenanceItemId.ToString());
+        //            }
+        //            await modelContext.SaveChangesAsync();
+        //            tx.Complete();
+        //            return Ok("Success");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            return BadRequest("Add Fail:" + ex.Message);
+        //        }
+        //    }
+        //}
 
 
         /// <summary>
@@ -210,6 +229,38 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         }
 
 
+        /// <summary>
+        /// lgy 管理员查看维修订单的详细信息
+        /// </summary>
+        /// <param name="maintenance_item_id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult<object> MessageId(string maintenance_item_id)
+        {
+            try
+            {
+                var f = modelContext.MaintenanceItems.Include(a => a.vehicle).Single(e => e.MaintenanceItemId == long.Parse(maintenance_item_id));
+                var res = new
+                {
+                    maintenance_item_id = f.MaintenanceItemId.ToString(),
+                    title = f.Title == null ? "" : f.Title,
+                    vehicle_id = f.vehicle.VehicleId.ToString(),
+                    order_submission_time = f.OrderSubmissionTime.ToString(),
+                    appoint_time=f.AppointTime.ToString(),
+                    service_time = f.ServiceTime.HasValue ? f.ServiceTime.ToString() : "",
+                    remarks = f.Note == null ? "" : f.Note.ToString(),
+                    evaluations = f.Evaluation == null ? "" : f.Evaluation.ToString(),
+                    maintenance_location = f.MaintenanceLocation,
+                    order_status = f.OrderStatusEnum.ToString(),
+                    score = f.Score.ToString()
+                };
+                return Ok(res);
+            }
+            catch
+            {
+                return NotFound("maintenance_item_id not exist");
+            }
+        }
 
 
 
@@ -224,41 +275,47 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
 
 
 
-    //    [HttpGet]
-    //    public string tes(long id)  
-    //    {
-    //        return modelContext.Batteries.Where(e=>e.BatteryId==id).Select(a=>a.vehicle.VehicleId).FirstOrDefault().ToString();
-    //    }
-    //    [HttpPost("{id}/{id2}")] 
-    //    public string Demo2([FromRoute(Name = "id")] string d1, [FromRoute(Name = "id")] string d2) 
-    //    {
-    //        Battery battery_tmp = new Battery(); 
-    //        BatteryType batteryType_tmp = new BatteryType();
-    //        using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-    //        {
-    //            try
-    //            {
-    //                battery_tmp.AvailableStatusEnum = AvailableStatusEnum.汽车使用中;
-    //                battery_tmp.CurrChargeTimes = 0;
-    //                battery_tmp.CurrentCapacity = 70;
-    //                battery_tmp.ManufacturingDate=DateTime.Now;
+        //[HttpGet]
+        //public ActionResult<object> tes()
+        //{
+        //    Console.WriteLine("=======================sssssssssssstarttttttttttt\n\n");
+        //    var tmp = modelContext.MaintenanceItems.Include(e => e.vehicle).Select(a => a);
+        //    var res = tmp.Select(e => new
+        //    {
+        //        hhh = e.Title
+        //    });
+        //    return Ok(res);
+        //}
+        //    [HttpPost("{id}/{id2}")] 
+        //    public string Demo2([FromRoute(Name = "id")] string d1, [FromRoute(Name = "id")] string d2) 
+        //    {
+        //        Battery battery_tmp = new Battery(); 
+        //        BatteryType batteryType_tmp = new BatteryType();
+        //        using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        //        {
+        //            try
+        //            {
+        //                battery_tmp.AvailableStatusEnum = AvailableStatusEnum.汽车使用中;
+        //                battery_tmp.CurrChargeTimes = 0;
+        //                battery_tmp.CurrentCapacity = 70;
+        //                battery_tmp.ManufacturingDate=DateTime.Now;
 
-    //                batteryType_tmp.MaxChargeTimes = 1000;
-    //                batteryType_tmp.TotalCapacity = "98.67KWh";
+        //                batteryType_tmp.MaxChargeTimes = 1000;
+        //                batteryType_tmp.TotalCapacity = "98.67KWh";
 
-    //                battery_tmp.batteryType = batteryType_tmp;
+        //                battery_tmp.batteryType = batteryType_tmp;
 
-    //                modelContext.Batteries.Add(battery_tmp);
-    //                modelContext.BatteryTypes.Add(batteryType_tmp);
-    //                modelContext.SaveChangesAsync();
-    //                tx.Complete();
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                return "Error: " + ex.Message + $"d1+d2={d1+d2}";
-    //            }
-    //        }
-    //        return "success:"+battery_tmp.ToString()+batteryType_tmp.ToString() + $"d1={d1+d2}";
-    //    }
+        //                modelContext.Batteries.Add(battery_tmp);
+        //                modelContext.BatteryTypes.Add(batteryType_tmp);
+        //                modelContext.SaveChangesAsync();
+        //                tx.Complete();
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                return "Error: " + ex.Message + $"d1+d2={d1+d2}";
+        //            }
+        //        }
+        //        return "success:"+battery_tmp.ToString()+batteryType_tmp.ToString() + $"d1={d1+d2}";
+        //    }
     }
 }

@@ -14,7 +14,7 @@ using System.Transactions;
 
 namespace webapi.Controllers.Staff
 {
-    [Route("staff/my-info/")]
+    [Route("staffs/my-info/")]
     [ApiController]
     public class StaffMyInfo : ControllerBase
     {
@@ -28,7 +28,7 @@ namespace webapi.Controllers.Staff
         [HttpGet("{employeeId}")]
         public ActionResult<IEnumerable<Employee>> GetOwner(long employeeId)
         {
-            var employee = _context.Employees.Include(a=>a.kpi).FirstOrDefault(a=>a.EmployeeId==employeeId);
+            var employee = _context.Employees.Include(a => a.kpi).FirstOrDefault(a => a.EmployeeId == employeeId);
             if (employee == null)
                 return NewContent(1, "id不存在");
             else
@@ -48,8 +48,8 @@ namespace webapi.Controllers.Staff
                         },
                         performance = new
                         {
-                            total_performance= employee.kpi==null? -1: employee.kpi.TotalPerformance,
-                            score= employee.kpi == null ? -1 : employee.kpi.Score
+                            total_performance = employee.kpi == null ? -1 : employee.kpi.TotalPerformance,
+                            score = employee.kpi == null ? -1 : employee.kpi.Score
                         }
                     }
                 };
@@ -68,7 +68,7 @@ namespace webapi.Controllers.Staff
             }
             employee.Gender = _employee.gender ?? employee.Gender;
             employee.PhoneNumber = _employee.phone_number ?? employee.PhoneNumber;
-            employee.Name= _employee.name ?? employee.Name;
+            employee.Name = _employee.name ?? employee.Name;
             try
             {
                 _context.SaveChanges();
@@ -97,7 +97,7 @@ namespace webapi.Controllers.Staff
             if (!string.IsNullOrEmpty(switch_type))
             {
                 if (Enum.TryParse(switch_type, out SwitchTypeEnum st_enum))
-                    tmp = tmp.Where(c => c.switchrequest.SwitchTypeEnum == st_enum);
+                    tmp = tmp.Where(c => c.switchrequest.SwitchType == (int)st_enum);
                 else
                     return BadRequest("fail to convert switch_type");
             }
@@ -122,8 +122,8 @@ namespace webapi.Controllers.Staff
             tmp = tmp.OrderBy(e => e.SwitchTime);
             var res = tmp.Select(a => new
             {
-                switch_request_id = a.SwitchServiceId,
-                service_time = a.SwitchTime,
+                switch_record_id = a.SwitchServiceId,
+                switch_time = a.SwitchTime,
             });
             return Ok(res);
 
@@ -144,7 +144,7 @@ namespace webapi.Controllers.Staff
             string? startDate, string? endDate)
         {
             var tmp = _context.MaintenanceItems.Include(a => a.employees)
-                .Where(e => e.employees.Exists(f => f.EmployeeId == long.Parse(employee_id)));
+                .Where(e => e.employees.Any(f => f.EmployeeId == long.Parse(employee_id)));
 
             if (!string.IsNullOrEmpty(maintenance_location))
             {
@@ -156,7 +156,7 @@ namespace webapi.Controllers.Staff
             {
                 if (Enum.TryParse(order_status, out os_enum))
                 {
-                    tmp = tmp.Where(c => c.OrderStatusEnum == os_enum);
+                    tmp = tmp.Where(c => c.OrderStatus == (int)os_enum);
                     if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
                     {
                         tmp = tmp.OrderBy(e => e.ServiceTime).ThenBy(c => c.AppointTime);
@@ -193,18 +193,54 @@ namespace webapi.Controllers.Staff
 
             var res = tmp.Select(e => new
             {
-                maintenance_items_id = e.MaintenanceItemId,
+                maintenance_items_id = e.MaintenanceItemId.ToString(),
                 maintenance_location = e.MaintenanceLocation,
-                remarks = e.Note,
-                evaluations = e.Evaluation,
-                score = e.Score,
-                order_submission_time = e.OrderSubmissionTime,
-                appoint_time = e.AppointTime,
-                service_time = e.ServiceTime,
-                order_status = e.OrderStatusEnum
+                remarks = e.Note != null ? e.Note.ToString() : "",
+                evaluations = e.Evaluation != null ? e.Evaluation.ToString() : "",
+                score = e.Score.ToString(),
+                order_submission_time = e.OrderSubmissionTime.ToString(),
+                appoint_time = e.AppointTime.ToString(),
+                service_time = e.ServiceTime.HasValue ? e.ServiceTime.ToString() : "",
+                order_status = e.OrderStatusEnum.ToString(),
+                title = e.Title
             });
             return Ok(res);
         }
+
+        [HttpGet("repair-records/MessageDetail")]
+        public ActionResult<object> RRQueryDetail(string maintenance_item_id)
+        {
+            try
+            {
+                var mn_item = _context.MaintenanceItems.Include(f=>f.vehicle).Single(e => e.MaintenanceItemId == long.Parse(maintenance_item_id));
+                var vehicle = mn_item.vehicle;
+                var vehicle_param=_context.VehicleParams.Include(e=>e.vehicles).Single(f=>f.vehicles.Any(g=>g.VehicleId==vehicle.VehicleId));   
+                var owner = _context.VehicleOwners.Include(e => e.vehicles).Single(f => f.vehicles.Any(a => a.VehicleId == vehicle.VehicleId));
+
+                var res = new
+                {
+                    title = mn_item.Title,
+                    order_submission_time = mn_item.OrderSubmissionTime.ToString(),
+                    service_time = mn_item.ServiceTime.HasValue ? mn_item.ServiceTime.ToString() : "",
+                    order_status = mn_item.OrderStatusEnum.ToString(),
+                    maintenance_location = mn_item.MaintenanceLocation.ToString(),
+                    username = owner.Username == null ? "" : owner.Username,
+                    vehicle_model = vehicle_param.ModelName,
+                    plate_number = vehicle.PlateNumber == null ? "" : vehicle.PlateNumber.ToString(),
+                    remarks = mn_item.Note == null ? "" : mn_item.Note,
+                    evaluation = mn_item.Evaluation == null ? "" : mn_item.Evaluation,
+                    phone_number = owner.PhoneNumber,
+                    score = mn_item.Score.ToString()
+
+                };
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return NotFound("id error:"+ex.Message);
+            }
+        }
+
 
         ContentResult NewContent(int _code = 0, string _msg = "success")
         {
