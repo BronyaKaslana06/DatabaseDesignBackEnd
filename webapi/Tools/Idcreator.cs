@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+
 namespace Idcreator
 {
     public class SnowflakeIDcreator
@@ -90,7 +92,7 @@ namespace Idcreator
     }
 
 
-    public class EasyIDCreator: IPrincipalAccessor
+    public class EasyIDCreator
     {
         static List<long>? allIds = null;
         static Random rand=null;
@@ -122,7 +124,7 @@ namespace Idcreator
 
             while (true)
             {
-                long a = rand.NextInt64(1000000000, 9999999999);
+                long a = rand.NextInt64(10000000, 99999999);
                 if (allIds.Any(b=>b==a)==false)
                 {
                     allIds.Add(a);
@@ -131,7 +133,31 @@ namespace Idcreator
             }
         } 
     }
-    public interface IPrincipalAccessor
+
+    public enum IdentityType
     {
+        车主 = 0,
+        员工 = 1,
+        管理员 = 2,
+        其他 = -1
     }
+
+    //public class AutoIncrementIDcreator
+    //{
+    //    public static long CreateId<T>(DbSet<T> list) where T : class
+    //    {
+    //        var primaryKeyProperty = list.EntityType.FindPrimaryKey().Properties.FirstOrDefault();
+
+    //        if (primaryKeyProperty != null)
+    //        {
+    //            var allEntities = list.AsEnumerable(); // Retrieve all entities from the database
+
+    //            var maxId = allEntities.Max(e => (long)primaryKeyProperty.GetGetter().GetClrValue(e));
+
+    //            return maxId + 1;
+    //        }
+
+    //        return -1;
+    //    }
+    //}
 }

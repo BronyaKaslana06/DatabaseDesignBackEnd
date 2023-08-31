@@ -236,11 +236,12 @@ namespace webapi.Controllers.Staff
                     .Include(c => c.vehicle)
                     .Include(d => d.employee)
                     .Include(e => e.vehicleOwner)
+                    .Include(f => f.vehicle.Battery)
                     .FirstOrDefault(s => s.SwitchRequestId == request_id);
                 if (request == null)
                     return NotFound("Switch request not found.");
                 if (request.RequestStatus != (int)RequestStatusEnum.待完成)
-                    return BadRequest("订单状态不是待接单，无法接单！");
+                    return BadRequest("订单状态不是待完成，无法接单！");
 
                 var batteryOff = request.vehicle.Battery;
                 if (batteryOff == null)
@@ -261,19 +262,26 @@ namespace webapi.Controllers.Staff
                 request.vehicle.Battery = batteryOn;
                 request.requestStatusEnum = RequestStatusEnum.待评价;
 
+                long id = _context.SwitchLogs.Max(e => e.SwitchServiceId) + 1;
                 SwitchLog log = new SwitchLog()
                 {
+                    SwitchServiceId = id,
                     SwitchTime = DateTime.Now,
                     batteryOn = batteryOn,
                     batteryOff = batteryOff,
                     vehicle = request.vehicle,
                     employee = request.employee,
                     switchrequest = request,
+                    switchRequestId = request.SwitchRequestId,
                     Score = -1,
                     Evaluation = ""
                 };
 
-                _context.SwitchLogs.Add(log);
+                var isExistLog = _context.SwitchLogs.Where(s => s.switchRequestId == request_id).DefaultIfEmpty().FirstOrDefault();
+                if (isExistLog == null)
+                    _context.SwitchLogs.Add(log);
+                else
+                    isExistLog = log;
 
                 try
                 {

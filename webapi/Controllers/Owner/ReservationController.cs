@@ -15,10 +15,11 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using System.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace webapi.Controllers.Administrator
 {
-    [Route("/owner/[action]")]
+    [Route("/owner")]
     [ApiController]
     public class ReservationController : ControllerBase
     {
@@ -29,7 +30,7 @@ namespace webapi.Controllers.Administrator
             _context = context;
         }
 
-        [HttpPost]
+        [HttpPost("switch_request")]
         public ActionResult<string> switch_request([FromBody] dynamic _reservation)
         {
             using (TransactionScope tx = new TransactionScope())
@@ -61,9 +62,10 @@ namespace webapi.Controllers.Administrator
 
                 var employee = _context.Employees.FirstOrDefault(e => e.switchStation == station);
 
+                long id = _context.SwitchRequests.Max(e=>e.SwitchRequestId)+1;
                 SwitchRequest switchRequest = new SwitchRequest()
                 {
-                    SwitchRequestId = 9999999999999,
+                    SwitchRequestId = id,
                     vehicleOwner = owner,
                     RequestTime = DateTime.Now,
                     vehicle = vehicle,
@@ -120,7 +122,7 @@ namespace webapi.Controllers.Administrator
             }
         }
 
-        [HttpGet]
+        [HttpGet("switch_history")]
         public ActionResult<string> switch_history(int pageIndex, int pageSize, string owner_id, string order_status="已完成")
         {
             int offset = (pageIndex - 1) * pageSize;
@@ -173,21 +175,27 @@ namespace webapi.Controllers.Administrator
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
 
-        [HttpPost]
+        [HttpPost("review")]
         public ActionResult<string> review([FromBody] dynamic _review)
         {
             using (TransactionScope tx = new TransactionScope())
             {
                 dynamic review = JsonConvert.DeserializeObject<dynamic>(_review.ToString());
-                long switchRequestId = Convert.ToInt64(review.switch_request_id);
+                Console.WriteLine("######");
+                Console.Write(review.evaluation==null);
+                Console.WriteLine("######");
+                long switchRequestId = review.switch_request_id;
 
                 var switchRequest = _context.SwitchRequests.Where(s => s.SwitchRequestId == switchRequestId).FirstOrDefault();
                 switchRequest.requestStatusEnum = RequestStatusEnum.已完成;
 
-                
-                var switchLog = _context.SwitchLogs.Where(s => s.switchrequest.SwitchRequestId == switchRequestId).DefaultIfEmpty().ToList();
+                var switchLog = _context.SwitchLogs
+                    .Include(a=>a.batteryOn)
+                    .Include(b=>b.batteryOff)
+                    .Include(c=>c.switchrequest)
+                    .Where(s => s.switchRequestId == switchRequestId).DefaultIfEmpty().ToList();
                 switchLog[0].Score = (double)review.score;
-                switchLog[0].Evaluation = review.evaluation;
+                switchLog[0].Evaluation = review.evaluation==null?"默认好评": review.evaluation;
 
                 try
                 {
@@ -198,20 +206,18 @@ namespace webapi.Controllers.Administrator
                     return NotFound();
                 }
 
-                var query = _context.SwitchRequests
-                .Where(sr => sr.SwitchRequestId == switchRequestId)
-                .Join(
-                    _context.SwitchLogs,
-                    sr => sr.SwitchRequestId,
-                    sl => sl.switchrequest.SwitchRequestId,
-                    (sr, sl) => new
-                    {
-                        SwitchRequest = sr,
-                        sl.SwitchTime,
-                        sl.Score,
-                        sl.Evaluation
-                    })
-                .FirstOrDefault();
+                var query = (from sl in _context.SwitchLogs
+                            where sl.switchRequestId == switchRequestId
+                            select new
+                            {
+                                sl.SwitchServiceId,
+                                sl.SwitchTime,
+                                sl.switchRequestId,
+                                batteryOnId = sl.batteryOn.BatteryId,
+                                batteryOffId = sl.batteryOff.BatteryId,
+                                sl.Score,
+                                sl.Evaluation
+                            }).FirstOrDefault();
 
                 var obj = new
                 {
@@ -220,6 +226,46 @@ namespace webapi.Controllers.Administrator
                 tx.Complete();
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
+        }
+
+        [HttpDelete("switch_history")]
+        public ActionResult<string> delete_request(string switch_request_id, string owner_id)
+        {
+            long requestid = Convert.ToInt64(switch_request_id);
+            var request = _context.SwitchRequests
+                .Include(a=>a.vehicleOwner)
+                .FirstOrDefault(s => s.SwitchRequestId == requestid);
+            if (request == null)
+                return NotFound("Request not found.");
+
+            long ownerid = Convert.ToInt64(owner_id);
+            var owner = _context.VehicleOwners.FirstOrDefault(s => s.OwnerId == ownerid);
+            if (owner == null)
+                return NotFound("Owner not found.");
+            if (request.vehicleOwner != owner)
+                return NotFound("非本人，无法撤销");
+
+            if(request.RequestStatus != (int)RequestStatusEnum.待接单 && request.RequestStatus != (int)RequestStatusEnum.待完成)
+            {
+                return NotFound("已完成订单无法撤销");
+            }
+
+            _context.SwitchRequests.Remove(request);
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict("数据库修改失败");
+            }
+
+            var obj = new
+            {
+                code = 0,
+                msg = "success"
+            };
+            return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
     }
 }

@@ -27,54 +27,65 @@ namespace webapi.Controllers
         public ActionResult LoginCheck([FromBody] dynamic _user)
         {
             dynamic user = JsonConvert.DeserializeObject<dynamic>(Convert.ToString(_user));
-            string em = user.email;
+            char usertype = Convert.ToString(user.user_id)[0];
+            IdentityType user_type = (IdentityType)Convert.ToInt32(usertype - '0');
+            string account_serial = user.user_id;
             string password = user.password;
-            string[] table_name = { "vehicle_owner", "employee", "administrator" };
-            string[] user_id_type = { "owner_id", "employee_id", "admin_id" };
-            var query1 = _context.VehicleOwners
-                        .Where(item => item.Email == em)
-                        .ToList();
-            var query2 = _context.Employees
-                        .Where(item => item.Email == em)
-                        .ToList();
-            var query3 = _context.Administrators
-                        .Where(item => item.Email == em)
-                        .ToList();
-            var re1 = query1.Count();
-            var re2 = query2.Count();
-            var re3 = query3.Count();
-            dynamic obj = new ExpandoObject();
-            if (re1 + re2 + re3 > 1)
+            switch (user_type)
             {
-                obj.code = 2;
-                obj.msg = "错误：检出多个账户";
-                obj.data = new { };
+                case IdentityType.车主:
+                    var owner = _context.VehicleOwners.Where(x=>x.AccountSerial == account_serial).DefaultIfEmpty().FirstOrDefault();
+                    if (owner == null)
+                        return NewContent(new { }, 1, "User ID error.");
+                    if (owner.Password != password)
+                        return NewContent(new { }, 1, "Password error.");
+                    return NewContent(
+                        new
+                        {
+                            user_type = user_type.ToString(),
+                            user_id = owner.OwnerId,
+                            username = owner.Username,
+                            phone_number = owner.PhoneNumber,
+                            gender = owner.Gender,
+                            email = owner.Email
+                        });
+                case IdentityType.员工:
+                    var staff = _context.Employees
+                        .Include(a=>a.switchStation)
+                        .Where(x => x.AccountSerial == account_serial)
+                        .DefaultIfEmpty().FirstOrDefault();
+                    if (staff == null)
+                        return NewContent(new { }, 1, "User ID error.");
+                    if (staff.Password != password)
+                        return NewContent(new { }, 1, "Password error.");
+                    return NewContent(
+                        new
+                        {
+                            user_type = user_type.ToString(),
+                            user_id = staff.EmployeeId,
+                            username = staff.UserName,
+                            phone_number = staff.PhoneNumber,
+                            gender = staff.Gender,
+                            station_id = staff.switchStation.StationId,
+                            position = (PositionEnum)staff.Position,
+                            email = staff.Email
+                        });
+                case IdentityType.管理员:
+                    var admin = _context.Administrators.Where(x => x.AccountSerial == account_serial).DefaultIfEmpty().FirstOrDefault();
+                    if (admin == null)
+                        return NewContent(new { }, 1, "User ID error.");
+                    if (admin.Password != password)
+                        return NewContent(new { }, 1, "Password error.");
+                    return NewContent(
+                        new
+                        {
+                            user_type = user_type.ToString(),
+                            user_id = admin.AdminId,
+                            email = admin.Email
+                        });
+                default:
+                    return NotFound("身份无法识别");
             }
-            else if(re1 + re2 + re3 == 0)
-            {
-                obj.code = 2;
-                obj.msg = "错误：该账户不存在";
-                obj.data = new { };
-            }
-            int i = re1 == 0 ? (re2 == 0 ? 2 : 1) : 0;
-
-            obj.code = 0;
-            string isRightPassword = "SELECT * FROM " + table_name[i] +
-                        " WHERE " + user_id_type[i] + "='" + em +
-                        "' AND password='" + password + "'";
-            DataTable right = OracleHelper.SelectSql(isRightPassword);
-            if (right.Rows.Count == 0)
-            {
-                obj.code = 2;
-                obj.msg = "密码错误";
-                obj.data = new { };
-            }
-            else
-            {
-                obj.msg = "登陆成功";
-                obj.data = right;
-            }
-            return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
 
         [HttpPost("sign-up")]
@@ -83,10 +94,11 @@ namespace webapi.Controllers
             using (TransactionScope tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 dynamic user = JsonConvert.DeserializeObject<dynamic>(Convert.ToString(_user));
-                string user_type = user.user_type ?? string.Empty;
+                string usertype = user.user_type ?? string.Empty;
                 //可注册的用户类型：员工/车主
-                if (user_type == string.Empty || user_type != "0" && user_type != "1")
+                if (usertype == string.Empty || usertype != "0" && usertype != "1")
                     return NoContent();
+                IdentityType user_type = (IdentityType)Convert.ToInt32(usertype);
                 //员工和车主共用的参数
                 string username = user.username ?? "新用户";
                 string password = user.password ?? "123456";
@@ -101,11 +113,11 @@ namespace webapi.Controllers
                     user_id = "-1"
                 };
                 obj.msg = "注册成功";
-                if (user_type == "0") //注册车主
+                if (user_type == IdentityType.车主) //注册车主
                 {
                     //生成新id
                     long snake = Idcreator.EasyIDCreator.CreateId(_context);
-                    long uid = Convert.ToInt64(user_type + snake.ToString());
+                    long uid = Convert.ToInt64(((int)user_type).ToString() + snake.ToString());
                     obj.data = new
                     {
                         user_id = uid
@@ -118,14 +130,14 @@ namespace webapi.Controllers
                         Password = password,
                         CreateTime = create_time,
                         PhoneNumber = phone_number,
-                        Email = $"{user.email}" ?? string.Empty,
+                        Email = user.email ?? string.Empty,
                         Gender = gender,
                         Birthday = Convert.ToDateTime(user.birthday == null ? "2000-01-01" : user.birthday),   
                     };
                     OwnerPos OP = new OwnerPos
                     {
                         OwnerId = uid,
-                        Address = $"{user.address}" ?? string.Empty
+                        Address = user.address ?? string.Empty
                     };
                     _context.VehicleOwners.Add(owner);
                     _context.OwnerPos.Add(OP);
@@ -135,34 +147,28 @@ namespace webapi.Controllers
                     }
                     catch (DbUpdateException)
                     {
-                        if (OwnerExists(owner.OwnerId))
-                        {
-                            return Conflict();
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        return Conflict();
                     }
                 }
-                else if (user_type == "1") //注册员工
+                else if (user_type == IdentityType.员工) //注册员工
                 {
                     string invite_code = user.invite_code ?? string.Empty;
                     if (invite_code != "123456")
                     {
                         obj.data = new
                         {
+                            code =1 ,
+                            msg = "注册码无效",
                             user_id = "-1"
                         };
                         return Content(JsonConvert.SerializeObject(obj), "application/json");
                     }
-                    string sql = "SELECT MAX(employee_id) FROM EMPLOYEE";
-                    DataTable df = OracleHelper.SelectSql(sql);
-                    int df_count = Convert.IsDBNull(df.Rows[0][0]) ? 1000000 : Convert.ToInt32(df.Rows[0][0]) + 1;
-                    long uid = SnowflakeIDcreator.nextId();
+                    //生成新id
+                    long snake = Idcreator.EasyIDCreator.CreateId(_context);
+                    long uid = Convert.ToInt64(((int)user_type).ToString() + snake.ToString());
                     obj.data = new
                     {
-                        user_id = uid.ToString(),
+                        user_id = uid
                     };
                     Employee employee = new Employee
                     {
@@ -173,8 +179,8 @@ namespace webapi.Controllers
                         CreateTime = create_time,
                         PhoneNumber = phone_number,
                         Gender = gender,
-                        IdentityNumber = $"{user.identity_number}" ?? string.Empty,
-                        Position = user.position,
+                        IdentityNumber = user.identity_number,
+                        Position = user.position ?? (int)PositionEnum.其它,
                         Salary = 0
                     };
                     _context.Employees.Add(employee);
@@ -184,14 +190,7 @@ namespace webapi.Controllers
                     }
                     catch (DbUpdateException)
                     {
-                        if (StaffExists(employee.EmployeeId))
-                        {
-                            return Conflict();
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        return Conflict();
                     }
                 }
                 tx.Complete();
@@ -206,6 +205,17 @@ namespace webapi.Controllers
         private bool StaffExists(long id)
         {
             return _context.Employees?.Any(e => e.EmployeeId == id) ?? false;
+        }
+
+        ContentResult NewContent<T>(T data, int _code = 0, string _msg = "success")
+        {
+            var a = new
+            {
+                code = _code,
+                msg = _msg,
+                data
+            };
+            return Content(JsonConvert.SerializeObject(a), "application/json");
         }
     }
 }
