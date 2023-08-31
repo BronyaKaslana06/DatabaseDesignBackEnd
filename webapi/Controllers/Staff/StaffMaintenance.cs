@@ -81,6 +81,7 @@ namespace webapi.Controllers.Staff
             var maintenance_array = _context.MaintenanceItems
                    .Where(e => e.OrderStatus == orderStatusEnum&&
                    (isEmployee || e.employees.Any(e => e.EmployeeId == employee_id)))
+                   .OrderBy(a => a.AppointTime)
                    .Select(maintenance_item => new
                    {
                        maintenance_item_id=maintenance_item.MaintenanceItemId,
@@ -91,7 +92,8 @@ namespace webapi.Controllers.Staff
                        phone_number = maintenance_item.vehicle.vehicleOwner.PhoneNumber,
                        username = maintenance_item.vehicle.vehicleOwner.Username,
                        }
-                   ).ToList();
+                   )
+                   .ToList();
             var a = new
             {
                 code = 0,
@@ -112,7 +114,7 @@ namespace webapi.Controllers.Staff
                 return NewContent(3, "id非法");
 
             var maintanceItem = _context.MaintenanceItems.Include(a=>a.employees).FirstOrDefault(a=>a.MaintenanceItemId==maintenance_item_id);
-
+            
             if (maintanceItem == null)
                 return NewContent(2, "无此id的维修项");
 
