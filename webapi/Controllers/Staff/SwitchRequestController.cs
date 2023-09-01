@@ -117,6 +117,7 @@ namespace webapi.Controllers.Staff
                 a.RequestStatus == (int)Ordertype &&
                 (Convert.ToInt64(employee_id) > 0 ? a.employee.EmployeeId == Convert.ToInt64(employee_id) : true)
                 )
+                .OrderByDescending(a=>a.RequestTime)
                 .Select(switch_request => new
                 {
                     switch_request.employee.EmployeeId,
@@ -160,6 +161,7 @@ namespace webapi.Controllers.Staff
                 a.SwitchType == (int)SwitchTypeEnum.到店换电 &&
                 a.RequestStatus == (int)Ordertype
                 )
+                .OrderByDescending(a => a.Date)
                 .Select(switch_request => new
                 {
                     switch_request.employee.EmployeeId,
