@@ -62,15 +62,14 @@ namespace webapi.Controllers.Owner
                         name = joinedData.Employee.Name,
                         phone_number = joinedData.Employee.PhoneNumber
                     })
-                    .ToList();
+                    .FirstOrDefault();
 
-                var totalNum = filteredItems.Count();
 
                 var obj = new
                 {
                     code = 0,
                     msg = "success",
-                    totalData = totalNum,
+                    totalData = 1,
                     data = filteredItems,
                 };
 
