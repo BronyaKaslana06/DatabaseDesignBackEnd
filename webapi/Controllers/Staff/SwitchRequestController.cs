@@ -90,11 +90,8 @@ namespace webapi.Controllers.Staff
         }
 
         [HttpGet]
-        public ActionResult<string> doortodoor(string station_id, string employee_id, string request_status)
+        public ActionResult<string> doortodoor(string employee_id, string request_status)
         {
-            var station = _context.SwitchStations.Where(e => e.StationId == Convert.ToInt64(station_id)).DefaultIfEmpty().FirstOrDefault();
-            if (station == null)
-                return NotFound("Station not found.");
             if (request_status == "待接单")
             {
                 employee_id = "-1";
@@ -112,8 +109,7 @@ namespace webapi.Controllers.Staff
             else
                 return NotFound("Order_type error.");
             var query = _context.SwitchRequests
-                .Where(a => a.switchStation.StationId == Convert.ToInt64(station_id) &&
-                a.SwitchType == (int)SwitchTypeEnum.上门换电 &&
+                .Where(a => a.SwitchType == (int)SwitchTypeEnum.上门换电 &&
                 a.RequestStatus == (int)Ordertype &&
                 (Convert.ToInt64(employee_id) > 0 ? a.employee.EmployeeId == Convert.ToInt64(employee_id) : true)
                 )
@@ -128,7 +124,8 @@ namespace webapi.Controllers.Staff
                     username = switch_request.vehicleOwner.Username,
                     phone_number = switch_request.vehicleOwner.PhoneNumber,
                     request_time = switch_request.RequestTime,
-                    order_status = switch_request.requestStatusEnum.ToString()
+                    order_status = switch_request.requestStatusEnum.ToString(),
+                    battery_type_id = switch_request.batteryType.Name
                 }).ToList();
 
             var a = new
@@ -172,7 +169,8 @@ namespace webapi.Controllers.Staff
                     username = switch_request.vehicleOwner.Username,
                     phone_number = switch_request.vehicleOwner.PhoneNumber,
                     request_time = switch_request.RequestTime,
-                    order_status = switch_request.requestStatusEnum.ToString()
+                    order_status = switch_request.requestStatusEnum.ToString(),
+                    battery_type_id = switch_request.batteryType.Name
                 }).ToList();
 
             var a = new

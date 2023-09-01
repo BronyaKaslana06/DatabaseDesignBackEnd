@@ -55,7 +55,7 @@ namespace webapi.Controllers.Owner
                         longtitude = joinedData.MaintenanceItem.longitude,
                         latitude = joinedData.MaintenanceItem.latitude,
                         appoint_time = joinedData.MaintenanceItem.AppointTime.ToString(),
-                        order_status = Enum.GetName(typeof(int), joinedData.MaintenanceItem.OrderStatus),
+                        order_status = joinedData.MaintenanceItem.OrderStatusEnum.ToString(),
                         remarks = joinedData.MaintenanceItem.Note,
                         evaluations = joinedData.MaintenanceItem.Evaluation,
                         score = joinedData.MaintenanceItem.Score,
@@ -81,7 +81,7 @@ namespace webapi.Controllers.Owner
                 var errorResponse = new
                 {
                     code = 1,
-                    msg = "error",
+                    msg = ex.Message,
                     totalData = 0,
                     data = new DataTable(),
                 };

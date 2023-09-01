@@ -94,9 +94,13 @@ namespace webapi.Controllers.Staff
                return Content(JsonConvert.SerializeObject(obj), "application/json");
            }
 
-           int availableStatusValue = (int)Enum.Parse(typeof(AvailableStatusEnum), available_status, ignoreCase: true);
-
-           var query = _context.Batteries
+    
+            int availableStatusValue = 0; // 默认值为0
+            if (!string.IsNullOrEmpty(available_status))
+            {
+                availableStatusValue = (int)Enum.Parse(typeof(AvailableStatusEnum), available_status, ignoreCase: true);
+            }
+            var query = _context.Batteries
                    .Where(b => b.switchStation.StationId == id &&
                    (battery_type_id == "" || b.batteryType.Name == battery_type_id) &&
                    (available_status == "" || b.AvailableStatus == availableStatusValue))
