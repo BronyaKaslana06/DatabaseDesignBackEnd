@@ -287,19 +287,14 @@ namespace webapi.Controllers.Owner
         public IActionResult update([FromBody] dynamic _acm)
         {
             _acm = JsonConvert.DeserializeObject(Convert.ToString(_acm));
-            bool flag = long.TryParse($"{_acm.vehicle_id}", out long vid);
-            if (!(long.TryParse($"{_acm.maintenance_item_id}", out long id) && (flag || _acm.vehicle_id == null)))
+            if (!(long.TryParse($"{_acm.maintenance_item_id}", out long id)))
                 return NewContent(1, "记录标记无效");
 
             var acm = _context.MaintenanceItems.Find(id);
-            var Vehicle = _context.Vehicles.Find(vid);
             if (acm == null)
                 return NewContent(1, "无记录");
-            if (Vehicle == null)
-                return NewContent(1, "车辆不存在");
             else if (_acm.evaluations == null)
             {
-                acm.vehicle = Vehicle;
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Note = _acm.remarks;
                 acm.OrderStatus = _acm.order_status;
@@ -311,6 +306,7 @@ namespace webapi.Controllers.Owner
             {
                 acm.Evaluation = _acm.evaluations;
                 acm.Score = _acm.score;
+                acm.OrderStatus = 4;
             }
             try
             {

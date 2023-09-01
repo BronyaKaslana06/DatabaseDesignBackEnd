@@ -21,7 +21,8 @@
         }
         public static double ComputeSimilarityScore(string s, string keyword)
         {
-            int m = s.Length;
+            int m = 0;
+            if(s != null) m = s.Length;
             int n = keyword.Length;
 
             int[,] dp = new int[m + 1, n + 1];
