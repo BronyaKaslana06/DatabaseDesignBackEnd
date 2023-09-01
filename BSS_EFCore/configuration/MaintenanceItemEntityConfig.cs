@@ -41,7 +41,8 @@ namespace BSS_EFCore.configuration
             builder.Property(e => e.Title)
                 .HasColumnName("TITLE");
 
-            builder.HasMany<Employee>(e => e.employees).WithMany(a => a.maintenanceItems).UsingEntity(j=>j.ToTable("Employee_MaintenanceItem"));
+            builder.HasMany<Employee>(e => e.employees).WithMany(a => a.maintenanceItems)
+                .UsingEntity(j=>j.ToTable("Employee_MaintenanceItem"));
             builder.HasOne<Vehicle>(e=>e.vehicle).WithMany(a=>a.maintenanceItems).IsRequired();
         }
     }

@@ -33,6 +33,8 @@ public partial class Battery
 
     public DateTime ManufacturingDate { get; set; }
 
+
+
     public SwitchStation? switchStation { get; set; }   //nullable
     public BatteryType batteryType { get; set; }   //非空
     public Vehicle? vehicle { get; set; }   //nullable

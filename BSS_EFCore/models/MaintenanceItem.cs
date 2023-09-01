@@ -63,7 +63,7 @@ public partial class MaintenanceItem
 
 
 
-    public List<Employee> employees = new List<Employee>();   //至少一个
+    public List<Employee> employees = new List<Employee>();   //可以0个
     public Vehicle vehicle { get; set; }   // not null
 }
 

@@ -49,11 +49,13 @@ public partial class Employee
     public int Salary { get; set; }
 
 
+
+
+
     public Kpi kpi { get; set; }  //非空
 
     public List<MaintenanceItem> maintenanceItems { get; set; } = new List<MaintenanceItem>();
 
-    public List<SwitchLog> switchLogs { get; set; } = new List<SwitchLog>();  //可以为0
 
     public List<SwitchRequest> switchRequests { get; set; } = new List<SwitchRequest>(); //可以为0
 

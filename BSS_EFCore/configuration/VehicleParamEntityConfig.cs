@@ -18,7 +18,7 @@ namespace BSS_EFCore.configuration
             builder.ToTable("VEHICLE_PARAM");
 
             builder.Property(e => e.VehicleModelId)
-                .HasColumnName("VEHICLE_MODEL");
+                .HasColumnName("VEHICLE_MODEL_ID");
             builder.Property(e => e.Manufacturer)
                 .HasMaxLength(50)
                 .IsUnicode()
