@@ -14,7 +14,7 @@ using System.Transactions;
 
 namespace webapi.Controllers.Staff
 {
-    [Route("staffs/my-info/")]
+    [Route("staff/my-info/")]
     [ApiController]
     public class StaffMyInfo : ControllerBase
     {
@@ -143,68 +143,76 @@ namespace webapi.Controllers.Staff
         public ActionResult<object> RRQuery(string employee_id, string? maintenance_location, string? order_status,
             string? startDate, string? endDate)
         {
-            var tmp = _context.MaintenanceItems.Include(a => a.employees)
-                .Where(e => e.employees.Any(f => f.EmployeeId == long.Parse(employee_id)));
-
-            if (!string.IsNullOrEmpty(maintenance_location))
+            try
             {
-                tmp = tmp.Where(e => e.MaintenanceLocation.Contains(maintenance_location));
-            }
+                var tmp = _context.MaintenanceItems.Include(a => a.employees)
+    .Where(e => e.employees.Any(f => f.EmployeeId == long.Parse(employee_id)));
 
-            OrderStatusEnum os_enum = OrderStatusEnum.未知;
-            if (!string.IsNullOrEmpty(order_status))
-            {
-                if (Enum.TryParse(order_status, out os_enum))
+                if (!string.IsNullOrEmpty(maintenance_location))
                 {
-                    tmp = tmp.Where(c => c.OrderStatus == (int)os_enum);
-                    if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
+                    tmp = tmp.Where(e => e.MaintenanceLocation.Contains(maintenance_location));
+                }
+
+                OrderStatusEnum os_enum = OrderStatusEnum.未知;
+                if (!string.IsNullOrEmpty(order_status))
+                {
+                    if (Enum.TryParse(order_status, out os_enum))
                     {
-                        tmp = tmp.OrderBy(e => e.ServiceTime).ThenBy(c => c.AppointTime);
+                        tmp = tmp.Where(c => c.OrderStatus == (int)os_enum);
+                        if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
+                        {
+                            tmp = tmp.OrderBy(e => e.ServiceTime).ThenBy(c => c.AppointTime);
+                        }
+                        else
+                        {
+                            tmp = tmp.OrderBy(e => e.AppointTime).ThenBy(f => f.OrderSubmissionTime);
+                        }
                     }
                     else
                     {
-                        tmp = tmp.OrderBy(e => e.AppointTime).ThenBy(f => f.OrderSubmissionTime);
+                        return BadRequest("fail to convert order_status");
                     }
                 }
-                else
-                {
-                    return BadRequest("fail to convert order_status");
-                }
-            }
 
-            if (startDate != null && endDate != null)
-            {
-                // 定义日期时间字符串的格式化
-                string format = "yyyy-MM-dd";
-                // 尝试将字符串转换为 DateTime
-                if (DateTime.TryParseExact(startDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
-                    DateTime.TryParseExact(endDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
+                if (startDate != null && endDate != null)
                 {
-                    if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
-                        tmp = tmp.Where(e => e.ServiceTime < result2 && e.ServiceTime > result1);
-                    else if (os_enum != OrderStatusEnum.未知)
-                        tmp = tmp.Where(e => e.AppointTime < result2 && e.AppointTime > result1);
+                    // 定义日期时间字符串的格式化
+                    string format = "yyyy-MM-dd";
+                    // 尝试将字符串转换为 DateTime
+                    if (DateTime.TryParseExact(startDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
+                        DateTime.TryParseExact(endDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
+                    {
+                        if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
+                            tmp = tmp.Where(e => e.ServiceTime < result2 && e.ServiceTime > result1);
+                        else if (os_enum != OrderStatusEnum.未知)
+                            tmp = tmp.Where(e => e.AppointTime < result2 && e.AppointTime > result1);
+                    }
+                    else
+                    {
+                        return BadRequest("fail to convert startDate or endDate");
+                    }
                 }
-                else
-                {
-                    return BadRequest("fail to convert startDate or endDate");
-                }
-            }
 
-            var res = tmp.Select(e => new
+                var res = tmp.Select(e => new
+                {
+                    maintenance_items_id = e.MaintenanceItemId.ToString(),
+                    maintenance_location = e.MaintenanceLocation,
+                    remarks = e.Note != null ? e.Note.ToString() : "",
+                    evaluations = e.Evaluation != null ? e.Evaluation.ToString() : "",
+                    score = e.Score.ToString(),
+                    order_submission_time = e.OrderSubmissionTime.ToString(),
+                    appoint_time = e.AppointTime.ToString(),
+                    service_time = e.ServiceTime.HasValue ? e.ServiceTime.ToString() : "",
+                    order_status = e.OrderStatusEnum.ToString(),
+                    title = e.Title
+                });
+                return Ok(res);
+
+            }
+            catch(Exception ex)
             {
-                maintenance_items_id = e.MaintenanceItemId.ToString(),
-                maintenance_location = e.MaintenanceLocation,
-                remarks = e.Note != null ? e.Note.ToString() : "",
-                evaluations = e.Evaluation != null ? e.Evaluation.ToString() : "",
-                score = e.Score.ToString(),
-                order_submission_time = e.OrderSubmissionTime.ToString(),
-                appoint_time = e.AppointTime.ToString(),
-                service_time = e.ServiceTime.HasValue ? e.ServiceTime.ToString() : "",
-                order_status = e.OrderStatusEnum.ToString(),
-                title = e.Title
-            });
-            return Ok(res);
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("repair-records/MessageDetail")]
