@@ -27,7 +27,7 @@ namespace webapi.Controllers.Staff
            _context = context;
        }
 
-       [HttpGet("info")]
+       [HttpGet("station_info")]
        public ActionResult<IEnumerable<Employee>> info(string employee_id = "")
        {
            if (!long.TryParse(employee_id, out long id))
