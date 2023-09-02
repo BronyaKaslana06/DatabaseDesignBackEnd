@@ -253,7 +253,7 @@ namespace webapi.Controllers.Owner
                     Title = _acm.title,
                     MaintenanceLocation = _acm.maintenance_location,
                     Note = _acm.remarks,
-                    AppointTime = DateTime.Parse(_acm.appoint_time),
+                    AppointTime = DateTime.Parse($"{_acm.appoint_time}"),
                     OrderStatus = 1,
                     ServiceTime = null,
                     OrderSubmissionTime = DateTime.Now,
