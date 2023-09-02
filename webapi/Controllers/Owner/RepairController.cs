@@ -49,16 +49,17 @@ namespace webapi.Controllers.Owner
                     .Select(item => new
                     {
                         vehicle_model = item.vehicleParam.ModelName,
-                        purchase_date = item.PurchaseDate,
+                        purchase_date = item.PurchaseDate.ToString("yyyy-MM-dd"),
                         battery_id = item.BatteryId.ToString(),
-                        current_capacity = item.Battery.CurrentCapacity,
+                        current_capacity = item.Battery.CurrentCapacity.ToString(),
                         snip = item.vehicleParam.Sinp,
                         mileage = item.Mileage.ToString(),
                         max_speed = item.vehicleParam.MaxSpeed.ToString(),
                         transmission = item.vehicleParam.Transmission,
                         battery_type = item.Battery.batteryType.Name.ToString(),
-                        temperature = 20,
-                        warrange = 2
+                        //待完成
+                        temperature = 20.ToString(),
+                        warrange = item.PurchaseDate.AddYears(5).ToString("yyyy-MM-dd")
                     }).FirstOrDefault();
                 var a = new
                 {
