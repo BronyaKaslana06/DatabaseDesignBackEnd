@@ -4,6 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Numerics;
+using EntityFramework.Context;
+using Microsoft.AspNetCore.Mvc;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Idcreator
 {
     public class SnowflakeIDcreator
@@ -79,7 +87,114 @@ namespace Idcreator
         /// <returns></returns>
         private static long timeGen()
         {
-            return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            return (long)(DateTime.UtcNow -  DateTime.Today).TotalMilliseconds;
         }
+    }
+
+
+    public class EasyIDCreator: IPrincipalAccessor
+    {
+        static List<long>? allIds = null;
+        static List<string>? allId = null;
+        static Random rand=null;
+        private static ModelContext _context;
+        public EasyIDCreator(IHttpContextAccessor httpContextAccessor)
+        {
+            var _httpContextAccessor = httpContextAccessor;
+            _context = httpContextAccessor.HttpContext.RequestServices.GetService<ModelContext>();
+        }
+        static ModelContext GetContext([FromServices] ModelContext modelContext)
+        {
+            return modelContext;
+        }
+        public static string CreateId_New(ModelContext context, EntityType entityType)
+        {
+            if (_context == null)
+            {
+                rand = new Random();
+                _context = context;
+
+                switch (entityType)
+                {
+                    case EntityType.Administrator:
+                        allId = _context.Administrators.Select(a => "2" + a.AccountSerial).ToList();
+                        break;
+                    case EntityType.Employee:
+                        allId = _context.Employees.Select(a => "1" + a.AccountSerial).ToList();
+                        break;
+                    case EntityType.VehicleOwner:
+                        allId = _context.VehicleOwners.Select(a => "0" + a.AccountSerial).ToList();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid entity type");
+                }
+            }
+
+            if (allIds == null)
+            {
+                return "Invalid";
+            }
+
+            while (true)
+            {
+                string id = rand.Next(0, 100000000).ToString("D8");
+                string idWithPrefix = entityType switch
+                {
+                    EntityType.Administrator => "2" + id,
+                    EntityType.Employee => "1" + id,
+                    EntityType.VehicleOwner => "0" + id,
+                    _ => throw new ArgumentException("Invalid entity type")
+                };
+
+                if (!allId.Contains(idWithPrefix))
+                {
+                    allId.Add(idWithPrefix);
+                    return idWithPrefix;
+                }
+            }
+        }
+
+        public static long CreateId(ModelContext context)
+        {
+            if (_context == null)
+            { 
+                rand=new Random();
+                _context = context;
+                allIds = new List<long>();
+                allIds=
+                _context.Administrators.Select(a => a.AdminId).ToList().Union(
+                _context.Employees.Select(a => a.EmployeeId).ToList()).ToList().Union(
+                _context.VehicleOwners.Select(a=>a.OwnerId).ToList()).ToList();
+            }
+
+            if (allIds == null)
+                return SnowflakeIDcreator.nextId();
+
+            while (true)
+            {
+                long a = rand.NextInt64(10000000, 99999999);
+                if (allIds.Any(b=>b==a)==false)
+                {
+                    allIds.Add(a);
+                    return a;
+                }
+            }
+        } 
+    }
+    public enum EntityType
+    {
+        Administrator,
+        Employee,
+        VehicleOwner
+    }
+
+    public enum IdentityType
+    {
+        车主 = 0,
+        员工 = 1,
+        管理员 = 2
+    }
+    public interface IPrincipalAccessor
+    {
     }
 }
