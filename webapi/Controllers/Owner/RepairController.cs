@@ -39,7 +39,35 @@ namespace webapi.Controllers.Owner
             }
             try
             {
+                var es = _context.MaintenanceItems.Where(m => maintenance_item_id == "" || m.MaintenanceItemId == id).DefaultIfEmpty().FirstOrDefault();
+                int esc = 0;
+                if(es != null) { esc = es.employees.Count(); }
                 var filteredItems = _context.MaintenanceItems
+                    .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
+                    .Join(_context.Vehicles, miEmp => miEmp.MaintenanceItem.vehicle.VehicleId, veh => veh.VehicleId, (miEmp, veh) => new { miEmp.MaintenanceItem, miEmp.Employee, Vehicle = veh })
+                    .Where(joinedData => maintenance_item_id == "" || joinedData.MaintenanceItem.MaintenanceItemId == id)
+                    .OrderBy(joinedData => joinedData.MaintenanceItem.MaintenanceItemId)
+                    .Select(joinedData => new
+                    {
+                        maintenance_location = joinedData.MaintenanceItem.MaintenanceLocation,
+                        plate_number = joinedData.Vehicle.PlateNumber,
+                        title = joinedData.MaintenanceItem.Title,
+                        order_submission_time = joinedData.MaintenanceItem.OrderSubmissionTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                        service_time = joinedData.MaintenanceItem.ServiceTime.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                        longtitude = joinedData.MaintenanceItem.longitude,
+                        latitude = joinedData.MaintenanceItem.latitude,
+                        appoint_time = joinedData.MaintenanceItem.AppointTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                        order_status = joinedData.MaintenanceItem.OrderStatusEnum.ToString(),
+                        remarks = joinedData.MaintenanceItem.Note,
+                        evaluations = joinedData.MaintenanceItem.Evaluation,
+                        score = joinedData.MaintenanceItem.Score,
+                        ep_data = new
+                        {
+                            name = "暂未完成",
+                            phone_number = ""
+                        }
+                    }).ToList();
+                var filteredItems_e = _context.MaintenanceItems
                     .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
                     .Join(_context.Employees, miEmp => miEmp.Employee, emp => emp, (miEmp, emp) => new { miEmp.MaintenanceItem, Employee = emp })
                     .Join(_context.Vehicles, miEmp => miEmp.MaintenanceItem.vehicle.VehicleId, veh => veh.VehicleId, (miEmp, veh) => new { miEmp.MaintenanceItem, miEmp.Employee, Vehicle = veh })
@@ -51,29 +79,36 @@ namespace webapi.Controllers.Owner
                         plate_number = joinedData.Vehicle.PlateNumber,
                         title = joinedData.MaintenanceItem.Title,
                         order_submission_time = joinedData.MaintenanceItem.OrderSubmissionTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                        service_time = joinedData.MaintenanceItem.ServiceTime != null ? joinedData.MaintenanceItem.ServiceTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "未完成服务",
+                        service_time = joinedData.MaintenanceItem.ServiceTime.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                         longtitude = joinedData.MaintenanceItem.longitude,
                         latitude = joinedData.MaintenanceItem.latitude,
                         appoint_time = joinedData.MaintenanceItem.AppointTime.ToString("yyyy-MM-dd HH:mm:ss"),
                         order_status = joinedData.MaintenanceItem.OrderStatusEnum.ToString(),
-                        remarks = joinedData.MaintenanceItem.Note,
+                        remarks = joinedData.MaintenanceItem.Note, 
                         evaluations = joinedData.MaintenanceItem.Evaluation,
                         score = joinedData.MaintenanceItem.Score,
-                        name = joinedData.Employee.Name,
-                        phone_number = joinedData.Employee.PhoneNumber
-                    })
-                    .FirstOrDefault();
-
+                        ep_date = joinedData.MaintenanceItem.employees.Select(employees => new
+                        {
+                            name = employees.Name,
+                            phone_number = employees.PhoneNumber
+                        }).ToArray()
+                    }).ToList();
 
                 var obj = new
                 {
                     code = 0,
                     msg = "success",
                     totalData = 1,
-                    data = filteredItems,
+                    data = filteredItems_e
                 };
-
-                return Content(JsonConvert.SerializeObject(obj), "application/json");
+                var ob = new
+                {
+                    code = 0,
+                    msg = "success",
+                    totalData = 1,
+                    data = filteredItems
+                };
+                return Content(JsonConvert.SerializeObject(esc > 0 ? obj : ob), "application/json");
             }
             catch (Exception ex)
             {
@@ -105,7 +140,6 @@ namespace webapi.Controllers.Owner
                 };
                 return Content(JsonConvert.SerializeObject(errorObj), "application/json");
             }
-            string orderStatusName;
             var filteredItems = _context.MaintenanceItems
                 .Where(item => item.OrderSubmissionTime >= parsedStartTime && item.OrderSubmissionTime <= parsedEndTime && item.vehicle.VehicleId.ToString() == vehicle_id)
                 .OrderBy(item => item.MaintenanceItemId)
@@ -255,6 +289,7 @@ namespace webapi.Controllers.Owner
                     Note = _acm.remarks,
                     AppointTime = DateTime.Parse($"{_acm.appoint_time}"),
                     OrderStatus = 1,
+                    Score = -1,
                     ServiceTime = null,
                     OrderSubmissionTime = DateTime.Now,
                     longitude = _acm.longitude,
@@ -298,7 +333,7 @@ namespace webapi.Controllers.Owner
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Note = _acm.remarks;
                 acm.OrderStatus = _acm.order_status;
-                acm.AppointTime = DateTime.Parse(_acm.appoint_time);
+                acm.AppointTime = DateTime.Parse($"{_acm.appoint_time}");
                 acm.latitude = _acm.latitude;
                 acm.longitude = _acm.longitude;
             }
