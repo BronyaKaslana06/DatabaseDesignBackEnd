@@ -24,55 +24,7 @@ namespace webapi.Controllers.Owner
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Vehicle>> car_information(string vehicle_id = "")
-        {
-            bool flag = long.TryParse(vehicle_id, out var id);
-            if (!flag)
-            {
-                var obj = new
-                {
-                    code = 1,
-                    msg = "id非法",
-                    totalData = 0,
-                    data = "",
-                };
-                return Content(JsonConvert.SerializeObject(obj), "application/json");
-            }
-            var owner = _context.VehicleOwners.Find(id);
-            if (owner == null)
-                return NewContent(1, "id不存在");
-            else
-            {
-                var filteredItem = _context.Vehicles
-                    .Where(item => item.VehicleId == id)
-                    .OrderByDescending(item => item.Battery.CurrentCapacity)
-                    .Select(item => new
-                    {
-                        vehicle_model = item.vehicleParam.ModelName,
-                        purchase_date = item.PurchaseDate.ToString(),
-                        battery_id = item.Battery.BatteryId.ToString(),
-                        current_capacity = item.Battery.CurrentCapacity.ToString(),
-                        snip = item.vehicleParam.Sinp,
-                        mileage = item.Mileage.ToString(),
-                        max_speed = item.vehicleParam.MaxSpeed.ToString(),
-                        transmission = item.vehicleParam.Transmission,
-                        battery_type = item.Battery.batteryType.Name,
-                        //待修正
-                        temperature = 20,
-                        warranty = 2
-                    }).FirstOrDefault();
-                var a = new
-                {
-                    code = 0,
-                    msg = "success",
-                    totaldata = 1,
-                    data = filteredItem                   
-                };
-                return Content(JsonConvert.SerializeObject(a), "application/json");
-            }
-        }
-        [HttpGet]
-        public ActionResult<IEnumerable<Vehicle>> current_quantity(string user_id = "")
+        public ActionResult<IEnumerable<Vehicle>> car_information(string user_id = "")
         {
             bool flag = long.TryParse(user_id, out var id);
             if (!flag)
@@ -104,7 +56,7 @@ namespace webapi.Controllers.Owner
                     code = 0,
                     msg = "success",
                     totaldata = 1,
-                    data = filteredItem
+                    data = filteredItem                   
                 };
                 return Content(JsonConvert.SerializeObject(a), "application/json");
             }
