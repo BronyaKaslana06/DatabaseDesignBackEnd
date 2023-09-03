@@ -42,7 +42,7 @@ namespace webapi.Controllers.Admin
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
         [HttpGet("query")]
-        public ActionResult Query(string title="",string publisher="",string publish_time="",string publish_pos="",string contents="")
+        public ActionResult Query(string title="",string publisher="",string publish_time="",int publish_pos=3,string contents="")
         {
             DateTime? date=null;
             long? id = null;
@@ -53,7 +53,7 @@ namespace webapi.Controllers.Admin
             var c=_context.News.Where(a =>
             (a.Title==null? title=="" : a.Title.Contains(title))  &&
             (id==null? publisher=="": a.administrator.AdminId==id)&&
-            (a.PublishPos==null? publish_pos == "" : a.PublishPos.Contains(publish_pos)) &&
+            (a.PublishPos==publish_pos) &&
             (date==null? publish_time=="":a.PublishTime.Date == date)
             ).OrderByDescending(a => a.PublishTime).Select(e=>new{
                 title=e.Title,
