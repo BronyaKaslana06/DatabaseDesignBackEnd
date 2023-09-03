@@ -89,18 +89,26 @@ namespace webapi.Controllers.Admin
         {
             DateTime selectTime;
             int mode = 0;
+            int min = 0;
+            int max = 0;
             if (query_range.Contains("year"))
             {
+                min = 1;
+                max = 12;
                 selectTime = Convert.ToDateTime(DateTime.Today.Year + "-" + "01" + "-" + "01");
                 mode = 1;
             }
             else if (query_range.Contains("month"))
             {
+                min = 1;
+                max = DateTime.DaysInMonth(DateTime.Today.Year,DateTime.Today.Month);
                 selectTime = DateTime.Today.AddDays(1 - DateTime.Today.Day).Date;
                 mode = 2;
             }
             else if (query_range.Contains("day"))
             {
+                min = 0;
+                max = 23;
                 selectTime = DateTime.Today;
                 mode = 3;
             }
@@ -115,14 +123,29 @@ namespace webapi.Controllers.Admin
            .OrderBy(a => a.Key)
            .Select(a => new
            {
-               time_span = a.Key.ToString() + (mode == 3 ? ":00" : ""),
+               time_span = a.Key,
                switch_count = a.Count()
-           });
+           }).ToList();
+
+
+            List<object> data = new List<object>();
+
+            for(int i=min;i<=max;i++)
+            {
+                string j = i + (mode == 3 ? ":00" : "");
+                var target = query.Find(a => a.time_span == i);
+                data.Add(new{
+                    time_span=j,
+                    switch_count= target == null ? 0 : target.switch_count
+                }
+                );
+            }
+
            var obj = new
             {
                 code = 0,
                 msg = "success",
-                data = query,
+                data = mode==0? query:(object)data,
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
