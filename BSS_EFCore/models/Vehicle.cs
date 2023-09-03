@@ -22,7 +22,5 @@ public partial class Vehicle
 
     public VehicleOwner vehicleOwner { get; set; }   //非空
 
-    public List<SwitchLog> SwitchLogs { get; set; } = new List<SwitchLog>();  //可以为0
-
     public VehicleParam vehicleParam { get; set; }   //非空
 }

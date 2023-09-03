@@ -25,8 +25,7 @@ public partial class VehicleOwner
 
     public DateTime? Birthday { get; set; }
 
-    public List<SwitchRequest> switchRequests { get; set; } = new List<SwitchRequest>();  //可以为0
-    public List<MaintenanceItem> maintenanceItems { get; set; } = new List<MaintenanceItem>();  //可以为0
+
     public List<Vehicle> vehicles { get; set; } = new List<Vehicle>();   //可以为0
     public List<OwnerPos> ownerpos { get; set; } = new List<OwnerPos>();   //可以为0
 
