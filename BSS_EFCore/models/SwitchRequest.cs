@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 
 namespace EntityFramework.Models;
 
@@ -134,4 +135,41 @@ public enum RequestStatusEnum
     待完成 = 2,
     待评价 = 3,
     已完成 = 4
+}
+
+public class EnumDisplay
+{
+    public static string GetDisplayNameFromEnum(PeriodEnum enumValue)
+    {
+        var enumType = typeof(PeriodEnum);
+        var fieldInfo = enumType.GetField(enumValue.ToString());
+
+        if (fieldInfo != null)
+        {
+            var displayAttribute = (DisplayAttribute)fieldInfo.GetCustomAttribute(typeof(DisplayAttribute));
+            if (displayAttribute != null)
+            {
+                return displayAttribute.Name;
+            }
+        }
+
+        return null; // 或者根据需要返回默认值
+    }
+    public static PeriodEnum GetEnumFromDisplayName(string displayName)
+    {
+        var enumType = typeof(PeriodEnum);
+
+        foreach (var field in enumType.GetFields())
+        {
+            if (Attribute.IsDefined(field, typeof(DisplayAttribute)))
+            {
+                var displayAttribute = (DisplayAttribute)field.GetCustomAttribute(typeof(DisplayAttribute));
+                if (displayAttribute.Name == displayName)
+                {
+                    return (PeriodEnum)field.GetValue(null);
+                }
+            }
+        }
+        throw new ArgumentException("无效的 Display 名称", nameof(displayName));
+    }
 }
