@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Reflection;
+using System.ComponentModel.DataAnnotations;
 
 namespace webapi.Controllers.Owner
 {
@@ -73,7 +75,7 @@ namespace webapi.Controllers.Owner
                     Latitude = Convert.ToDouble(reservation.latitude),
                     Note = reservation.additional_info,
                     Date = Convert.ToDateTime(reservation.date),
-                    //Period = "",//reservation.period,
+                    PeriodEnum = EnumDisplay.GetEnumFromDisplayName(reservation.period),
                     batteryType = batteryType,
                     employee = employee
                 };
@@ -154,7 +156,7 @@ namespace webapi.Controllers.Owner
                     battery_type = sr.batteryType.Name,
                     employee_id = (order_status == "´ý½Óµ¥" ? "" : sr.employee.EmployeeId.ToString()),
                     switch_date = sr.Date,
-                    switch_period = "",//sr.Period,
+                    switch_period = EnumDisplay.GetDisplayNameFromEnum(sr.PeriodEnum),
                     order_type = sr.requestStatusEnum.ToString()
                 }).Skip(offset).Take(limit);
 
