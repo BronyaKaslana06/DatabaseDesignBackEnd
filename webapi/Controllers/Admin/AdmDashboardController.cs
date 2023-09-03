@@ -88,20 +88,36 @@ namespace webapi.Controllers.Admin
         public ActionResult Time_span(string query_range="")
         {
             DateTime selectTime;
+            int mode = 0;
             if (query_range.Contains("year"))
+            {
                 selectTime = Convert.ToDateTime(DateTime.Today.Year + "-" + "01" + "-" + "01");
-            else if (query_range.Contains("mouth"))
+                mode = 1;
+            }
+            else if (query_range.Contains("month"))
+            {
                 selectTime = DateTime.Today.AddDays(1 - DateTime.Today.Day).Date;
+                mode = 2;
+            }
             else if (query_range.Contains("day"))
+            {
                 selectTime = DateTime.Today;
+                mode = 3;
+            }
             else selectTime = DateTime.MinValue;
             var query = context.SwitchLogs
-           .Where(a=>a.SwitchTime.CompareTo(selectTime)>=0)
-           .GroupBy(a => a.switchrequest.RequestTime.Hour).Select(a => new
+           .Where(a => a.SwitchTime.CompareTo(selectTime) >= 0)
+           .GroupBy(a =>
+           mode == 1 ? a.switchrequest.RequestTime.Month : (
+           mode == 2 ? a.switchrequest.RequestTime.Day :
+           (mode == 3 ? a.switchrequest.RequestTime.Hour : a.switchrequest.RequestTime.Year))
+           )
+           .OrderBy(a => a.Key)
+           .Select(a => new
            {
-               time_span = a.Key.ToString()+":00",
+               time_span = a.Key.ToString() + (mode == 3 ? ":00" : ""),
                switch_count = a.Count()
-           }).OrderByDescending(a => a.switch_count);
+           });
            var obj = new
             {
                 code = 0,
