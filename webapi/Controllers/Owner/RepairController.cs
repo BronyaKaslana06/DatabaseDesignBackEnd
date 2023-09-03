@@ -71,44 +71,7 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(a), "application/json");
             }
         }
-        [HttpGet]
-        public ActionResult<IEnumerable<Vehicle>> current_quantity(string user_id = "")
-        {
-            bool flag = long.TryParse(user_id, out var id);
-            if (!flag)
-            {
-                var obj = new
-                {
-                    code = 1,
-                    msg = "id非法",
-                    totalData = 0,
-                    data = "",
-                };
-                return Content(JsonConvert.SerializeObject(obj), "application/json");
-            }
-            var owner = _context.VehicleOwners.Find(id);
-            if (owner == null)
-                return NewContent(1, "id不存在");
-            else
-            {
-                var filteredItem = _context.Vehicles
-                    .Where(item => item.vehicleOwner == owner)
-                    .OrderByDescending(item => item.Battery.CurrentCapacity)
-                    .Select(item => new
-                    {
-                        plate_number = item.PlateNumber,
-                        current_capacity = item.Battery.CurrentCapacity
-                    }).FirstOrDefault();
-                var a = new
-                {
-                    code = 0,
-                    msg = "success",
-                    totaldata = 1,
-                    data = filteredItem
-                };
-                return Content(JsonConvert.SerializeObject(a), "application/json");
-            }
-        }
+       
         [HttpGet]
         public ActionResult<IEnumerable<MaintenanceItem>> query(string maintenance_item_id = "")
         {
