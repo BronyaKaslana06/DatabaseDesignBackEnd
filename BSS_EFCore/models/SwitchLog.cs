@@ -13,7 +13,7 @@ public partial class SwitchLog
 
     public string? Evaluation { get; set; }
 
-
+    public float ServiceFee { get; set; }
 
 
 

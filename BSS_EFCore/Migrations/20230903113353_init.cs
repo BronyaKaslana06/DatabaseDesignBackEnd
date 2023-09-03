@@ -100,7 +100,7 @@ namespace BSS_EFCore.Migrations
                 schema: "C##CAR",
                 columns: table => new
                 {
-                    VEHICLE_MODEL = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                    VEHICLE_MODEL_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     ModelName = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
                     TRANSMISSION = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
@@ -111,7 +111,7 @@ namespace BSS_EFCore.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("SYS_C009081", x => x.VEHICLE_MODEL);
+                    table.PrimaryKey("SYS_C009081", x => x.VEHICLE_MODEL_ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -122,7 +122,7 @@ namespace BSS_EFCore.Migrations
                     ANNOUNCEMENT_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     PUBLISH_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
-                    PUBLISH_POS = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
+                    PUBLISH_POS = table.Column<int>(type: "NUMBER(10)", maxLength: 50, nullable: false),
                     TITLE = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: true),
                     CONTENTS = table.Column<string>(type: "NCLOB", maxLength: 2500, nullable: true),
                     LIKES = table.Column<int>(type: "NUMBER(10)", nullable: false),
@@ -236,6 +236,8 @@ namespace BSS_EFCore.Migrations
                     BatteryId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     PLATE_NUMBER = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true),
                     Mileage = table.Column<int>(type: "NUMBER(10)", nullable: false),
+                    Temperature = table.Column<int>(type: "NUMBER(10)", nullable: false),
+                    Warranty = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                     vehicleOwnerOwnerId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     vehicleParamVehicleModelId = table.Column<long>(type: "NUMBER(19)", nullable: false)
                 },
@@ -261,7 +263,7 @@ namespace BSS_EFCore.Migrations
                         column: x => x.vehicleParamVehicleModelId,
                         principalSchema: "C##CAR",
                         principalTable: "VEHICLE_PARAM",
-                        principalColumn: "VEHICLE_MODEL",
+                        principalColumn: "VEHICLE_MODEL_ID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -306,19 +308,12 @@ namespace BSS_EFCore.Migrations
                     APPOINT_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                     ORDER_STATUS = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     SCORE = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
-                    Evaluation = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    VehicleId = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    VehicleOwnerOwnerId = table.Column<long>(type: "NUMBER(19)", nullable: true)
+                    Evaluation = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true),
+                    VehicleId = table.Column<long>(type: "NUMBER(19)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("SYS_C009117", x => x.MAINTENANCE_ITEM_ID);
-                    table.ForeignKey(
-                        name: "FK_MAINTENANCE_ITEM_VEHICLE_OWNER_VehicleOwnerOwnerId",
-                        column: x => x.VehicleOwnerOwnerId,
-                        principalSchema: "C##CAR",
-                        principalTable: "VEHICLE_OWNER",
-                        principalColumn: "OWNER_ID");
                     table.ForeignKey(
                         name: "FK_MAINTENANCE_ITEM_VEHICLE_VehicleId",
                         column: x => x.VehicleId,
@@ -342,12 +337,9 @@ namespace BSS_EFCore.Migrations
                     Latitude = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
                     NOTES = table.Column<string>(type: "NVARCHAR2(255)", maxLength: 255, nullable: true),
                     Date = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
-                    Period = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true),
                     RequestStatus = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     EmployeeId = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    vehicleOwnerOwnerId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     VehicleId = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    switchStationStationId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     BatteryTypeId = table.Column<long>(type: "NUMBER(19)", nullable: false)
                 },
                 constraints: table =>
@@ -366,20 +358,6 @@ namespace BSS_EFCore.Migrations
                         principalSchema: "C##CAR",
                         principalTable: "EMPLOYEE",
                         principalColumn: "EMPLOYEE_ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SWITCH_REQUEST_SWITCH_STATION_switchStationStationId",
-                        column: x => x.switchStationStationId,
-                        principalSchema: "C##CAR",
-                        principalTable: "SWITCH_STATION",
-                        principalColumn: "STATION_ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SWITCH_REQUEST_VEHICLE_OWNER_vehicleOwnerOwnerId",
-                        column: x => x.vehicleOwnerOwnerId,
-                        principalSchema: "C##CAR",
-                        principalTable: "VEHICLE_OWNER",
-                        principalColumn: "OWNER_ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SWITCH_REQUEST_VEHICLE_VehicleId",
@@ -426,11 +404,10 @@ namespace BSS_EFCore.Migrations
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     SWITCH_TIME = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                     SCORE = table.Column<double>(type: "BINARY_DOUBLE", nullable: false),
-                    Evaluation = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
+                    Evaluation = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true),
+                    ServiceFee = table.Column<float>(type: "BINARY_FLOAT", nullable: false),
                     batteryOnBatteryId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     batteryOffBatteryId = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    VehicleId = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    EmployeeId = table.Column<long>(type: "NUMBER(19)", nullable: false),
                     switchRequestId = table.Column<long>(type: "NUMBER(19)", nullable: false)
                 },
                 constraints: table =>
@@ -451,25 +428,11 @@ namespace BSS_EFCore.Migrations
                         principalColumn: "BATTERY_ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SWITCH_LOG_EMPLOYEE_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalSchema: "C##CAR",
-                        principalTable: "EMPLOYEE",
-                        principalColumn: "EMPLOYEE_ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_SWITCH_LOG_SWITCH_REQUEST_switchRequestId",
                         column: x => x.switchRequestId,
                         principalSchema: "C##CAR",
                         principalTable: "SWITCH_REQUEST",
                         principalColumn: "SWITCH_REQUEST_ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SWITCH_LOG_VEHICLE_VehicleId",
-                        column: x => x.VehicleId,
-                        principalSchema: "C##CAR",
-                        principalTable: "VEHICLE",
-                        principalColumn: "VEHICLE_ID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -511,12 +474,6 @@ namespace BSS_EFCore.Migrations
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MAINTENANCE_ITEM_VehicleOwnerOwnerId",
-                schema: "C##CAR",
-                table: "MAINTENANCE_ITEM",
-                column: "VehicleOwnerOwnerId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_NEWS_administratorAdminId",
                 schema: "C##CAR",
                 table: "NEWS",
@@ -535,23 +492,11 @@ namespace BSS_EFCore.Migrations
                 column: "batteryOnBatteryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SWITCH_LOG_EmployeeId",
-                schema: "C##CAR",
-                table: "SWITCH_LOG",
-                column: "EmployeeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SWITCH_LOG_switchRequestId",
                 schema: "C##CAR",
                 table: "SWITCH_LOG",
                 column: "switchRequestId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SWITCH_LOG_VehicleId",
-                schema: "C##CAR",
-                table: "SWITCH_LOG",
-                column: "VehicleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SWITCH_REQUEST_BatteryTypeId",
@@ -566,22 +511,10 @@ namespace BSS_EFCore.Migrations
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SWITCH_REQUEST_switchStationStationId",
-                schema: "C##CAR",
-                table: "SWITCH_REQUEST",
-                column: "switchStationStationId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SWITCH_REQUEST_VehicleId",
                 schema: "C##CAR",
                 table: "SWITCH_REQUEST",
                 column: "VehicleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SWITCH_REQUEST_vehicleOwnerOwnerId",
-                schema: "C##CAR",
-                table: "SWITCH_REQUEST",
-                column: "vehicleOwnerOwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VEHICLE_BatteryId",

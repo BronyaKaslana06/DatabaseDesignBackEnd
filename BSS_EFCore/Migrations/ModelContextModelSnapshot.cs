@@ -301,9 +301,6 @@ namespace BSS_EFCore.Migrations
                     b.Property<long>("VehicleId")
                         .HasColumnType("NUMBER(19)");
 
-                    b.Property<long?>("VehicleOwnerOwnerId")
-                        .HasColumnType("NUMBER(19)");
-
                     b.Property<double>("latitude")
                         .HasColumnType("BINARY_DOUBLE");
 
@@ -314,8 +311,6 @@ namespace BSS_EFCore.Migrations
                         .HasName("SYS_C009117");
 
                     b.HasIndex("VehicleId");
-
-                    b.HasIndex("VehicleOwnerOwnerId");
 
                     b.ToTable("MAINTENANCE_ITEM", "C##CAR");
                 });
@@ -339,10 +334,10 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("NUMBER(10)")
                         .HasColumnName("LIKES");
 
-                    b.Property<string>("PublishPos")
+                    b.Property<int>("PublishPos")
                         .HasMaxLength(50)
                         .IsUnicode(true)
-                        .HasColumnType("NVARCHAR2(50)")
+                        .HasColumnType("NUMBER(10)")
                         .HasColumnName("PUBLISH_POS");
 
                     b.Property<DateTime>("PublishTime")
@@ -394,23 +389,19 @@ namespace BSS_EFCore.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SwitchServiceId"));
 
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("NUMBER(19)");
-
                     b.Property<string>("Evaluation")
-                        .IsRequired()
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<double>("Score")
                         .HasColumnType("BINARY_DOUBLE")
                         .HasColumnName("SCORE");
 
+                    b.Property<float>("ServiceFee")
+                        .HasColumnType("BINARY_FLOAT");
+
                     b.Property<DateTime>("SwitchTime")
                         .HasColumnType("TIMESTAMP(7)")
                         .HasColumnName("SWITCH_TIME");
-
-                    b.Property<long>("VehicleId")
-                        .HasColumnType("NUMBER(19)");
 
                     b.Property<long>("batteryOffBatteryId")
                         .HasColumnType("NUMBER(19)");
@@ -423,10 +414,6 @@ namespace BSS_EFCore.Migrations
 
                     b.HasKey("SwitchServiceId")
                         .HasName("SYS_C009138");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("VehicleId");
 
                     b.HasIndex("batteryOffBatteryId");
 
@@ -468,9 +455,6 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("NVARCHAR2(255)")
                         .HasColumnName("NOTES");
 
-                    b.Property<string>("Period")
-                        .HasColumnType("NVARCHAR2(2000)");
-
                     b.Property<string>("Position")
                         .HasMaxLength(50)
                         .IsUnicode(true)
@@ -491,12 +475,6 @@ namespace BSS_EFCore.Migrations
                     b.Property<long>("VehicleId")
                         .HasColumnType("NUMBER(19)");
 
-                    b.Property<long>("switchStationStationId")
-                        .HasColumnType("NUMBER(19)");
-
-                    b.Property<long>("vehicleOwnerOwnerId")
-                        .HasColumnType("NUMBER(19)");
-
                     b.HasKey("SwitchRequestId")
                         .HasName("SYS_C008772");
 
@@ -505,10 +483,6 @@ namespace BSS_EFCore.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("VehicleId");
-
-                    b.HasIndex("switchStationStationId");
-
-                    b.HasIndex("vehicleOwnerOwnerId");
 
                     b.ToTable("SWITCH_REQUEST", "C##CAR");
                 });
@@ -603,6 +577,12 @@ namespace BSS_EFCore.Migrations
                         .HasColumnType("TIMESTAMP(7)")
                         .HasColumnName("PURCHASE_DATE");
 
+                    b.Property<int>("Temperature")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<DateTime>("Warranty")
+                        .HasColumnType("TIMESTAMP(7)");
+
                     b.Property<long>("vehicleOwnerOwnerId")
                         .HasColumnType("NUMBER(19)");
 
@@ -690,7 +670,7 @@ namespace BSS_EFCore.Migrations
                     b.Property<long>("VehicleModelId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("NUMBER(19)")
-                        .HasColumnName("VEHICLE_MODEL");
+                        .HasColumnName("VEHICLE_MODEL_ID");
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("VehicleModelId"));
 
@@ -790,10 +770,6 @@ namespace BSS_EFCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EntityFramework.Models.VehicleOwner", null)
-                        .WithMany("maintenanceItems")
-                        .HasForeignKey("VehicleOwnerOwnerId");
-
                     b.Navigation("vehicle");
                 });
 
@@ -821,18 +797,6 @@ namespace BSS_EFCore.Migrations
 
             modelBuilder.Entity("EntityFramework.Models.SwitchLog", b =>
                 {
-                    b.HasOne("EntityFramework.Models.Employee", "employee")
-                        .WithMany("switchLogs")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EntityFramework.Models.Vehicle", "vehicle")
-                        .WithMany("SwitchLogs")
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("EntityFramework.Models.Battery", "batteryOff")
                         .WithMany("switchLogsOff")
                         .HasForeignKey("batteryOffBatteryId")
@@ -855,11 +819,7 @@ namespace BSS_EFCore.Migrations
 
                     b.Navigation("batteryOn");
 
-                    b.Navigation("employee");
-
                     b.Navigation("switchrequest");
-
-                    b.Navigation("vehicle");
                 });
 
             modelBuilder.Entity("EntityFramework.Models.SwitchRequest", b =>
@@ -882,27 +842,11 @@ namespace BSS_EFCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EntityFramework.Models.SwitchStation", "switchStation")
-                        .WithMany("switchRequests")
-                        .HasForeignKey("switchStationStationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EntityFramework.Models.VehicleOwner", "vehicleOwner")
-                        .WithMany("switchRequests")
-                        .HasForeignKey("vehicleOwnerOwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("batteryType");
 
                     b.Navigation("employee");
 
-                    b.Navigation("switchStation");
-
                     b.Navigation("vehicle");
-
-                    b.Navigation("vehicleOwner");
                 });
 
             modelBuilder.Entity("EntityFramework.Models.Vehicle", b =>
@@ -958,8 +902,6 @@ namespace BSS_EFCore.Migrations
                     b.Navigation("kpi")
                         .IsRequired();
 
-                    b.Navigation("switchLogs");
-
                     b.Navigation("switchRequests");
                 });
 
@@ -974,14 +916,10 @@ namespace BSS_EFCore.Migrations
                     b.Navigation("batteries");
 
                     b.Navigation("employees");
-
-                    b.Navigation("switchRequests");
                 });
 
             modelBuilder.Entity("EntityFramework.Models.Vehicle", b =>
                 {
-                    b.Navigation("SwitchLogs");
-
                     b.Navigation("maintenanceItems");
 
                     b.Navigation("switchRequests");
@@ -989,11 +927,7 @@ namespace BSS_EFCore.Migrations
 
             modelBuilder.Entity("EntityFramework.Models.VehicleOwner", b =>
                 {
-                    b.Navigation("maintenanceItems");
-
                     b.Navigation("ownerpos");
-
-                    b.Navigation("switchRequests");
 
                     b.Navigation("vehicles");
                 });

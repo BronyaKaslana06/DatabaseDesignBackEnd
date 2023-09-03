@@ -41,7 +41,6 @@ public partial class SwitchRequest
     public string? Note { get; set; }
 
     public DateTime Date { get; set; }
-    public string? Period { get; set; }
 
     [Obsolete]
     public int RequestStatus { get; set; }
