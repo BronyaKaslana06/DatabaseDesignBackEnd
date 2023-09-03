@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EntityFramework.Models;
@@ -43,6 +44,24 @@ public partial class SwitchRequest
     public DateTime Date { get; set; }
 
     [Obsolete]
+    public int Period { get; set; }
+
+    [NotMapped]
+    public PeriodEnum PeriodEnum
+    {
+        get
+        {
+            if (Period <= 0 || Period > 7)
+                Period = 7;
+            return (PeriodEnum)Period;
+        }
+        set
+        {
+            Period = (int)value;
+        }
+    }
+
+    [Obsolete]
     public int RequestStatus { get; set; }
     [NotMapped]
     public RequestStatusEnum requestStatusEnum
@@ -78,6 +97,29 @@ public partial class SwitchRequest
     public SwitchLog switchLog { get; set; }   //nullable
 }
 
+public enum PeriodEnum
+{
+    [Display(Name = "00:00-04:00")]
+    时间段00_00_04_00 = 1,
+
+    [Display(Name = "04:00-08:00")]
+    时间段04_00_08_00 = 2,
+
+    [Display(Name = "08:00-12:00")]
+    时间段08_00_12_00 = 3,
+
+    [Display(Name = "12:00-16:00")]
+    时间段12_00_16_00 = 4,
+
+    [Display(Name = "16:00-20:00")]
+    时间段16_00_20_00 = 5,
+
+    [Display(Name = "20:00-24:00")]
+    时间段20_00_24_00 = 6,
+
+    [Display(Name = "时间段非法")]
+    时间段非法 = 7
+}
 public enum SwitchTypeEnum
 {
     未知 = 0,

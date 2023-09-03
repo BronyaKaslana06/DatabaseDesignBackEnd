@@ -440,6 +440,12 @@ namespace BSS_EFCore.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("TIMESTAMP(7)");
 
+                    b.Property<string>("Period")
+                        .HasMaxLength(255)
+                        .IsUnicode(true)
+                        .HasColumnType("NVARCHAR2(255)")
+                        .HasColumnName("PERIOD"); ;
+
                     b.Property<long>("EmployeeId")
                         .HasColumnType("NUMBER(19)");
 
