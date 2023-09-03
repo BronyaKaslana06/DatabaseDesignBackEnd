@@ -61,7 +61,7 @@ namespace webapi.Controllers.Staff
                     battery_type = request.batteryType.Name,
                     employee_id = request.employee.EmployeeId.ToString(),
                     switch_date = request.Date,
-                    switch_period = request.Period,
+                    switch_period = "",//request.Period,
                     order_status = request.requestStatusEnum.ToString()
                 },
                 switch_log = new

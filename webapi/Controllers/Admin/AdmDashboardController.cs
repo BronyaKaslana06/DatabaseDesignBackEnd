@@ -3,6 +3,7 @@ using EntityFramework.Context;
 using EntityFramework.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -33,17 +34,20 @@ namespace webapi.Controllers.Admin
                     staff_count = totalStuff,
                     owner_count = totalUsers,
                     maintenance_count = totalOrders,
+                    avg_switch_score=context.SwitchRequests.Average(a=>a.switchLog.Score),
+                    avg_repair_score=context.MaintenanceItems.Average(a=>a.Score),
 
                     switch_count=context.SwitchRequests.Count(),
                     cur_switch_count=context.SwitchRequests.Where(
-                        a=>a.RequestTime.CompareTo(DateTime.Today)>=0&&a.RequestStatus>=3).Count()
+                        a=>a.RequestTime.CompareTo(DateTime.Today)>=0&&a.RequestStatus>=3).Count(),
+                    switch_benefit=context.SwitchRequests.Sum(a=>a.switchLog.ServiceFee)
                 };
 
             var a = new
             {
                 code = 0,
                 msg = "success",
-                data
+                data=data
             };
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
@@ -88,25 +92,65 @@ namespace webapi.Controllers.Admin
         public ActionResult Time_span(string query_range="")
         {
             DateTime selectTime;
-            if (query_range.Contains("年"))
+            int mode = 0;
+            int min = 0;
+            int max = 0;
+            if (query_range.Contains("year"))
+            {
+                min = 1;
+                max = 12;
                 selectTime = Convert.ToDateTime(DateTime.Today.Year + "-" + "01" + "-" + "01");
-            else if (query_range.Contains("月"))
+                mode = 1;
+            }
+            else if (query_range.Contains("month"))
+            {
+                min = 1;
+                max = DateTime.DaysInMonth(DateTime.Today.Year,DateTime.Today.Month);
                 selectTime = DateTime.Today.AddDays(1 - DateTime.Today.Day).Date;
-            else if (query_range.Contains("日"))
+                mode = 2;
+            }
+            else if (query_range.Contains("day"))
+            {
+                min = 0;
+                max = 23;
                 selectTime = DateTime.Today;
+                mode = 3;
+            }
             else selectTime = DateTime.MinValue;
             var query = context.SwitchLogs
-           .Where(a=>a.SwitchTime.CompareTo(selectTime)>=0)
-           .GroupBy(a => a.switchrequest.employee.switchStation.TimeSpan).Select(a => new
+           .Where(a => a.SwitchTime.CompareTo(selectTime) >= 0)
+           .GroupBy(a =>
+           mode == 1 ? a.switchrequest.RequestTime.Month : (
+           mode == 2 ? a.switchrequest.RequestTime.Day :
+           (mode == 3 ? a.switchrequest.RequestTime.Hour : a.switchrequest.RequestTime.Year))
+           )
+           .OrderBy(a => a.Key)
+           .Select(a => new
            {
                time_span = a.Key,
-               switch_count = a.Count()
-           }).OrderByDescending(a => a.switch_count);
+               switch_count = a.Count(),
+               switch_benefit = a.Sum(a=>a.ServiceFee)
+           }).ToList();
+
+
+            List<object> data = new List<object>();
+
+            for(int i=min;i<=max;i++)
+            {
+                string j = i + (mode == 3 ? ":00" : "");
+                var target = query.Find(a => a.time_span == i);
+                data.Add(new{
+                    time_span=j,
+                    switch_count= target == null ? 0 : target.switch_count
+                }
+                );
+            }
+
            var obj = new
             {
                 code = 0,
                 msg = "success",
-                data = query,
+                data = mode==0? query:(object)data,
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
@@ -148,6 +192,47 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
 
+        }
+        [HttpGet("week_benefits")]
+        public ActionResult week()
+        {
+            var query = context.SwitchRequests.
+            Where(a => a.RequestTime.CompareTo(DateTime.Today.AddDays(-7)) >= 0).
+            OrderByDescending(a=>a.RequestTime).
+            GroupBy(a => a.RequestTime.DayOfWeek).
+            Select(a => new
+            {
+                day = a.Key,
+                benefits = a.Sum(a => a.switchLog.ServiceFee)
+            });
+
+            var obj = new
+            {
+                code = 0,
+                msg = "success",
+                data = query,
+            };
+            return Content(JsonConvert.SerializeObject(obj), "application/json");
+        }
+        [HttpGet("growth")]
+        public ActionResult growth()
+        {
+            var query = new
+            {
+                owner_growth = context.VehicleOwners.Where(a => a.CreateTime.CompareTo(DateTime.Today) >= 0).Count(),
+                staff_growth = context.Employees.Where(a => a.CreateTime.CompareTo(DateTime.Today) >= 0).Count(),
+                request_growth = context.SwitchRequests.Where(a => a.RequestTime.CompareTo(DateTime.Today) >= 0).Count()
+                - context.SwitchRequests.Where(a => a.RequestTime.CompareTo(DateTime.Today) < 0 && a.RequestTime.CompareTo(DateTime.Today.AddDays(-1)) >= 0).Count(),
+                benefit_growth = context.SwitchRequests.Where(a => a.RequestTime.CompareTo(DateTime.Today) >= 0).Sum(a => a.switchLog.ServiceFee)
+                - context.SwitchRequests.Where(a => a.RequestTime.CompareTo(DateTime.Today) < 0 && a.RequestTime.CompareTo(DateTime.Today.AddDays(-1)) >= 0).Sum(a => a.switchLog.ServiceFee)
+            };
+            var obj = new
+            {
+                code = 0,
+                msg = "success",
+                data = query,
+            };
+            return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
         ContentResult NewContent(int _code = 0, string _msg = "success")
         {

@@ -73,7 +73,7 @@ namespace webapi.Controllers.Owner
                     Latitude = Convert.ToDouble(reservation.latitude),
                     Note = reservation.additional_info,
                     Date = Convert.ToDateTime(reservation.date),
-                    Period = reservation.period,
+                    //Period = "",//reservation.period,
                     batteryType = batteryType,
                     employee = employee
                 };
@@ -154,7 +154,7 @@ namespace webapi.Controllers.Owner
                     battery_type = sr.batteryType.Name,
                     employee_id = (order_status == "´ý½Óµ¥" ? "" : sr.employee.EmployeeId.ToString()),
                     switch_date = sr.Date,
-                    switch_period = sr.Period,
+                    switch_period = "",//sr.Period,
                     order_type = sr.requestStatusEnum.ToString()
                 }).Skip(offset).Take(limit);
 
