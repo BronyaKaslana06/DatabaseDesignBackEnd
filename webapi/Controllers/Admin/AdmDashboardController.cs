@@ -33,6 +33,8 @@ namespace webapi.Controllers.Admin
                     staff_count = totalStuff,
                     owner_count = totalUsers,
                     maintenance_count = totalOrders,
+                    avg_switch_score=context.SwitchRequests.Average(a=>a.switchLog.Score),
+                    avg_repair_score=context.MaintenanceItems.Average(a=>a.Score),
 
                     switch_count=context.SwitchRequests.Count(),
                     cur_switch_count=context.SwitchRequests.Where(
