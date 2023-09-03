@@ -97,7 +97,7 @@ namespace webapi.Controllers.Admin
             else selectTime = DateTime.MinValue;
             var query = context.SwitchLogs
            .Where(a=>a.SwitchTime.CompareTo(selectTime)>=0)
-           .GroupBy(a => a.switchrequest.switchStation.TimeSpan).Select(a => new
+           .GroupBy(a => a.switchrequest.employee.switchStation.TimeSpan).Select(a => new
            {
                time_span = a.Key,
                switch_count = a.Count()
