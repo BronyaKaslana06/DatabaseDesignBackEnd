@@ -25,7 +25,7 @@ namespace webapi.Controllers.Owner
             _context = context;
         }
 
-        [HttpGet("info/{user_id}")]
+        [HttpGet("ibase_nfo/")]
         public ActionResult<IEnumerable<VehicleOwner>> InfoAna(string user_id)
         {
             if (!long.TryParse(user_id, out long id))
@@ -65,7 +65,7 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(a), "application/json");
             }
         }
-        [HttpGet("monthlyswitch/{user_id}")]
+        [HttpGet("monthlyswitch")]
         public ActionResult<IEnumerable<VehicleOwner>> MonthlyAna(string user_id)
         {
             if (!long.TryParse(user_id, out long id))
