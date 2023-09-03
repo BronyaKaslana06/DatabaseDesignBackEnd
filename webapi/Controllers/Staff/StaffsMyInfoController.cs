@@ -93,7 +93,9 @@ namespace webapi.Controllers.Staff
         [HttpGet("switch-records/query")]
         public ActionResult<object> SRQuery(string employee_id, string? switch_type, string? startDate, string? endDate)
         {
-            var tmp = _context.SwitchLogs.Include(e => e.employee).Include(f => f.switchrequest).Where(c => c.employee.EmployeeId == long.Parse(employee_id));
+            var ori = _context.SwitchRequests.Include(f => f.employee).Where(c => c.employee.EmployeeId == long.Parse(employee_id))
+                .Select(e=>e.SwitchRequestId);
+            var tmp = _context.SwitchLogs.Include(f => f.switchrequest).Where(c => ori.Any(g=>g==c.switchrequest.SwitchRequestId));
             if (!string.IsNullOrEmpty(switch_type))
             {
                 if (Enum.TryParse(switch_type, out SwitchTypeEnum st_enum))

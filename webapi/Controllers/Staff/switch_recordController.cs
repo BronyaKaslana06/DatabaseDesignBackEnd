@@ -22,12 +22,12 @@ namespace webapi.Controllers.Staff
         {
             try
             {
-                var tmp = modelContext.SwitchLogs.Include(f => f.switchrequest).Include(a => a.vehicle).Include(b => b.batteryOn).
+                var tmp = modelContext.SwitchLogs.Include(f => f.switchrequest).Include(b => b.batteryOn).
                 Include(c => c.batteryOff).Single(e => e.SwitchServiceId == long.Parse(switch_record_id));
-                var switch_request = tmp.switchrequest;
+                var switch_request = tmp.switchrequest;         
                 var battery_on = tmp.batteryOn;
                 var batteryOff = tmp.batteryOff;
-                var vehicle = tmp.vehicle;
+                var vehicle = modelContext.SwitchRequests.Include(f => f.vehicle).Single(e => e.SwitchRequestId == switch_request.SwitchRequestId).vehicle;
                 var vehicle_param = modelContext.VehicleParams.Include(e => e.vehicles).Single(f => f.vehicles.Any(g => g.VehicleId == vehicle.VehicleId));
                 var owner = modelContext.Vehicles.Include(e => e.vehicleOwner).Single(f => f.VehicleId == vehicle.VehicleId).vehicleOwner;
 
