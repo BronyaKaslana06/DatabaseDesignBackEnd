@@ -88,18 +88,18 @@ namespace webapi.Controllers.Admin
         public ActionResult Time_span(string query_range="")
         {
             DateTime selectTime;
-            if (query_range.Contains("年"))
+            if (query_range.Contains("year"))
                 selectTime = Convert.ToDateTime(DateTime.Today.Year + "-" + "01" + "-" + "01");
-            else if (query_range.Contains("月"))
+            else if (query_range.Contains("mouth"))
                 selectTime = DateTime.Today.AddDays(1 - DateTime.Today.Day).Date;
-            else if (query_range.Contains("日"))
+            else if (query_range.Contains("day"))
                 selectTime = DateTime.Today;
             else selectTime = DateTime.MinValue;
             var query = context.SwitchLogs
            .Where(a=>a.SwitchTime.CompareTo(selectTime)>=0)
-           .GroupBy(a => a.switchrequest.switchStation.TimeSpan).Select(a => new
+           .GroupBy(a => a.switchrequest.RequestTime.Hour).Select(a => new
            {
-               time_span = a.Key,
+               time_span = a.Key.ToString()+":00",
                switch_count = a.Count()
            }).OrderByDescending(a => a.switch_count);
            var obj = new
