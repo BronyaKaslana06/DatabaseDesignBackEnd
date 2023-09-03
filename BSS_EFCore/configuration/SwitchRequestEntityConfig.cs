@@ -27,6 +27,8 @@ namespace BSS_EFCore.configuration
                 .HasMaxLength(255)
                 .IsUnicode()
                 .HasColumnName("NOTES");
+            builder.Property(e => e.Period)
+                .HasColumnName("PERIOD");
             builder.Property(e => e.RequestTime)
                 .HasColumnName("REQUEST_TIME");
             builder.Property(e => e.SwitchType)
