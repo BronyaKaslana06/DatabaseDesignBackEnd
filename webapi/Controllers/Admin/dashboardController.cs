@@ -193,8 +193,14 @@ namespace webapi.Controllers.Admin
         [HttpGet]
         public ActionResult batteries()
         {
+            foreach (var a in context.Batteries.ToList())
+                if (a.AvailableStatus <= 0 || a.AvailableStatus > 6)
+                    a.AvailableStatus = (int)(Idcreator.SnowflakeIDcreator.nextId() % 6 + 1);
+            context.SaveChanges();
             var query = context.Batteries.GroupBy(a => new {a.AvailableStatus,a.batteryType.Name })
             .ToList()
+            .OrderBy(a=>a.Key.AvailableStatus)
+            .OrderByDescending(a=>a.Key.Name.Length)
             .Select(a => new {
                 battery_type = ((AvailableStatusEnum) a.Key.AvailableStatus).ToString()+" "+a.Key.Name,
                 battery_num = a.Count()
