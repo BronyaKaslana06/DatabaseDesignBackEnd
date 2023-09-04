@@ -214,19 +214,32 @@ namespace webapi.Controllers.Admin
         {
             var query = context.SwitchRequests.
             Where(a => a.RequestTime.CompareTo(DateTime.Today.AddDays(-7)) >= 0).
-            OrderByDescending(a=>a.RequestTime).
-            GroupBy(a => a.RequestTime.DayOfWeek).
+            OrderByDescending(a => a.RequestTime).
+            GroupBy(a => a.RequestTime.Date).
             Select(a => new
             {
-                day = a.Key,
+                day = a.Key.ToShortDateString(),
                 benefits = a.Sum(a => a.switchLog.ServiceFee)
-            });
-
+            }).ToList();
+            var data = new List<object>();
+            for (int i = 0; i < 7; i++)
+            {
+                float benefits = 0;
+                string day = DateTime.Today.AddDays(i - 7).ToShortDateString();
+                int index = query.FindIndex(a => a.day == day);
+                if (index != -1)
+                    benefits = query[index].benefits;
+                data.Add(new
+                {
+                    day,
+                    benefits
+                });
+            }
             var obj = new
             {
                 code = 0,
                 msg = "success",
-                data = query,
+                data = data,
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
