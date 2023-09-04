@@ -111,11 +111,11 @@ namespace webapi.Controllers.Owner
                         remarks = joinedData.MaintenanceItem.Note,
                         evaluations = joinedData.MaintenanceItem.Evaluation,
                         score = joinedData.MaintenanceItem.Score,
-                        ep_data = new
+                        ep_data = Enumerable.Repeat(new
                         {
                             name = "暂未完成",
                             phone_number = ""
-                        }
+                        }, 1).ToArray()
                     }).FirstOrDefault();
                 var filteredItems_e = _context.MaintenanceItems
                     .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
