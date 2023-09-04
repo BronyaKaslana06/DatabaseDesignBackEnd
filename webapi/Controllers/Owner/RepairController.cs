@@ -92,6 +92,14 @@ namespace webapi.Controllers.Owner
                 var es = _context.MaintenanceItems.Where(m => maintenance_item_id == "" || m.MaintenanceItemId == id).DefaultIfEmpty().FirstOrDefault();
                 int esc = 0;
                 if(es != null) { esc = es.employees.Count(); }
+                var epDataArray = new[]
+                {
+                        new
+                        {
+                            name = "暂未完成",
+                            phone_number = ""
+                        }
+                };
                 var filteredItems = _context.MaintenanceItems
                     .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
                     .Join(_context.Vehicles, miEmp => miEmp.MaintenanceItem.vehicle.VehicleId, veh => veh.VehicleId, (miEmp, veh) => new { miEmp.MaintenanceItem, miEmp.Employee, Vehicle = veh })
@@ -111,11 +119,7 @@ namespace webapi.Controllers.Owner
                         remarks = joinedData.MaintenanceItem.Note,
                         evaluations = joinedData.MaintenanceItem.Evaluation,
                         score = joinedData.MaintenanceItem.Score,
-                        ep_data = Enumerable.Repeat(new
-                        {
-                            name = "暂未完成",
-                            phone_number = ""
-                        }, 1).ToArray()
+                        ep_data = epDataArray
                     }).FirstOrDefault();
                 var filteredItems_e = _context.MaintenanceItems
                     .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
@@ -382,7 +386,6 @@ namespace webapi.Controllers.Owner
             {
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Note = _acm.remarks;
-                acm.OrderStatus = _acm.order_status;
                 acm.AppointTime = DateTime.Parse($"{_acm.appoint_time}");
                 acm.latitude = _acm.latitude;
                 acm.longitude = _acm.longitude;
@@ -390,7 +393,7 @@ namespace webapi.Controllers.Owner
             else
             {
                 acm.Evaluation = _acm.evaluations;
-                acm.Score = _acm.score;
+               // acm.Score = _acm.score;
                 acm.OrderStatus = 4;
             }
             try

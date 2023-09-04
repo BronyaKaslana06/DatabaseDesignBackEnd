@@ -18,6 +18,31 @@ namespace webapi.Controllers.Admin
         {
             _context = context;
         }
+        [HttpGet("newest")]
+        public ActionResult<IEnumerable<Employee>> GetLatestAnnouncements()
+        {
+            var query = _context.News
+                .OrderByDescending(a => a.PublishTime)
+                .Select(e => new
+                {
+                    title = e.Title,
+                    publisher = e.administrator.AdminId,
+                    publish_time = e.PublishTime,
+                    announcement_id = e.AnnouncementId
+                })
+                .Take(5)
+                .ToList();
+
+            var response = new
+            {
+                code = 0,
+                msg = "success",
+                data = query,
+            };
+
+            return Content(JsonConvert.SerializeObject(response), "application/json");
+        }
+
 
         [HttpGet("message")]
         public ActionResult<IEnumerable<Employee>> GetPage_()
