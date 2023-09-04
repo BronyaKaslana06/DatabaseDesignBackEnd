@@ -55,7 +55,7 @@ namespace webapi.Controllers.Admin
                        current_capacity = b.CurrentCapacity,
                        curr_charge_times = b.CurrChargeTimes,
                        manufacturing_date = b.ManufacturingDate.ToString(),
-                       battery_type_id = b.batteryType.BatteryTypeId,
+                       battery_type_id = b.batteryType.Name,
                        name = battery_status == 0 ? b.switchStation.StationName : b.vehicle.PlateNumber,
                        Similarity = battery_status == 0 ? Calculator.ComputeSimilarityScore(b.switchStation.StationName, keyword) : Calculator.ComputeSimilarityScore(b.vehicle.PlateNumber == null ? "" : b.vehicle.PlateNumber, keyword),
                        isEditing = false
@@ -64,7 +64,7 @@ namespace webapi.Controllers.Admin
                    .Take(limit)
                    .ToList();
             var filteredItems = query
-                    .Where(item => item.Similarity > (double)0)
+                    .Where(item => item.Similarity >= (double)0)
                     .OrderByDescending(item => item.Similarity);
 
             var totalNum = filteredItems.Count();

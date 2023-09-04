@@ -58,9 +58,8 @@ namespace webapi.Controllers.Owner
                         max_speed = item.vehicleParam.MaxSpeed.ToString(),
                         transmission = item.vehicleParam.Transmission,
                         battery_type = item.Battery.batteryType.Name.ToString(),
-                        //待完成
-                        temperature = 20.ToString(),
-                        warrange = item.PurchaseDate.AddYears(5).ToString("yyyy-MM-dd")
+                        temperature = item.Temperature.ToString(),
+                        warrange = item.Warranty
                     }).FirstOrDefault();
                 var a = new
                 {
