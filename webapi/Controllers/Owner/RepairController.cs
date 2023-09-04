@@ -393,7 +393,7 @@ namespace webapi.Controllers.Owner
             else
             {
                 acm.Evaluation = _acm.evaluations;
-               // acm.Score = _acm.score;
+                acm.Score = _acm.score;
                 acm.OrderStatus = 4;
             }
             try
