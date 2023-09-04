@@ -122,21 +122,28 @@ namespace webapi.Controllers.Owner
                 return NewContent(1, "id²»´æÔÚ");
             else
             {
+                var currentYear = DateTime.Now.Year;
+                var allMonths = Enumerable.Range(1, 12).ToArray();
+                var monthlySwitchCounts = _context.SwitchLogs
+                    .Where(log => log.SwitchTime.Year == currentYear && log.switchrequest.vehicle.vehicleOwner.OwnerId == id)
+                    .GroupBy(log => log.SwitchTime.Month)
+                    .Select(group => new { Month = group.Key, Count = group.Sum(log => log.ServiceFee) }) 
+                    .OrderBy(result => result.Month)
+                    .ToArray();
+                var monthlySwitchCountsArray = allMonths
+                    .Select(month => monthlySwitchCounts.FirstOrDefault(item => item.Month == month)?.Count ?? 0)
+                    .ToArray();
+
                 var a = new
                 {
                     code = 0,
                     msg = "success",
-                    data = _context.SwitchLogs
-                        .Where(log => log.SwitchTime.Year == DateTime.Now.Year)
-                        .GroupBy(log => log.SwitchTime.Month)
-                        .Select(group => new { Month = group.Key, Count = group.Count() })
-                        .OrderBy(result => result.Month)
-                        .Select(result => result.Count)
-                        .ToArray()
+                    data = monthlySwitchCountsArray
                 };
                 return Content(JsonConvert.SerializeObject(a), "application/json");
             }
         }
+
         ContentResult NewContent(int _code = 0, string _msg = "success", string dataName = "data", object data = null)
         {
 
