@@ -134,15 +134,19 @@ namespace webapi.Controllers.Staff
        public IActionResult BatteryUpdate([FromBody] dynamic param)
        {
            dynamic _param = JsonConvert.DeserializeObject(Convert.ToString(param));
-           var bty = _context.Batteries.Find($"{_param.battery_id}");
+           if(!long.TryParse($"{_param.battery_id}", out long bid))
+                return NewContent(1, "电池id非法");
+            var bty = _context.Batteries.Find(bid);
            if (bty == null)
            {
                return NewContent(1, "查询电池不存在");
            }
-           var station = _context.SwitchStations.Find($"{_param.station_id}");
+            if (!long.TryParse($"{_param.station_id}", out long sid))
+                return NewContent(1, "站点id非法");
+            var station = _context.SwitchStations.Find(sid);
            if (station == null)
            {
-               return NewContent(1, "查询电池不存在");
+               return NewContent(1, "查询站点不存在");
            }
 
            if (_param.available_status != null)

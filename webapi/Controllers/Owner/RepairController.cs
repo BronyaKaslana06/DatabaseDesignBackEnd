@@ -116,7 +116,7 @@ namespace webapi.Controllers.Owner
                             name = "暂未完成",
                             phone_number = ""
                         }
-                    }).ToList();
+                    }).FirstOrDefault();
                 var filteredItems_e = _context.MaintenanceItems
                     .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
                     .Join(_context.Employees, miEmp => miEmp.Employee, emp => emp, (miEmp, emp) => new { miEmp.MaintenanceItem, Employee = emp })
@@ -142,7 +142,7 @@ namespace webapi.Controllers.Owner
                             name = employees.Name,
                             phone_number = employees.PhoneNumber
                         }).ToArray()
-                    }).ToList();
+                    }).FirstOrDefault();
 
                 var obj = new
                 {
