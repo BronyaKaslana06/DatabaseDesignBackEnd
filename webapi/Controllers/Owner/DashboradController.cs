@@ -64,7 +64,7 @@ namespace webapi.Controllers.Owner
             }
         }
         [HttpGet("base_info")]
-        public ActionResult<IEnumerable<VehicleOwner>> InfoAna(string user_id)
+        public ActionResult<IEnumerable<VehicleOwner>> InfoAna(string user_id = "")
         {
             if (!long.TryParse(user_id, out long id))
             {
@@ -104,7 +104,7 @@ namespace webapi.Controllers.Owner
             }
         }
         [HttpGet("monthlyswitch")]
-        public ActionResult<IEnumerable<VehicleOwner>> MonthlyAna(string user_id)
+        public ActionResult<IEnumerable<VehicleOwner>> MonthlyAna(string user_id = "", string query_range = "year")
         {
             if (!long.TryParse(user_id, out long id))
             {
@@ -120,7 +120,7 @@ namespace webapi.Controllers.Owner
             var owner = _context.VehicleOwners.Find(id);
             if (owner == null)
                 return NewContent(1, "id²»´æÔÚ");
-            else
+            else if(query_range == "year")
             {
                 var currentYear = DateTime.Now.Year;
                 var allMonths = Enumerable.Range(1, 12).ToArray();
@@ -141,6 +141,33 @@ namespace webapi.Controllers.Owner
                     data = monthlySwitchCountsArray
                 };
                 return Content(JsonConvert.SerializeObject(a), "application/json");
+            }
+            else
+            {
+                var currentDate = DateTime.Now;
+                var thirtyDaysAgo = currentDate.AddDays(-30);
+
+                var dailySwitchCounts = _context.SwitchLogs
+                    .Where(log => log.SwitchTime >= thirtyDaysAgo && log.SwitchTime <= currentDate && log.switchrequest.vehicle.vehicleOwner.OwnerId == id)
+                    .GroupBy(log => log.SwitchTime.Date)
+                    .Select(group => new { Date = group.Key, Count = group.Sum(log => log.ServiceFee) })
+                    .OrderBy(result => result.Date)
+                    .ToArray();
+
+                var dailySwitchCountsArray = Enumerable.Range(0, 30)
+                    .Select(offset => currentDate.AddDays(-offset))
+                    .Select(date => dailySwitchCounts.FirstOrDefault(item => item.Date == date)?.Count ?? 0)
+                    .Reverse()
+                    .ToArray();
+
+                var response = new
+                {
+                    code = 0,
+                    msg = "success",
+                    data = dailySwitchCountsArray
+                };
+
+                return Content(JsonConvert.SerializeObject(response), "application/json");
             }
         }
 
