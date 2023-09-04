@@ -26,7 +26,6 @@ namespace webapi.Controllers.Admin
                 .Select(e => new
                 {
                     title = e.Title.TrimEnd(),
-                    publisher = e.administrator.AdminId,
                     publish_time = e.PublishTime,
                     announcement_id = e.AnnouncementId
                 })
