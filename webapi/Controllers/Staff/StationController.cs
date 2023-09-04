@@ -112,7 +112,7 @@ namespace webapi.Controllers.Staff
                        current_capacity = b.CurrentCapacity,
                        curr_charge_times = b.CurrChargeTimes,
                        manufacturing_date = b.ManufacturingDate.ToString(),
-                       battery_type_id = b.batteryType.BatteryTypeId,
+                       battery_type_id = b.batteryType.Name,
                        isEditing = false
                    })
                    .Skip(offset)
