@@ -9,6 +9,7 @@ using System.Transactions;
 using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.DirectoryServices.ActiveDirectory;
 
 namespace webapi.Controllers.Owner
 {
@@ -386,7 +387,7 @@ namespace webapi.Controllers.Owner
             {
                 acm.MaintenanceLocation = _acm.maintenance_location;
                 acm.Note = _acm.remarks;
-                acm.AppointTime = DateTime.Parse($"{_acm.appoint_time}");
+                acm.AppointTime = DateTime.Parse($"{_acm.appoint_time}").AddHours(8);
                 acm.latitude = _acm.latitude;
                 acm.longitude = _acm.longitude;
             }
