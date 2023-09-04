@@ -25,7 +25,7 @@ namespace webapi.Controllers.Admin
                 .OrderByDescending(a => a.PublishTime)
                 .Select(e => new
                 {
-                    title = e.Title,
+                    title = e.Title.TrimEnd(),
                     publisher = e.administrator.AdminId,
                     publish_time = e.PublishTime,
                     announcement_id = e.AnnouncementId
