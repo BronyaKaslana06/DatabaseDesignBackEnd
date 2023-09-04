@@ -48,7 +48,7 @@ namespace webapi.Controllers.Staff
                 {
                     switch_request_id = request.SwitchRequestId,
                     switch_type = request.SwitchTypeEnum.ToString(),
-                    request_time = request.RequestTime,
+                    request_time = request.RequestTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     position = request.Position,
                     longitude = request.Longitude,
                     latitude = request.Latitude,
@@ -60,7 +60,7 @@ namespace webapi.Controllers.Staff
                     vehicle_model = request.vehicle.vehicleParam.ModelName,
                     battery_type = request.batteryType.Name,
                     employee_id = request.employee.EmployeeId.ToString(),
-                    switch_date = request.Date,
+                    switch_date = request.Date.ToString("yyyy-MM-dd"),
                     switch_period = EnumDisplay.GetDisplayNameFromEnum(request.PeriodEnum),
                     order_status = request.requestStatusEnum.ToString()
                 },
@@ -70,7 +70,7 @@ namespace webapi.Controllers.Staff
                     evaluation = log == null ? "":log.Evaluation,
                     batteryOnId = log == null ? (long)-1:log.batteryOn.BatteryId,
                     batteryOffId = log == null ? (long)-1:log.batteryOff.BatteryId,
-                    switch_time = log == null ? DateTime.MaxValue:log.SwitchTime
+                    switch_time = (log == null ? DateTime.MaxValue:log.SwitchTime).ToString("yyyy-MM-dd HH:mm:ss")
                 }
             };
 
@@ -121,7 +121,7 @@ namespace webapi.Controllers.Staff
                     position = switch_request.Position,
                     username = switch_request.vehicle.vehicleOwner.Username,
                     phone_number = switch_request.vehicle.vehicleOwner.PhoneNumber,
-                    request_time = switch_request.RequestTime,
+                    request_time = switch_request.RequestTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     order_status = switch_request.requestStatusEnum.ToString()
                 }).ToList();
 
@@ -165,7 +165,7 @@ namespace webapi.Controllers.Staff
                     position = switch_request.Position,
                     username = switch_request.vehicle.vehicleOwner.Username,
                     phone_number = switch_request.vehicle.vehicleOwner.PhoneNumber,
-                    request_time = switch_request.RequestTime,
+                    request_time = switch_request.RequestTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     order_status = switch_request.requestStatusEnum.ToString()
                 }).ToList();
 
@@ -293,7 +293,7 @@ namespace webapi.Controllers.Staff
                     switch_log = new
                     {
                         switch_service_id = log.SwitchServiceId,
-                        switch_time = log.SwitchTime,
+                        switch_time = log.SwitchTime.ToString("yyyy-MM-dd HH:mm:ss"),
                         batteryOnId = log.batteryOn.BatteryId,
                         batteryOffId = log.batteryOff.BatteryId,
                         switch_request_id = log.switchrequest.SwitchRequestId,

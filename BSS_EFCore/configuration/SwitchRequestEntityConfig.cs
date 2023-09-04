@@ -33,6 +33,8 @@ namespace BSS_EFCore.configuration
                 .HasColumnName("REQUEST_TIME");
             builder.Property(e => e.SwitchType)
                 .HasColumnName("SWITCH_TYPE");
+            builder.Property(e => e.Period)
+                .HasColumnName("PERIOD");
 
             builder.HasOne<Vehicle>(e => e.vehicle).WithMany(a=>a.switchRequests).IsRequired();
 

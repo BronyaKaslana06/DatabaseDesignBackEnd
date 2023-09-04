@@ -75,7 +75,7 @@ namespace webapi.Controllers.Owner
                     Latitude = Convert.ToDouble(reservation.latitude),
                     Note = reservation.additional_info,
                     Date = Convert.ToDateTime(reservation.date),
-                    PeriodEnum = EnumDisplay.GetEnumFromDisplayName(reservation.period),
+                    PeriodEnum = EnumDisplay.GetEnumFromDisplayName(Convert.ToString(reservation.period)),
                     batteryType = batteryType,
                     employee = employee
                 };
@@ -147,7 +147,7 @@ namespace webapi.Controllers.Owner
                 {
                     switch_request_id = sr.SwitchRequestId,
                     switch_type = sr.SwitchTypeEnum.ToString(),
-                    request_time = sr.RequestTime,
+                    request_time = sr.RequestTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     position = sr.Position,
                     station_name = sr.employee.switchStation.StationName,
                     station_address = sr.employee.switchStation.Address,
@@ -155,7 +155,7 @@ namespace webapi.Controllers.Owner
                     vehicle_model = sr.vehicle.vehicleParam.ModelName,
                     battery_type = sr.batteryType.Name,
                     employee_id = (order_status == "´ý½Óµ¥" ? "" : sr.employee.EmployeeId.ToString()),
-                    switch_date = sr.Date,
+                    switch_date = sr.Date.ToString("yyyy-MM-dd"),
                     switch_period = EnumDisplay.GetDisplayNameFromEnum(sr.PeriodEnum),
                     order_type = sr.requestStatusEnum.ToString()
                 }).Skip(offset).Take(limit);
