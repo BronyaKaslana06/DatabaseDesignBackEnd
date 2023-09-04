@@ -1,6 +1,7 @@
 using EntityFramework.Context;
 using EntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,24 +27,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//string format = "yyyy-MM-dd HH:mm:ss";
-//if(DateTime.TryParseExact("2023-10-12 10:12:30", format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
-//    DateTime.TryParseExact("2023-11-11 23:22:35", format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
-//    Console.WriteLine(result2-result1);
-//OrderStatusEnum a = OrderStatusEnum.待评分;
-//Console.WriteLine(a.ToString());
-
-
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-//string message = "";
-//bool re = true;
-//webapi.OracleHelper.DbConn(ref message, ref re);
-//Console.WriteLine("----------------\r\n" + (re ? "连接成功" : message) + "\r\n----------------");
 
 app.Run();
