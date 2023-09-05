@@ -125,7 +125,7 @@ namespace webapi.Controllers.Admin
                 .Take(limit)
                 .ToList();
 
-            var totalNum = _context.VehicleOwners.Count();
+            var totalNum = query.Count();
 
             var responseObj = new
             {

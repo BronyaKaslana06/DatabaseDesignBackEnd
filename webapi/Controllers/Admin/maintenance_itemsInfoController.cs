@@ -1,6 +1,5 @@
 ﻿using EntityFramework.Context;
 using EntityFramework.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
@@ -9,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Transactions;
 using static ASPNETCoreWebAPI_Layer.Controllers.maintenance_itemsInfoController;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ASPNETCoreWebAPI_Layer.Controllers
 {
@@ -33,8 +33,6 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// <param name="maintenance_location"></param>    //只要包含即可
         /// <param name="order_status"></param>    ///取值为 待接单 待完成 待评分 已完成 
         /// <returns></returns>
-
-        [Authorize]
         [HttpGet]    
         public ActionResult<object> Message(int pageIndex, int pageSize, string? maintenance_items_id, string? vehicle_id,
             string? maintenance_location, string? order_status)
@@ -70,7 +68,12 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
                 maintenance_items_id = e.MaintenanceItemId.ToString(),
                 vehicle_id = e.vehicle.VehicleId.ToString(),
                 maintenance_location = e.MaintenanceLocation,
-                order_status = e.OrderStatusEnum.ToString()
+                order_status = e.OrderStatusEnum.ToString(),
+                owner_id = e.vehicle.vehicleOwner.OwnerId.ToString(),
+                employees =  e.employees.Select(employees => new
+                {
+                    employee_id = employees.EmployeeId.ToString()
+                }).ToArray()
             });
             return Ok(res);
         }
@@ -93,8 +96,6 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// </summary>
         /// <param name="Mntnc_Items"></param>
         /// <returns></returns>
-
-        [Authorize]
         [HttpPatch]
         public async Task<ActionResult<string>> Updates([FromBody] mntnc_items_update Mntnc_Items )
         {
@@ -131,8 +132,6 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// </summary>
         /// <param name="maintenance_items_id"></param>
         /// <returns></returns>
-
-        [Authorize]
         [HttpDelete]
         public async Task<ActionResult<string>> Erasure(string maintenance_items_id)
         {
@@ -222,8 +221,6 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-
-        [Authorize]
         [HttpGet]
         public async Task<ActionResult<object>> TableMessage(int pageIndex, int pageSize)
         {
@@ -243,8 +240,6 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// </summary>
         /// <param name="maintenance_item_id"></param>
         /// <returns></returns>
-
-        [Authorize]
         [HttpGet]
         public ActionResult<object> MessageId(string maintenance_item_id)
         {
@@ -263,7 +258,12 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
                     evaluations = f.Evaluation == null ? "" : f.Evaluation.ToString(),
                     maintenance_location = f.MaintenanceLocation,
                     order_status = f.OrderStatusEnum.ToString(),
-                    score = f.Score.ToString()
+                    score = f.Score.ToString(),
+                    owner_id = f.vehicle.vehicleOwner.OwnerId.ToString(),
+                    employees = f.employees.Select(employees => new
+                    {
+                        employee_id = employees.EmployeeId.ToString()
+                    }).ToArray()
                 };
                 return Ok(res);
             }

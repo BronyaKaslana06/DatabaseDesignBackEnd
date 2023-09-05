@@ -73,7 +73,7 @@ namespace webapi.Controllers.Admin
                 .DefaultIfEmpty()
                 .ToList();
 
-            var totalNum = _context.SwitchLogs.Count();
+            var totalNum = query.Count();
 
             var responseObj = new
             {
