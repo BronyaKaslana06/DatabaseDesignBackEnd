@@ -121,11 +121,11 @@ namespace webapi.Controllers.Staff
             }
 
 
-            tmp = tmp.OrderBy(e => e.SwitchTime);
+            tmp = tmp.OrderByDescending(e => e.SwitchTime);
             var res = tmp.Select(a => new
             {
                 switch_record_id = a.SwitchServiceId,
-                switch_time = a.SwitchTime,
+                switch_time = a.SwitchTime.ToString("yyyy-MM-dd HH:mm:ss"),
             });
             return Ok(res);
 

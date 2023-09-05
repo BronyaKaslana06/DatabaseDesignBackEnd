@@ -22,14 +22,16 @@ namespace webapi.Controllers.Staff
         {
             try
             {
-                var tmp = modelContext.SwitchLogs.Include(f => f.switchrequest).Include(b => b.batteryOn).
-                Include(c => c.batteryOff).Single(e => e.SwitchServiceId == long.Parse(switch_record_id));
+                var tmp = modelContext.SwitchLogs.Include(f => f.switchrequest).
+                    Include(b => b.batteryOn).Include(c => c.batteryOff).
+                    Include(b=>b.batteryOn.batteryType).Include(b => b.batteryOff.batteryType).Single(e => e.SwitchServiceId == long.Parse(switch_record_id));
                 var switch_request = tmp.switchrequest;         
                 var battery_on = tmp.batteryOn;
                 var batteryOff = tmp.batteryOff;
                 var vehicle = modelContext.SwitchRequests.Include(f => f.vehicle).Single(e => e.SwitchRequestId == switch_request.SwitchRequestId).vehicle;
                 var vehicle_param = modelContext.VehicleParams.Include(e => e.vehicles).Single(f => f.vehicles.Any(g => g.VehicleId == vehicle.VehicleId));
                 var owner = modelContext.Vehicles.Include(e => e.vehicleOwner).Single(f => f.VehicleId == vehicle.VehicleId).vehicleOwner;
+                var employee = modelContext.SwitchRequests.Include(h => h.employee.switchStation).Single(i => i.SwitchRequestId == switch_request.SwitchRequestId).employee;
 
                 var res = new
                 {
@@ -40,10 +42,13 @@ namespace webapi.Controllers.Staff
                     switch_time = tmp.SwitchTime.ToString(),
                     battery_id_on = battery_on.BatteryId.ToString(),
                     battery_id_off = batteryOff.BatteryId.ToString(),
-                    position = switch_request.Position == null ? "" : switch_request.Position.ToString(),
+                    battery_type_on = battery_on.batteryType.Name,
+                    battery_type_off = batteryOff.batteryType.Name,
+                    station_name = employee.switchStation.StationName,
                     switch_type = switch_request.SwitchTypeEnum.ToString(),
                     evaluations = tmp.Evaluation == null ? "" : tmp.Evaluation,
-                    score = tmp.Score.ToString(),
+                    score = tmp.Score,
+                    request_status = switch_request.requestStatusEnum.ToString()
                 };
                 return Ok(res);
             }

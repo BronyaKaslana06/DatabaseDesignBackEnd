@@ -123,7 +123,9 @@ namespace webapi.Controllers.Staff
                     phone_number = switch_request.vehicle.vehicleOwner.PhoneNumber,
                     request_time = switch_request.RequestTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     order_status = switch_request.requestStatusEnum.ToString(),
-                    battery_type = switch_request.batteryType.Name
+                    battery_type = switch_request.batteryType.Name,
+                    switch_date = switch_request.Date.ToString("yyyy-MM-dd"),
+                    switch_period = EnumDisplay.GetDisplayNameFromEnum(switch_request.PeriodEnum)
                 }).ToList();
 
             var a = new
@@ -168,7 +170,9 @@ namespace webapi.Controllers.Staff
                     phone_number = switch_request.vehicle.vehicleOwner.PhoneNumber,
                     request_time = switch_request.RequestTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     order_status = switch_request.requestStatusEnum.ToString(),
-                    battery_type = switch_request.batteryType.Name
+                    battery_type = switch_request.batteryType.Name,
+                    switch_date = switch_request.Date.ToString("yyyy-MM-dd"),
+                    switch_period = EnumDisplay.GetDisplayNameFromEnum(switch_request.PeriodEnum)
                 }).ToList();
 
             var a = new
