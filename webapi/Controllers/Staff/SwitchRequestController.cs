@@ -1,5 +1,6 @@
 ﻿using EntityFramework.Context;
 using EntityFramework.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,6 @@ namespace webapi.Controllers.Staff
         {
             _context = context;
         }
-
         [HttpGet]
         public ActionResult<string> detail(string switch_request_id)
         {
@@ -122,7 +122,8 @@ namespace webapi.Controllers.Staff
                     username = switch_request.vehicle.vehicleOwner.Username,
                     phone_number = switch_request.vehicle.vehicleOwner.PhoneNumber,
                     request_time = switch_request.RequestTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                    order_status = switch_request.requestStatusEnum.ToString()
+                    order_status = switch_request.requestStatusEnum.ToString(),
+                    battery_type = switch_request.batteryType.Name
                 }).ToList();
 
             var a = new
@@ -166,7 +167,8 @@ namespace webapi.Controllers.Staff
                     username = switch_request.vehicle.vehicleOwner.Username,
                     phone_number = switch_request.vehicle.vehicleOwner.PhoneNumber,
                     request_time = switch_request.RequestTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                    order_status = switch_request.requestStatusEnum.ToString()
+                    order_status = switch_request.requestStatusEnum.ToString(),
+                    battery_type = switch_request.batteryType.Name
                 }).ToList();
 
             var a = new

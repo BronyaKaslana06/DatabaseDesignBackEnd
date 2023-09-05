@@ -100,13 +100,13 @@ public partial class SwitchRequest
 
 public enum PeriodEnum
 {
-    [Display(Name = "00:00-04:00")]
+    [Display(Name = "0:00-4:00")]
     时间段00_00_04_00 = 1,
 
-    [Display(Name = "04:00-08:00")]
+    [Display(Name = "4:00-8:00")]
     时间段04_00_08_00 = 2,
 
-    [Display(Name = "08:00-12:00")]
+    [Display(Name = "8:00-12:00")]
     时间段08_00_12_00 = 3,
 
     [Display(Name = "12:00-16:00")]
