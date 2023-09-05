@@ -65,8 +65,8 @@ namespace webapi.Controllers.Admin
                     battery_id_on = sl.batteryOn.BatteryId.ToString(),
                     battery_id_off = sl.batteryOff.BatteryId.ToString(),
                     evaluations = sl.Evaluation,
-                    score = sl.Score == -1 ? "未评分" : sl.Score.ToString(),
-                    cost = sl.ServiceFee
+                    score = sl.Score /*== -1 ? "未评分" : sl.Score.ToString()*/,
+                  //cost = sl.ServiceFee
                 })
                 .Skip(offset)
                 .Take(limit)
