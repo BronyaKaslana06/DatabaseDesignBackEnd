@@ -35,31 +35,30 @@ namespace webapi.Controllers.Admin
             if (offset < 0 || limit <= 0)
                 return BadRequest();
 
-            var query = _context.Employees
+            var q = _context.Employees
             .Where(e => (string.IsNullOrEmpty(employee_id) || e.EmployeeId.ToString() == employee_id) &&
                 (string.IsNullOrEmpty(username) || e.UserName.Contains(username)) &&
                 (string.IsNullOrEmpty(gender) || e.Gender == gender) &&
                 (string.IsNullOrEmpty(phone_number) || e.PhoneNumber == phone_number) &&
                 (string.IsNullOrEmpty(salary) || e.Salary.ToString() == salary) &&
-                (string.IsNullOrEmpty(station_id) || e.switchStation==null || e.switchStation.StationId == Convert.ToInt64(station_id)) &&
+                (string.IsNullOrEmpty(station_id) || e.switchStation == null || e.switchStation.StationId == Convert.ToInt64(station_id)) &&
                 (string.IsNullOrEmpty(station_name) || e.switchStation == null || e.switchStation.StationName.Contains(station_name))
             ).Select(f => new
             {
-                employee_id=f.EmployeeId,
-                username=f.UserName,
-                gender=f.Gender,
-                phone_number=f.PhoneNumber,
-                salary=f.Salary,
-                station_id= f.switchStation == null? -1:f.switchStation.StationId,
-                station_name= f.switchStation == null ? string.Empty : f.switchStation.StationName
+                employee_id = f.EmployeeId,
+                username = f.UserName,
+                gender = f.Gender,
+                phone_number = f.PhoneNumber,
+                salary = f.Salary,
+                station_id = f.switchStation == null ? -1 : f.switchStation.StationId,
+                station_name = f.switchStation == null ? string.Empty : f.switchStation.StationName
             })
-            .OrderBy(h=>h.employee_id)
-            .Skip(offset)
-            .Take(limit)
-            .ToList();
+            .OrderBy(h => h.employee_id);
+            var totalData = q.Count();
 
-            var totalData = query.Count();
-            var data = query;
+            var query = q.Skip(offset).Take(limit);
+
+            var data = query.ToList();
 
             if(data == null)
                 return BadRequest();
