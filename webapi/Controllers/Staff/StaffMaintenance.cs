@@ -28,19 +28,19 @@ namespace webapi.Controllers.Staff
        [HttpGet("maintanence/detail")]
        public ActionResult<IEnumerable<Employee>> GetMaintenanceItem(long maintenance_item_id)
        {
-           var query = _context.MaintenanceItems.Where(maintenance_item => maintenance_item.MaintenanceItemId == maintenance_item_id).Select
-           (maintenance_item => new
-           {
-               maintenance_location = maintenance_item.MaintenanceLocation,
-               plate_number = maintenance_item.vehicle.PlateNumber,
-               vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
-               order_status =(OrderStatusEnum)maintenance_item.OrderStatus,
-               title = maintenance_item.Title,
-               order_submission_time = maintenance_item.OrderSubmissionTime,
-               appoint_time=maintenance_item.AppointTime,
-               longitude=maintenance_item.longitude,
-               latitude=maintenance_item.latitude,
-               service_time = maintenance_item.ServiceTime,
+            var query = _context.MaintenanceItems.Where(maintenance_item => maintenance_item.MaintenanceItemId == maintenance_item_id).Select
+            (maintenance_item => new
+            {
+                maintenance_location = maintenance_item.MaintenanceLocation,
+                plate_number = maintenance_item.vehicle.PlateNumber,
+                vehicle_model = maintenance_item.vehicle.vehicleParam.ModelName,
+                order_status = (OrderStatusEnum)maintenance_item.OrderStatus,
+                title = maintenance_item.Title,
+                order_submission_time = maintenance_item.OrderSubmissionTime,
+                appoint_time = maintenance_item.AppointTime,
+                longitude = maintenance_item.longitude,
+                latitude = maintenance_item.latitude,
+                service_time = maintenance_item.ServiceTime.HasValue ? maintenance_item.ServiceTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
                remarks = maintenance_item.Note,
                username = maintenance_item.vehicle.vehicleOwner.Username,
                phone_number = maintenance_item.vehicle.vehicleOwner.PhoneNumber,
@@ -81,7 +81,7 @@ namespace webapi.Controllers.Staff
            var maintenance_array = _context.MaintenanceItems
                   .Where(e => e.OrderStatus == orderStatusEnum&&
                   (isEmployee || e.employees.Any(e => e.EmployeeId == employee_id)))
-                  .OrderBy(a => a.AppointTime)
+                  .OrderByDescending(a => a.AppointTime)
                   .Select(maintenance_item => new
                   {
                       maintenance_item_id=maintenance_item.MaintenanceItemId,

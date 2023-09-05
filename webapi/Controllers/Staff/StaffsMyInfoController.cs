@@ -164,11 +164,11 @@ namespace webapi.Controllers.Staff
                         tmp = tmp.Where(c => c.OrderStatus == (int)os_enum);
                         if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
                         {
-                            tmp = tmp.OrderBy(e => e.ServiceTime).ThenBy(c => c.AppointTime);
+                            tmp = tmp.OrderByDescending(e => e.ServiceTime).ThenBy(c => c.AppointTime);
                         }
                         else
                         {
-                            tmp = tmp.OrderBy(e => e.AppointTime).ThenBy(f => f.OrderSubmissionTime);
+                            tmp = tmp.OrderByDescending(e => e.AppointTime).ThenBy(f => f.OrderSubmissionTime);
                         }
                     }
                     else
