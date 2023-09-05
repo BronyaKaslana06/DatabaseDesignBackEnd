@@ -152,7 +152,7 @@ namespace webapi.Controllers.Staff
 
            if (_param.available_status != null)
            {
-               if (Enum.TryParse(_param.available_status, out AvailableStatusEnum availableStatus))
+               if (Enum.TryParse($"{_param.available_status}", out AvailableStatusEnum availableStatus))
                {
                    bty.AvailableStatusEnum = availableStatus;
                    bty.switchStation = station;
