@@ -104,7 +104,7 @@ namespace webapi.Controllers.Admin
             {
                 code=0,
                 msg="success",
-                totalData = query.Count(),
+                totalData = query.Count() + 25 * pageIndex - 25,
                 data = query,
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");

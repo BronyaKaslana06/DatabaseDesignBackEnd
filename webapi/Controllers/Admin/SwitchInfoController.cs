@@ -60,7 +60,7 @@ namespace webapi.Controllers.Admin
                     switch_service_id = sl.SwitchServiceId.ToString(),
                     employee_id = sl.switchrequest.employee.EmployeeId.ToString(),
                     vehicle_id = sl.switchrequest.vehicle.VehicleId.ToString(),
-                    switch_time = sl.SwitchTime.ToString("yyyy-MM-dd HH-mm-ss"),
+                    switch_time = sl.SwitchTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     battery_id_on = sl.batteryOn.BatteryId.ToString(),
                     battery_id_off = sl.batteryOff.BatteryId.ToString(),
                     evaluations = sl.Evaluation,
@@ -75,7 +75,7 @@ namespace webapi.Controllers.Admin
 
             var responseObj = new
             {
-                totalData = totalNum,
+                totalData = totalNum + 25 * page_index - 25,
                 data = query,
             };
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");

@@ -55,10 +55,11 @@ namespace webapi.Controllers.Admin
             })
             .OrderBy(h=>h.employee_id)
             .Skip(offset)
-            .Take(limit);
+            .Take(limit)
+            .ToList();
 
-            var totalData = query.Count();
-            var data = query.ToList();
+            var totalData = query.Count() + 25 * pageIndex - 25;
+            var data = query;
 
             if(data == null)
                 return BadRequest();
