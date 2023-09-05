@@ -4,7 +4,7 @@ using webapi;
 
 namespace webapi.Controllers;
 
-[Route("api/[controller]/[action]")]
+[Route("[controller]/[action]")]
 [ApiController]
 public class AccountController : ControllerBase
 {
@@ -18,7 +18,7 @@ public class AccountController : ControllerBase
     [HttpGet]
     public ActionResult<string> GetToken()
     {
-        return _jwtHelper.CreateToken();
+        return _jwtHelper.CreateToken("1","123456");
     }
 
     [Authorize]

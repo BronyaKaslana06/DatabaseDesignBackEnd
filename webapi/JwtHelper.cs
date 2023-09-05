@@ -14,16 +14,16 @@ namespace webapi
             _configuration = configuration;
         }
 
-        public string CreateToken()
+        public string CreateToken(string userID, string password)
         {
             // 1. 定义需要使用到的Claims
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, "u_admin"), //HttpContext.User.Identity.Name
+                new Claim(ClaimTypes.Name, userID), //HttpContext.User.Identity.Name
                 new Claim(ClaimTypes.Role, "r_admin"), //HttpContext.User.IsInRole("r_admin")
                 new Claim(JwtRegisteredClaimNames.Jti, "admin"),
-                new Claim("Username", "Admin"),
-                new Claim("Name", "超级管理员")
+                new Claim("Username", userID),
+                new Claim("Password", password)
             };
 
             // 2. 从 appsettings.json 中读取SecretKey

@@ -17,10 +17,12 @@ namespace webapi.Controllers
     public class IdentityController : ControllerBase
     {
         private readonly ModelContext _context;
+        private readonly JwtHelper _jwtHelper;
 
-        public IdentityController(ModelContext context)
+        public IdentityController(ModelContext context, JwtHelper jwtHelper)
         {
             _context = context;
+            _jwtHelper = jwtHelper;
         }
 
         [HttpPost("login")]
@@ -31,15 +33,16 @@ namespace webapi.Controllers
             IdentityType user_type = (IdentityType)Convert.ToInt32(usertype - '0');
             string account_serial = user.user_id;
             string password = user.password;
+            string token = _jwtHelper.CreateToken(account_serial, password);
             switch (user_type)
             {
                 case IdentityType.车主:
                     var owner = _context.VehicleOwners.Where(x=>x.AccountSerial == account_serial).DefaultIfEmpty().FirstOrDefault();
                     if (owner == null)
-                        return NewContent(new { }, 1, "User ID error.");
+                        return NewContent("",new { }, 1, "User ID error.");
                     if (owner.Password != password)
-                        return NewContent(new { }, 1, "Password error.");
-                    return NewContent(
+                        return NewContent("", new { }, 1, "Password error.");
+                    return NewContent(token,
                         new
                         {
                             user_type = (int)user_type,
@@ -56,10 +59,10 @@ namespace webapi.Controllers
                         .Where(x => x.AccountSerial == account_serial)
                         .DefaultIfEmpty().FirstOrDefault();
                     if (staff == null)
-                        return NewContent(new { }, 1, "User ID error.");
+                        return NewContent("", new { }, 1, "User ID error.");
                     if (staff.Password != password)
-                        return NewContent(new { }, 1, "Password error.");
-                    return NewContent(
+                        return NewContent("", new { }, 1, "Password error.");
+                    return NewContent(token,
                         new
                         {
                             user_type = (int)user_type,
@@ -75,10 +78,10 @@ namespace webapi.Controllers
                 case IdentityType.管理员:
                     var admin = _context.Administrators.Where(x => x.AccountSerial == account_serial).DefaultIfEmpty().FirstOrDefault();
                     if (admin == null)
-                        return NewContent(new { }, 1, "User ID error.");
+                        return NewContent("", new { }, 1, "User ID error.");
                     if (admin.Password != password)
-                        return NewContent(new { }, 1, "Password error.");
-                    return NewContent(
+                        return NewContent("", new { }, 1, "Password error.");
+                    return NewContent(token,
                         new
                         {
                             user_type = (int)user_type,
@@ -263,13 +266,14 @@ namespace webapi.Controllers
             return _context.Employees?.Any(e => e.EmployeeId == id) ?? false;
         }
 
-        ContentResult NewContent<T>(T data, int _code = 0, string _msg = "success")
+        ContentResult NewContent<T>(string token, T data, int _code = 0, string _msg = "success")
         {
             var a = new
             {
                 code = _code,
                 msg = _msg,
-                data
+                data,
+                token
             };
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }

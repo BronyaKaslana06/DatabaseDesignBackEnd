@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using Idcreator;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Admin
 {
@@ -24,18 +25,17 @@ namespace webapi.Controllers.Admin
         {
             _context = context;
         }
+
         [HttpGet("query")]
-        public ActionResult<IEnumerable<Employee>> GetPage(int pageIndex,int pageSize,string employee_id = "",string username = "",string gender = "",string phone_number = "",string salary = "",string station_id = "",string station_name = "")
+        public ActionResult<IEnumerable<Employee>> GetPage(int pageIndex,int pageSize,string? employee_id,string? username,string? gender,string? phone_number,string? salary,string? station_id,string? station_name)
         {
             int offset = (pageIndex - 1) * pageSize;
             int limit = pageSize;
             if (offset < 0 || limit <= 0)
                 return BadRequest();
-            if (!string.IsNullOrEmpty(employee_id) && !long.TryParse(employee_id, out long EID) ||
-                !string.IsNullOrEmpty(station_id) && !long.TryParse(station_id, out long SID))
-            {
-                return BadRequest();
-            }
+
+            var rr = employee_id;
+            bool ss = string.IsNullOrEmpty(employee_id);
             var query = _context.Employees
             .Where(e => (string.IsNullOrEmpty(employee_id) || e.EmployeeId == Convert.ToInt64(employee_id)) &&
                 (string.IsNullOrEmpty(username) || e.UserName.Contains(username)) &&
@@ -44,17 +44,17 @@ namespace webapi.Controllers.Admin
                 (string.IsNullOrEmpty(salary) || e.Salary.ToString() == salary) &&
                 (string.IsNullOrEmpty(station_id) || e.switchStation.StationId == Convert.ToInt64(station_id)) &&
                 (string.IsNullOrEmpty(station_name) || e.switchStation.StationName.Contains(station_name))
-            ).Select(e => new
+            ).Select(f => new
             {
-                employee_id=e.EmployeeId,
-                username=e.UserName,
-                gender=e.Gender,
-                phone_number=e.PhoneNumber,
-                salary=e.Salary,
-                station_id=e.switchStation.StationId,
-                station_name=e.switchStation.StationName
+                employee_id=f.EmployeeId,
+                username=f.UserName,
+                gender=f.Gender,
+                phone_number=f.PhoneNumber,
+                salary=f.Salary,
+                station_id=f.switchStation.StationId,
+                station_name=f.switchStation.StationName
             })
-            .OrderBy(e => employee_id)
+            .OrderBy(h=>h.employee_id)
             .Skip(offset)
             .Take(limit);
 

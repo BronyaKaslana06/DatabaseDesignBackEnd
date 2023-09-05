@@ -260,6 +260,9 @@ namespace webapi.Controllers.Staff
 
                 batteryOn.AvailableStatusEnum = AvailableStatusEnum.汽车使用中;
                 batteryOff.AvailableStatusEnum = AvailableStatusEnum.充电中;
+                batteryOn.switchStation = null;
+                batteryOff.switchStation = station;
+                station.AvailableBatteryCount--;
 
                 request.vehicle.Battery = batteryOn;
                 request.requestStatusEnum = RequestStatusEnum.待评价;
