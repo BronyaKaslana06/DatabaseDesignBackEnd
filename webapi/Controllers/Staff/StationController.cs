@@ -52,7 +52,8 @@ namespace webapi.Controllers.Staff
                        latitude = e.switchStation.Latitude,
                        faliure_status = e.switchStation.FailureStatus == true ? "是":"否",
                        battery_capacity = e.switchStation.BatteryCapacity,
-                       available_battery_count = e.switchStation.AvailableBatteryCount
+                       available_battery_count = e.switchStation.AvailableBatteryCount,
+                       station_address = e.switchStation.Address
                    })
                    .FirstOrDefault();
 
