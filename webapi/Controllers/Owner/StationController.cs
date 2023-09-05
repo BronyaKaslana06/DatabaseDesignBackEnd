@@ -48,11 +48,12 @@ namespace webapi.Controllers.Owner
                             longitude = station.Longitude,
                             waiting_number = station.QueueLength,
                             opening_time = station.TimeSpan,
-                            distance = Calculator.CalculateDistanceInMeters(station.Latitude, station.Longitude, latitude.Value, longitude.Value),
+                            distance = Math.Round(Calculator.CalculateDistanceInMeters(station.Latitude, station.Longitude, latitude.Value, longitude.Value)),
                             cell_num = station.BatteryCapacity,
                             cell_avb_num = station.AvailableBatteryCount,
                         })
                         .AsEnumerable()
+                        .Where(ss => ss.distance <= 50000)
                         .OrderBy(station => station.distance)
                         .Skip(offset)
                         .Take(limit)
@@ -88,7 +89,7 @@ namespace webapi.Controllers.Owner
                         battery_array = item.batteries.Select(battery => new
                         {
                             battery_id = battery.BatteryId.ToString(),
-                            available_status = battery.AvailableStatus == 1 ? "可用" : "充电中",
+                            available_status = battery.AvailableStatusEnum.ToString(),
                             current_capacity = battery.CurrentCapacity,
                             battery_type = battery.batteryType.BatteryTypeId == 1 ? "长续航级" : "标准续航级",
                         }).ToArray(),
