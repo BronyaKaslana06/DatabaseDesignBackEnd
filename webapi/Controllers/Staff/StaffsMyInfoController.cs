@@ -126,6 +126,7 @@ namespace webapi.Controllers.Staff
             {
                 switch_record_id = a.SwitchServiceId,
                 switch_time = a.SwitchTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                request_status = a.switchrequest.requestStatusEnum.ToString()
             });
             return Ok(res);
 
