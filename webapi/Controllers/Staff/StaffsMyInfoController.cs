@@ -203,7 +203,7 @@ namespace webapi.Controllers.Staff
                     remarks = e.Note != null ? e.Note.ToString() : "",
                     evaluations = e.Evaluation != null ? e.Evaluation : "",
                     score = e.Score.ToString(),
-                    order_submission_time = e.OrderSubmissionTime,
+                    order_submission_time = e.OrderSubmissionTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     appoint_time = e.AppointTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     service_time = e.ServiceTime.HasValue ? e.ServiceTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
                     order_status = e.OrderStatusEnum.ToString(),
