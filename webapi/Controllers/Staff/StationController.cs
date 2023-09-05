@@ -118,12 +118,12 @@ namespace webapi.Controllers.Staff
                        manufacturing_date = b.ManufacturingDate.ToString("yyyy-MM-dd HH:mm:ss"),
                        battery_type_id = b.batteryType.Name,
                        isEditing = false
-                   })
-                   .Skip(offset)
+                   });
+                  
+            var totalNum = query.Count();
+            var data = query.Skip(offset)
                    .Take(limit)
                    .ToList();
-
-            var totalNum = query.Count();
             var responseObj = new
             {
                 code = 0,
