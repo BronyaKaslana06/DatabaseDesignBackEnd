@@ -112,7 +112,7 @@ namespace webapi.Controllers.Staff
                        available_status = ((AvailableStatusEnum)b.AvailableStatus).ToString(),
                        current_capacity = b.CurrentCapacity,
                        curr_charge_times = b.CurrChargeTimes,
-                       manufacturing_date = b.ManufacturingDate.ToString("yyyy-MM-dd HH-mm-ss"),
+                       manufacturing_date = b.ManufacturingDate.ToString("yyyy-MM-dd HH:mm:ss"),
                        battery_type_id = b.batteryType.Name,
                        isEditing = false
                    })
