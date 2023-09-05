@@ -66,19 +66,17 @@ namespace webapi.Controllers.Admin
                     battery_id_off = sl.batteryOff.BatteryId.ToString(),
                     evaluations = sl.Evaluation,
                     score = sl.Score /*== -1 ? "未评分" : sl.Score.ToString()*/,
-                  //cost = sl.ServiceFee
-                })
-                .Skip(offset)
+                    //cost = sl.ServiceFee
+                });
+            var totalNum = query.Count();
+            var data = query.Skip(offset)
                 .Take(limit)
                 .DefaultIfEmpty()
                 .ToList();
-
-            var totalNum = query.Count();
-
             var responseObj = new
             {
                 totalData = totalNum,
-                data = query,
+                data,
             };
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
         }

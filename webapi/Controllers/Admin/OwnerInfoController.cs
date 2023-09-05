@@ -120,17 +120,17 @@ namespace webapi.Controllers.Admin
                     gender = j.vo.Gender,
                     email = j.vo.Email,
                     phone_number = j.vo.PhoneNumber
-                })
-                .Skip(offset)
-                .Take(limit)
-                .ToList();
+                });
+                
 
             var totalNum = query.Count();
-
+            var data = query.Skip(offset)
+                .Take(limit)
+                .ToList();
             var responseObj = new
             {
                 totalData = totalNum,
-                data = query,
+                data,
             };
 
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");

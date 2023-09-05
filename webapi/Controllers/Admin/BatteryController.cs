@@ -61,21 +61,20 @@ namespace webapi.Controllers.Admin
                        name = battery_status == 0 ? b.switchStation.StationName : b.vehicle.PlateNumber,
                        Similarity = battery_status == 0 ? Calculator.ComputeSimilarityScore(b.switchStation.StationName, keyword) : Calculator.ComputeSimilarityScore(b.vehicle.PlateNumber == null ? "" : b.vehicle.PlateNumber, keyword),
                        isEditing = false
-                   })
-                   .Skip(offset)
-                   .Take(limit)
-                   .ToList();
+                   }).ToList();
+            var totalNum = query.Count();
             var filteredItems = query
-                    .Where(item => item.Similarity >= (double)0)
-                    .OrderByDescending(item => item.Similarity);
+                .Where(item => item.Similarity >= (double)0)
+                .OrderByDescending(item => item.Similarity);
+            var temp = filteredItems.Skip(offset)
+                   .Take(limit);
 
-            var totalNum = filteredItems.Count();
             var responseObj = new
             {
                 code = 0,
                 msg = "success",
                 totaldata = totalNum,
-                data = filteredItems,
+                data = temp,
             };
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
         }
