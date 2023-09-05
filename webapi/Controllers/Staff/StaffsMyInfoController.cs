@@ -201,11 +201,11 @@ namespace webapi.Controllers.Staff
                     maintenance_items_id = e.MaintenanceItemId.ToString(),
                     maintenance_location = e.MaintenanceLocation,
                     remarks = e.Note != null ? e.Note.ToString() : "",
-                    evaluations = e.Evaluation != null ? e.Evaluation.ToString() : "",
+                    evaluations = e.Evaluation != null ? e.Evaluation : "",
                     score = e.Score.ToString(),
-                    order_submission_time = e.OrderSubmissionTime.ToString(),
-                    appoint_time = e.AppointTime.ToString(),
-                    service_time = e.ServiceTime.HasValue ? e.ServiceTime.ToString() : "",
+                    order_submission_time = e.OrderSubmissionTime,
+                    appoint_time = e.AppointTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    service_time = e.ServiceTime.HasValue ? e.ServiceTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
                     order_status = e.OrderStatusEnum.ToString(),
                     title = e.Title
                 });
