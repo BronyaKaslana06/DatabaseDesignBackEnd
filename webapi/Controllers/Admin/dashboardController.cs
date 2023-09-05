@@ -1,6 +1,7 @@
 
 using EntityFramework.Context;
 using EntityFramework.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -19,6 +20,8 @@ namespace webapi.Controllers.Admin
         {
             this.context = modelContext;
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult<object> Message()
         {
@@ -36,6 +39,8 @@ namespace webapi.Controllers.Admin
                 });
         }
 
+
+        [Authorize]
         [HttpGet]
         public ActionResult<object> stats()
         {
@@ -67,6 +72,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult city_stats(int top_count=int.MaxValue)
         {
@@ -104,6 +111,8 @@ namespace webapi.Controllers.Admin
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             return NewContent();
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult time_span_stats(string query_range="")
         {
@@ -170,6 +179,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult vehicles(int top_count=int.MaxValue)
         {
@@ -190,6 +201,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult batteries()
         {
@@ -215,6 +228,8 @@ namespace webapi.Controllers.Admin
             return Content(JsonConvert.SerializeObject(obj), "application/json");
 
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult week_benefits()
         {
@@ -249,6 +264,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult growth()
         {

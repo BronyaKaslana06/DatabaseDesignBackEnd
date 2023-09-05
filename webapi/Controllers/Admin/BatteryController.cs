@@ -8,6 +8,7 @@ using Idcreator;
 using webapi.Tools;
 using System.Transactions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Admin
 {
@@ -22,6 +23,7 @@ namespace webapi.Controllers.Admin
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<Battery>> battery(int pageIndex = 0, int pageSize = 0, string available_status = "", string battery_type_id = "", int battery_status = 0, string keyword = "")
         {

@@ -10,6 +10,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.DirectoryServices.ActiveDirectory;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Owner
 {
@@ -24,6 +25,7 @@ namespace webapi.Controllers.Owner
             _context = context;
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult<IEnumerable<Vehicle>> car_information(string vehicle_id = "")
         {
@@ -71,7 +73,8 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(a), "application/json");
             }
         }
-       
+
+        [Authorize]
         [HttpGet]
         public ActionResult<IEnumerable<MaintenanceItem>> query(string maintenance_item_id = "")
         {
@@ -174,6 +177,8 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(errorResponse), "application/json");
             }
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult<IEnumerable<MaintenanceItem>> rough_query(string vehicle_id = "", string start_time = "", string end_time = "")
         {
@@ -213,6 +218,8 @@ namespace webapi.Controllers.Owner
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult<IEnumerable<Vehicle>> own_query(string owner_id = "")
         {
@@ -262,6 +269,8 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
+
+        [Authorize]
         [HttpGet]
         public ActionResult<IEnumerable<Vehicle>> info_query(string vehicle_id = "")
         {
@@ -312,6 +321,8 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
+
+        [Authorize]
         [HttpPost]
         public IActionResult submit([FromBody] dynamic _acm)
         {
@@ -368,7 +379,8 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
-       
+
+        [Authorize]
         [HttpPatch]
         public IActionResult update([FromBody] dynamic _acm)
         {
@@ -404,6 +416,8 @@ namespace webapi.Controllers.Owner
             
             return NewContent(0,"success");
         }
+
+        [Authorize]
         [HttpDelete]
         public IActionResult delete(string maintenance_item_id = "")
         {

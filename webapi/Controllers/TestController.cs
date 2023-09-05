@@ -6,21 +6,19 @@ namespace webapi.Controllers;
 
 [Route("[controller]/[action]")]
 [ApiController]
-public class AccountController : ControllerBase
+public class TestController : ControllerBase
 {
     private readonly JwtHelper _jwtHelper;
 
-    public AccountController(JwtHelper jwtHelper)
+    public TestController(JwtHelper jwtHelper)
     {
         _jwtHelper = jwtHelper;
     }
-
     [HttpGet]
-    public ActionResult<string> GetToken()
+    public ActionResult<string> value()
     {
-        return _jwtHelper.CreateToken("1","123456");
+        return "Without Authorize";
     }
-
     [Authorize]
     [HttpGet]
     public ActionResult<string> GetTest()

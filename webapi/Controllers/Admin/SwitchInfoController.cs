@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using Oracle.ManagedDataAccess.Client;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Admin
 {
@@ -25,6 +26,7 @@ namespace webapi.Controllers.Admin
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<SwitchLog>> GetPage_(int page_index, int page_size, string switch_service_id = "", string employee_id = "", string vehicle_id = "")
         {
@@ -78,6 +80,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
         }
+
+        [Authorize]
         [HttpDelete]
         public IActionResult DeleteLog(string switch_service_id = "")
         {

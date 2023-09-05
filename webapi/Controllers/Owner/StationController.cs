@@ -10,6 +10,7 @@ using System.Globalization;
 using static System.Collections.Specialized.BitVector32;
 using System.Drawing.Printing;
 using webapi.Tools;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Owner
 {
@@ -24,6 +25,7 @@ namespace webapi.Controllers.Owner
             _context = context;
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult<IEnumerable<SwitchStation>> StationAround(double? longitude = null, double? latitude = null, int info_num = 0, int info_index = 0)
         {
@@ -66,6 +68,7 @@ namespace webapi.Controllers.Owner
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
 
+        [Authorize]
         [HttpGet("detailed-infos")]
         public ActionResult<IEnumerable<SwitchStation>> StationDetailed(string station_id = "", double? longitude = null, double? latitude = null)
         {
@@ -124,6 +127,8 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
         }
+
+        [Authorize]
         [HttpGet("keyword")]
         public ActionResult<IEnumerable<SwitchStation>> StationName(string keyword = "")
         {

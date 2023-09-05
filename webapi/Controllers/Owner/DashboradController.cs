@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using System.Transactions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Owner
 {
@@ -25,6 +26,7 @@ namespace webapi.Controllers.Owner
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("min_capacity")]
         public ActionResult<IEnumerable<Vehicle>> current_quantity(string user_id = "")
         {
@@ -63,6 +65,8 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(a), "application/json");
             }
         }
+
+        [Authorize]
         [HttpGet("base_info")]
         public ActionResult<IEnumerable<VehicleOwner>> InfoAna(string user_id = "")
         {
@@ -103,6 +107,8 @@ namespace webapi.Controllers.Owner
                 return Content(JsonConvert.SerializeObject(a), "application/json");
             }
         }
+
+        [Authorize]
         [HttpGet("monthlyswitch")]
         public ActionResult<IEnumerable<VehicleOwner>> MonthlyAna(string user_id = "", string query_range = "year")
         {

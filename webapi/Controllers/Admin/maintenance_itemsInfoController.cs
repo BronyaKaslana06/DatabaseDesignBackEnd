@@ -1,5 +1,6 @@
 ﻿using EntityFramework.Context;
 using EntityFramework.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
@@ -32,6 +33,8 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// <param name="maintenance_location"></param>    //只要包含即可
         /// <param name="order_status"></param>    ///取值为 待接单 待完成 待评分 已完成 
         /// <returns></returns>
+
+        [Authorize]
         [HttpGet]    
         public ActionResult<object> Message(int pageIndex, int pageSize, string? maintenance_items_id, string? vehicle_id,
             string? maintenance_location, string? order_status)
@@ -90,6 +93,8 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// </summary>
         /// <param name="Mntnc_Items"></param>
         /// <returns></returns>
+
+        [Authorize]
         [HttpPatch]
         public async Task<ActionResult<string>> Updates([FromBody] mntnc_items_update Mntnc_Items )
         {
@@ -126,6 +131,8 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// </summary>
         /// <param name="maintenance_items_id"></param>
         /// <returns></returns>
+
+        [Authorize]
         [HttpDelete]
         public async Task<ActionResult<string>> Erasure(string maintenance_items_id)
         {
@@ -215,6 +222,8 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
+
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<object>> TableMessage(int pageIndex, int pageSize)
         {
@@ -234,6 +243,8 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
         /// </summary>
         /// <param name="maintenance_item_id"></param>
         /// <returns></returns>
+
+        [Authorize]
         [HttpGet]
         public ActionResult<object> MessageId(string maintenance_item_id)
         {

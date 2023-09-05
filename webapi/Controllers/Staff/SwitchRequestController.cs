@@ -20,6 +20,7 @@ namespace webapi.Controllers.Staff
         {
             _context = context;
         }
+        [Authorize]
         [HttpGet]
         public ActionResult<string> detail(string switch_request_id)
         {
@@ -83,6 +84,7 @@ namespace webapi.Controllers.Staff
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult<string> doortodoor(string station_id, string employee_id, string request_status)
         {
@@ -137,6 +139,7 @@ namespace webapi.Controllers.Staff
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult<string> reservation(string station_id, string request_status)
         {
@@ -184,6 +187,7 @@ namespace webapi.Controllers.Staff
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
 
+        [Authorize]
         [HttpPost]
         public ActionResult<string> receive([FromBody] dynamic _body)
         {
@@ -225,6 +229,7 @@ namespace webapi.Controllers.Staff
             }
         }
 
+        [Authorize]
         [HttpPost]
         public ActionResult<string> submit([FromBody] dynamic _body)
         {

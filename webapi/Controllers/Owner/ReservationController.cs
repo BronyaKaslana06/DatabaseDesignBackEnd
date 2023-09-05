@@ -18,6 +18,7 @@ using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Owner
 {
@@ -32,6 +33,7 @@ namespace webapi.Controllers.Owner
             _context = context;
         }
 
+        [Authorize]
         [HttpPost("switch_request")]
         public ActionResult<string> switch_request([FromBody] dynamic _reservation)
         {
@@ -122,6 +124,7 @@ namespace webapi.Controllers.Owner
             }
         }
 
+        [Authorize]
         [HttpGet("switch_history")]
         public ActionResult<string> switch_history(int pageIndex, int pageSize, string owner_id, string order_status = "ÒÑÍê³É")
         {
@@ -176,6 +179,7 @@ namespace webapi.Controllers.Owner
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
 
+        [Authorize]
         [HttpPost("review")]
         public ActionResult<string> review([FromBody] dynamic _review)
         {
@@ -235,6 +239,7 @@ namespace webapi.Controllers.Owner
             }
         }
 
+        [Authorize]
         [HttpDelete("switch_history")]
         public ActionResult<string> delete_request(string switch_request_id, string owner_id)
         {

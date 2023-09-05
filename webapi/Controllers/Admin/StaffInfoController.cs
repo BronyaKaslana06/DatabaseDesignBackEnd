@@ -12,6 +12,7 @@ using EntityFramework.Context;
 using EntityFramework.Models;
 using Idcreator;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.FileProviders;
 
 namespace webapi.Controllers.Admin
 {
@@ -25,7 +26,7 @@ namespace webapi.Controllers.Admin
         {
             _context = context;
         }
-
+        [Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<Employee>> GetPage(int pageIndex,int pageSize,string? employee_id,string? username,string? gender,string? phone_number,string? salary,string? station_id,string? station_name)
         {
@@ -34,16 +35,14 @@ namespace webapi.Controllers.Admin
             if (offset < 0 || limit <= 0)
                 return BadRequest();
 
-            var rr = employee_id;
-            bool ss = string.IsNullOrEmpty(employee_id);
             var query = _context.Employees
-            .Where(e => (string.IsNullOrEmpty(employee_id) || e.EmployeeId == Convert.ToInt64(employee_id)) &&
+            .Where(e => (string.IsNullOrEmpty(employee_id) || e.EmployeeId.ToString() == employee_id) &&
                 (string.IsNullOrEmpty(username) || e.UserName.Contains(username)) &&
                 (string.IsNullOrEmpty(gender) || e.Gender == gender) &&
                 (string.IsNullOrEmpty(phone_number) || e.PhoneNumber == phone_number) &&
                 (string.IsNullOrEmpty(salary) || e.Salary.ToString() == salary) &&
-                (string.IsNullOrEmpty(station_id) || e.switchStation.StationId == Convert.ToInt64(station_id)) &&
-                (string.IsNullOrEmpty(station_name) || e.switchStation.StationName.Contains(station_name))
+                (string.IsNullOrEmpty(station_id) || e.switchStation==null || e.switchStation.StationId == Convert.ToInt64(station_id)) &&
+                (string.IsNullOrEmpty(station_name) || e.switchStation == null || e.switchStation.StationName.Contains(station_name))
             ).Select(f => new
             {
                 employee_id=f.EmployeeId,
@@ -51,8 +50,8 @@ namespace webapi.Controllers.Admin
                 gender=f.Gender,
                 phone_number=f.PhoneNumber,
                 salary=f.Salary,
-                station_id=f.switchStation.StationId,
-                station_name=f.switchStation.StationName
+                station_id= f.switchStation == null? -1:f.switchStation.StationId,
+                station_name= f.switchStation == null ? string.Empty : f.switchStation.StationName
             })
             .OrderBy(h=>h.employee_id)
             .Skip(offset)
@@ -71,7 +70,8 @@ namespace webapi.Controllers.Admin
 
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
-
+        
+        [Authorize]
         [HttpPatch]
         public IActionResult PutStaff([FromBody] dynamic _param)
         {
@@ -114,7 +114,8 @@ namespace webapi.Controllers.Admin
 
             return NoContent();
         }
-
+        
+        [Authorize]
         [HttpPost]
         public ActionResult<string> PostStaff([FromBody] dynamic _employee)
         {
@@ -170,7 +171,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
-
+        
+        [Authorize]
         [HttpDelete]
         public IActionResult DeleteStaff(string employee_id)
         {
