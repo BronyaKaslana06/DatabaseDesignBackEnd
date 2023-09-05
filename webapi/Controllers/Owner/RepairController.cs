@@ -101,10 +101,8 @@ namespace webapi.Controllers.Owner
                         }
                 };
                 var filteredItems = _context.MaintenanceItems
-                    .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
-                    .Join(_context.Vehicles, miEmp => miEmp.MaintenanceItem.vehicle.VehicleId, veh => veh.VehicleId, (miEmp, veh) => new { miEmp.MaintenanceItem, miEmp.Employee, Vehicle = veh })
+                    .Join(_context.Vehicles, mi => mi.vehicle.VehicleId, veh => veh.VehicleId,(mi, veh) => new { MaintenanceItem = mi, Vehicle = veh })
                     .Where(joinedData => maintenance_item_id == "" || joinedData.MaintenanceItem.MaintenanceItemId == id)
-                    .OrderBy(joinedData => joinedData.MaintenanceItem.MaintenanceItemId)
                     .Select(joinedData => new
                     {
                         maintenance_location = joinedData.MaintenanceItem.MaintenanceLocation,
@@ -126,7 +124,6 @@ namespace webapi.Controllers.Owner
                     .Join(_context.Employees, miEmp => miEmp.Employee, emp => emp, (miEmp, emp) => new { miEmp.MaintenanceItem, Employee = emp })
                     .Join(_context.Vehicles, miEmp => miEmp.MaintenanceItem.vehicle.VehicleId, veh => veh.VehicleId, (miEmp, veh) => new { miEmp.MaintenanceItem, miEmp.Employee, Vehicle = veh })
                     .Where(joinedData => maintenance_item_id == "" || joinedData.MaintenanceItem.MaintenanceItemId == id)
-                    .OrderBy(joinedData => joinedData.MaintenanceItem.MaintenanceItemId)
                     .Select(joinedData => new
                     {
                         maintenance_location = joinedData.MaintenanceItem.MaintenanceLocation,
