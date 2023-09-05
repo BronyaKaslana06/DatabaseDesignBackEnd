@@ -46,6 +46,17 @@ namespace webapi.Controllers.Admin
         [HttpGet("message")]
         public ActionResult<IEnumerable<Employee>> GetPage_()
         {
+            // Random rand=new Random();
+            // foreach(var k in _context.News.ToList())
+            // {
+            //     k.PublishTime= k.PublishTime
+            //     .AddHours(rand.NextDouble()*24)
+            //     .AddSeconds(rand.NextDouble()*60)
+            //     .AddMinutes(rand.NextDouble()*60)
+            //     .AddDays(rand.NextDouble() * -60);
+            //     k.administrator = _context.Administrators.ToList()[rand.Next(1, 5)];
+            //     _context.SaveChanges();
+            // }
             var query = _context.News.OrderByDescending(a=>a.PublishTime).Select(
                 e => new
                 {
