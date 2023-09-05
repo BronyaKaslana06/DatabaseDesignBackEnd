@@ -158,7 +158,8 @@ namespace webapi.Controllers.Owner
                     switch_date = sr.Date.ToString("yyyy-MM-dd"),
                     switch_period = EnumDisplay.GetDisplayNameFromEnum(sr.PeriodEnum),
                     order_type = sr.requestStatusEnum.ToString()
-                }).Skip(offset).Take(limit);
+                })
+                .OrderByDescending(sr=>sr.request_time).Skip(offset).Take(limit);
 
             var totalData = query.Count();
             var data = query.ToList();
