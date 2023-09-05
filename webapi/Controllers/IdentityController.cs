@@ -68,7 +68,7 @@ namespace webapi.Controllers
                             username = staff.UserName,
                             phone_number = staff.PhoneNumber,
                             gender = staff.Gender,
-                            station_id = staff.switchStation.StationId,
+                            station_id = staff.switchStation == null ? 0 : staff.switchStation.StationId,
                             position = (PositionEnum)staff.Position,
                             email = staff.Email
                         });
