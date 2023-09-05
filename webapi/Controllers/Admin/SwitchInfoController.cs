@@ -60,11 +60,12 @@ namespace webapi.Controllers.Admin
                     switch_service_id = sl.SwitchServiceId.ToString(),
                     employee_id = sl.switchrequest.employee.EmployeeId.ToString(),
                     vehicle_id = sl.switchrequest.vehicle.VehicleId.ToString(),
+                    ownerid = sl.switchrequest.vehicle.vehicleOwner.OwnerId,
                     switch_time = sl.SwitchTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     battery_id_on = sl.batteryOn.BatteryId.ToString(),
                     battery_id_off = sl.batteryOff.BatteryId.ToString(),
                     evaluations = sl.Evaluation,
-                    score = sl.Score
+                    score = sl.Score == -1 ? "未评分" : sl.Score.ToString()
                 })
                 .Skip(offset)
                 .Take(limit)
