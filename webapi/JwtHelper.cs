@@ -41,7 +41,7 @@ namespace webapi
                 _configuration["Jwt:Audience"],   //Audience
                 claims,                          //Claims,
                 DateTime.Now,                    //notBefore
-                DateTime.Now.AddSeconds(30),    //expires
+                DateTime.Now.AddMinutes(30),    //expires
                 signingCredentials               //Credentials
             );
 
