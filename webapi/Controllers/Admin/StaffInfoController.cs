@@ -58,7 +58,7 @@ namespace webapi.Controllers.Admin
             .Take(limit)
             .ToList();
 
-            var totalData = query.Count() + 25 * pageIndex - 25;
+            var totalData = query.Count();
             var data = query;
 
             if(data == null)

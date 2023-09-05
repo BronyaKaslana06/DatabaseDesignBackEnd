@@ -77,7 +77,7 @@ namespace webapi.Controllers.Admin
 
             var responseObj = new
             {
-                totalData = totalNum + 25 * page_index - 25,
+                totalData = totalNum,
                 data = query,
             };
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");

@@ -74,7 +74,7 @@ namespace webapi.Controllers.Admin
             {
                 code = 0,
                 msg = "success",
-                totaldata = totalNum + 25 * pageIndex - 25,
+                totaldata = totalNum,
                 data = filteredItems,
             };
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
