@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using System.Transactions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Admin
 {
@@ -25,6 +26,7 @@ namespace webapi.Controllers.Admin
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<Employee>> GetPage_(int pageIndex=1, int pageSize=1, string station_name = "", long station_id = -1,string faliure_status="")
         {
@@ -108,6 +110,7 @@ namespace webapi.Controllers.Admin
             return Content(JsonConvert.SerializeObject(obj), "application/json");
         }
 
+        [Authorize]
         [HttpPatch]
         public IActionResult PutStaff([FromBody] dynamic _station)
         {
@@ -161,6 +164,7 @@ namespace webapi.Controllers.Admin
             return NewContent();
         }
 
+        [Authorize]
         [HttpPost]
         public ActionResult<string> PostStaff([FromBody] dynamic _station)
         {
@@ -227,6 +231,7 @@ namespace webapi.Controllers.Admin
             }
         }
 
+        [Authorize]
         [HttpDelete]
         public IActionResult DeleteStaff(long station_id)
         {

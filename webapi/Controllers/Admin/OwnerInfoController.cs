@@ -16,6 +16,7 @@ using EntityFramework.Context;
 using EntityFramework.Models;
 using Idcreator;
 using System.Transactions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Admin
 {
@@ -29,6 +30,8 @@ namespace webapi.Controllers.Admin
         {
             _context = context;
         }
+
+        [Authorize]
         [HttpGet("message")]
         public ActionResult<IEnumerable<VehicleOwner>> GetPage(int pageIndex, int pageSize)
         {
@@ -71,6 +74,8 @@ namespace webapi.Controllers.Admin
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
 
         }
+
+        [Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<VehicleOwner>> GetPage_(int pageIndex, int pageSize, string owner_id = "", string username = "", string gender = "", string phone_number = "", string address = "", string password = "")
         {
@@ -120,7 +125,7 @@ namespace webapi.Controllers.Admin
                 .Take(limit)
                 .ToList();
 
-            var totalNum = _context.VehicleOwners.Count();
+            var totalNum = query.Count();
 
             var responseObj = new
             {
@@ -131,6 +136,7 @@ namespace webapi.Controllers.Admin
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
         }
 
+        [Authorize]
         [HttpPatch]
         public IActionResult PutOwner([FromBody] dynamic _param)
         {
@@ -164,6 +170,7 @@ namespace webapi.Controllers.Admin
             return NewContent();
         }
 
+        [Authorize]
         [HttpPost]
         public ActionResult<string> PostOwner([FromBody] dynamic _owner)
         {
@@ -237,6 +244,7 @@ namespace webapi.Controllers.Admin
             }
         }
 
+        [Authorize]
         [HttpDelete]
         public IActionResult DeleteOwner(string owner_id)
         {

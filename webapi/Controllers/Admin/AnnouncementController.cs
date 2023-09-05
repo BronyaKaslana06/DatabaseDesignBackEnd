@@ -5,6 +5,7 @@ using System.Data;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using Idcreator;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Admin
 {
@@ -18,6 +19,8 @@ namespace webapi.Controllers.Admin
         {
             _context = context;
         }
+
+        [Authorize]
         [HttpGet("newest")]
         public ActionResult<IEnumerable<Employee>> GetLatestAnnouncements()
         {
@@ -42,7 +45,7 @@ namespace webapi.Controllers.Admin
             return Content(JsonConvert.SerializeObject(response), "application/json");
         }
 
-
+        [Authorize]
         [HttpGet("message")]
         public ActionResult<IEnumerable<Employee>> GetPage_()
         {
@@ -76,6 +79,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
+
+        [Authorize]
         [HttpGet("query")]
         public ActionResult Query(string title="",string publisher="",string publish_time="",int publish_pos=-1,string contents="")
         {
@@ -121,6 +126,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(a), "application/json");
         }
+
+        [Authorize]
         [HttpPost]
         public IActionResult PotAnnouncement([FromBody] dynamic _acm)
         {
@@ -149,6 +156,8 @@ namespace webapi.Controllers.Admin
 
             return NewContent(0, "success");
         }
+
+        [Authorize]
         [HttpPatch]
         public IActionResult PatAnnouncement([FromBody] dynamic _acm)
         {
@@ -181,6 +190,8 @@ namespace webapi.Controllers.Admin
             
             return NewContent(0,"success");
         }
+
+        [Authorize]
         [HttpDelete]
         public IActionResult DelAnnouncement([FromBody] dynamic _acm)
         {

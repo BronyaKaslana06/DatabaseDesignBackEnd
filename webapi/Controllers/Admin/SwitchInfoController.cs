@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using Oracle.ManagedDataAccess.Client;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Admin
 {
@@ -25,6 +26,7 @@ namespace webapi.Controllers.Admin
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<SwitchLog>> GetPage_(int page_index, int page_size, string switch_service_id = "", string employee_id = "", string vehicle_id = "")
         {
@@ -58,18 +60,20 @@ namespace webapi.Controllers.Admin
                     switch_service_id = sl.SwitchServiceId.ToString(),
                     employee_id = sl.switchrequest.employee.EmployeeId.ToString(),
                     vehicle_id = sl.switchrequest.vehicle.VehicleId.ToString(),
-                    switch_time = sl.SwitchTime.ToString("yyyy-MM-dd HH-mm-ss"),
+                    ownerid = sl.switchrequest.vehicle.vehicleOwner.OwnerId,
+                    switch_time = sl.SwitchTime.ToString("yyyy-MM-dd HH:mm:ss"),
                     battery_id_on = sl.batteryOn.BatteryId.ToString(),
                     battery_id_off = sl.batteryOff.BatteryId.ToString(),
                     evaluations = sl.Evaluation,
-                    score = sl.Score
+                    score = sl.Score /*== -1 ? "未评分" : sl.Score.ToString()*/,
+                  //cost = sl.ServiceFee
                 })
                 .Skip(offset)
                 .Take(limit)
                 .DefaultIfEmpty()
                 .ToList();
 
-            var totalNum = _context.SwitchLogs.Count();
+            var totalNum = query.Count();
 
             var responseObj = new
             {
@@ -78,6 +82,8 @@ namespace webapi.Controllers.Admin
             };
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
         }
+
+        [Authorize]
         [HttpDelete]
         public IActionResult DeleteLog(string switch_service_id = "")
         {

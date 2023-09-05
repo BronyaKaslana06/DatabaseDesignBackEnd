@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Transactions;
 using static ASPNETCoreWebAPI_Layer.Controllers.maintenance_itemsInfoController;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ASPNETCoreWebAPI_Layer.Controllers
 {
@@ -67,7 +68,12 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
                 maintenance_items_id = e.MaintenanceItemId.ToString(),
                 vehicle_id = e.vehicle.VehicleId.ToString(),
                 maintenance_location = e.MaintenanceLocation,
-                order_status = e.OrderStatusEnum.ToString()
+                order_status = e.OrderStatusEnum.ToString(),
+                owner_id = e.vehicle.vehicleOwner.OwnerId.ToString(),
+                employees =  e.employees.Select(employees => new
+                {
+                    employee_id = employees.EmployeeId.ToString()
+                }).ToArray()
             });
             return Ok(res);
         }
@@ -252,7 +258,12 @@ namespace ASPNETCoreWebAPI_Layer.Controllers
                     evaluations = f.Evaluation == null ? "" : f.Evaluation.ToString(),
                     maintenance_location = f.MaintenanceLocation,
                     order_status = f.OrderStatusEnum.ToString(),
-                    score = f.Score.ToString()
+                    score = f.Score.ToString(),
+                    owner_id = f.vehicle.vehicleOwner.OwnerId.ToString(),
+                    employees = f.employees.Select(employees => new
+                    {
+                        employee_id = employees.EmployeeId.ToString()
+                    }).ToArray()
                 };
                 return Ok(res);
             }

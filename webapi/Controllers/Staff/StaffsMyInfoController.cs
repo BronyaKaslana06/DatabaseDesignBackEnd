@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using System.Transactions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Staff
 {
@@ -25,6 +26,7 @@ namespace webapi.Controllers.Staff
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("{employeeId}")]
         public ActionResult<IEnumerable<Employee>> GetOwner(long employeeId)
         {
@@ -57,6 +59,7 @@ namespace webapi.Controllers.Staff
             }
         }
 
+        [Authorize]
         [HttpPatch("{employeeId}/edit")]
         public IActionResult ChangeData(long employeeId, [FromBody] dynamic param)
         {
@@ -90,6 +93,8 @@ namespace webapi.Controllers.Staff
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         /// <returns></returns>     
+
+        [Authorize]
         [HttpGet("switch-records/query")]
         public ActionResult<object> SRQuery(string employee_id, string? switch_type, string? startDate, string? endDate)
         {
@@ -142,6 +147,8 @@ namespace webapi.Controllers.Staff
         /// <param name="startDate"></param>   //已完成或待评分 维修项按照serviceTime查找，其他按照appointTime查找
         /// <param name="endDate"></param>
         /// <returns></returns>
+
+        [Authorize]
         [HttpGet("repair-records/query")]
         public ActionResult<object> RRQuery(string employee_id, string? maintenance_location, string? order_status,
             string? startDate, string? endDate)
@@ -218,6 +225,8 @@ namespace webapi.Controllers.Staff
             }
         }
 
+
+        [Authorize]
         [HttpGet("repair-records/MessageDetail")]
         public ActionResult<object> RRQueryDetail(string maintenance_item_id)
         {

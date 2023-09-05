@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using EntityFramework.Context;
 using EntityFramework.Models;
 using System.Transactions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers.Owner
 {
@@ -25,6 +26,7 @@ namespace webapi.Controllers.Owner
             _context = context;
         }
 
+        [Authorize]
         [HttpGet("{ownerId}/message")]
         public ActionResult<IEnumerable<Employee>> GetOwner(long ownerId)
         {
@@ -54,6 +56,7 @@ namespace webapi.Controllers.Owner
             } 
         }
 
+        [Authorize]
         [HttpPatch("{ownerId}/information")]
         public IActionResult ChangeData(long ownerId,[FromBody] dynamic param)
         {

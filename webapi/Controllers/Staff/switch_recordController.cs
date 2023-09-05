@@ -1,4 +1,5 @@
 ﻿using EntityFramework.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
@@ -17,6 +18,7 @@ namespace webapi.Controllers.Staff
             modelContext = context;
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult<object> itemDetail(string switch_record_id)
         {
