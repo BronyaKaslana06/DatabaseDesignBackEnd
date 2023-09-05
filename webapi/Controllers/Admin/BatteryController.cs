@@ -54,7 +54,7 @@ namespace webapi.Controllers.Admin
                        available_status = ((AvailableStatusEnum)b.AvailableStatus).ToString(),
                        current_capacity = b.CurrentCapacity,
                        curr_charge_times = b.CurrChargeTimes,
-                       manufacturing_date = b.ManufacturingDate.ToString("yyyy-MM-dd HH-mm-ss"),
+                       manufacturing_date = b.ManufacturingDate.ToString("yyyy-MM-dd HH:mm:ss"),
                        battery_type_id = b.batteryType.Name,
                        name = battery_status == 0 ? b.switchStation.StationName : b.vehicle.PlateNumber,
                        Similarity = battery_status == 0 ? Calculator.ComputeSimilarityScore(b.switchStation.StationName, keyword) : Calculator.ComputeSimilarityScore(b.vehicle.PlateNumber == null ? "" : b.vehicle.PlateNumber, keyword),
