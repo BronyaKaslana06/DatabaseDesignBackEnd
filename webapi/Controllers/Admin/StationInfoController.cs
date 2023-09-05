@@ -38,26 +38,26 @@ namespace webapi.Controllers.Admin
                 status=true;
             else if(faliure_status=="否")
                 status=false;
-         
+
             var query = _context.SwitchStations
             .Where(e =>
             (e.StationId == station_id || station_id == -1)
-            && e.StationName==null? station_name=="":e.StationName.Contains(station_name)
-            && ((status!=null&& e.FailureStatus == status) || faliure_status == ""))
-            .Select(e=>new{
-                
-                station_id=e.StationId,
-                station_name=e.StationName,
-                longitude=e.Longitude,
-                latitude=e.Latitude,
-                faliure_status=e.FailureStatus==true?"是":"否",
-                battery_capacity=e.BatteryCapacity,
-                available_battery_count=e.AvailableBatteryCount,
-                electricity_fee=e.ElectricityFee,
-                service_fee=e.ServiceFee,
-                station_address=e.Address
-            }).Skip(offset)
-            .Take(limit).ToList();
+            && e.StationName == null ? station_name == "" : e.StationName.Contains(station_name)
+            && ((status != null && e.FailureStatus == status) || faliure_status == ""))
+            .Select(e => new {
+                station_id = e.StationId,
+                station_name = e.StationName,
+                longitude = e.Longitude,
+                latitude = e.Latitude,
+                faliure_status = e.FailureStatus == true ? "是" : "否",
+                battery_capacity = e.BatteryCapacity,
+                available_battery_count = e.AvailableBatteryCount,
+                electricity_fee = e.ElectricityFee,
+                service_fee = e.ServiceFee,
+                station_address = e.Address
+            }).ToList();
+            int count = query.Count();
+            query=query.Skip(offset).Take(limit).ToList();
 
 
 //             int offset = (pageIndex - 1) * pageSize;
@@ -102,7 +102,7 @@ namespace webapi.Controllers.Admin
             {
                 code=0,
                 msg="success",
-                totalData = query.Count(),
+                totalData = count,
                 data = query,
             };
             return Content(JsonConvert.SerializeObject(obj), "application/json");
