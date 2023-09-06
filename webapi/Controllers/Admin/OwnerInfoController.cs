@@ -31,7 +31,7 @@ namespace webapi.Controllers.Admin
             _context = context;
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("message")]
         public ActionResult<IEnumerable<VehicleOwner>> GetPage(int pageIndex, int pageSize)
         {
@@ -49,33 +49,33 @@ namespace webapi.Controllers.Admin
                 return Content(JsonConvert.SerializeObject(errorResponse), "application/json");
             }
             var query = _context.VehicleOwners
-                    .OrderBy(vo => vo.OwnerId)
-                    .Select(vo => new
-                    {                         
-                        owner_id = vo.OwnerId.ToString(),
-                        username = vo.Username,
-                        gender = vo.Gender,
-                        phone_number = vo.PhoneNumber,
-                        address = string.Join(", ", vo.ownerpos.Select(pos => pos.Address)),
-                        password = vo.Password
-                    })
-                    .Skip(offset)
+                    .Join(_context.OwnerPos, vo => vo.OwnerId, op => op.OwnerId, (vo, op) => new { vo, op })
+                    .OrderBy(j => j.vo.OwnerId)
+                    .Select(j => new
+                    {
+                        owner_id = j.vo.OwnerId.ToString(),
+                        username = j.vo.Username,
+                        gender = j.vo.Gender,
+                        phone_number = j.vo.PhoneNumber,
+                        address = string.Join(", ", j.vo.ownerpos.Select(pos => pos.Address)),
+                        password = j.vo.Password
+                    });
+            var totalNum = query.Count();
+            var data = query.Skip(offset)
                     .Take(limit)
                     .ToList();
-
-            var totalNum = _context.VehicleOwners.Count();
             var responseObj = new
             {
                 code = 0,
                 msg = "success",
                 totalData = totalNum,
-                data = query,
+                data,
             };
             return Content(JsonConvert.SerializeObject(responseObj), "application/json");
 
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<VehicleOwner>> GetPage_(int pageIndex, int pageSize, string owner_id = "", string username = "", string gender = "", string phone_number = "", string address = "", string password = "")
         {
