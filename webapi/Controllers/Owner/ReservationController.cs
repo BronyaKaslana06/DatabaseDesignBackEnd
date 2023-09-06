@@ -143,9 +143,10 @@ namespace webapi.Controllers.Owner
             else
                 return NotFound("Order_type error.");
 
-            var query = (
+            var q = (
                 from sr in _context.SwitchRequests
                 where sr.vehicle.vehicleOwner.OwnerId == long.Parse(owner_id) && sr.RequestStatus == (int)Ordertype
+                orderby sr.RequestTime descending
                 select new
                 {
                     switch_request_id = sr.SwitchRequestId,
@@ -161,10 +162,11 @@ namespace webapi.Controllers.Owner
                     switch_date = sr.Date.ToString("yyyy-MM-dd"),
                     switch_period = EnumDisplay.GetDisplayNameFromEnum(sr.PeriodEnum),
                     order_type = sr.requestStatusEnum.ToString()
-                })
-                .OrderByDescending(sr=>sr.request_time).Skip(offset).Take(limit);
+                });
 
-            var totalData = query.Count();
+            var totalData = q.Count();
+            var query = q.Skip(offset).Take(limit);
+            
             var data = query.ToList();
 
             if (data == null)
