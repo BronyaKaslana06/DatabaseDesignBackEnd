@@ -145,9 +145,9 @@ namespace webapi.Controllers.Admin
             var query = context.SwitchLogs
            .Where(a => a.SwitchTime.CompareTo(selectTime) >= 0)
            .GroupBy(a =>
-           mode == 1 ? a.switchrequest.RequestTime.Month : (
-           mode == 2 ? a.switchrequest.RequestTime.Day :
-           (mode == 3 ? a.switchrequest.RequestTime.Hour : a.switchrequest.RequestTime.Year))
+           mode == 1 ? a.SwitchTime.Month : (
+           mode == 2 ? a.SwitchTime.Day :
+           (mode == 3 ? a.SwitchTime.Hour : a.SwitchTime.Year))
            )
            .OrderBy(a => a.Key)
            .Select(a => new

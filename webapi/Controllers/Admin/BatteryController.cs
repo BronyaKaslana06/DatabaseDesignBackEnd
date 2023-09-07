@@ -52,7 +52,7 @@ namespace webapi.Controllers.Admin
                    (available_status == "" || b.AvailableStatus == availableStatusValue))
                    .Select(b => new
                    {
-                       battery_id = b.BatteryId.ToString(),
+                       battery_id = b.BatteryId,
                        available_status = ((AvailableStatusEnum)b.AvailableStatus).ToString(),
                        current_capacity = b.CurrentCapacity,
                        curr_charge_times = b.CurrChargeTimes,
@@ -62,10 +62,12 @@ namespace webapi.Controllers.Admin
                        Similarity = battery_status == 0 ? Calculator.ComputeSimilarityScore(b.switchStation.StationName, keyword) : Calculator.ComputeSimilarityScore(b.vehicle.PlateNumber == null ? "" : b.vehicle.PlateNumber, keyword),
                        isEditing = false
                    }).ToList();
-            var totalNum = query.Count();
+            
             var filteredItems = query
                 .Where(item => item.Similarity >= (double)0)
-                .OrderByDescending(item => item.Similarity);
+                .OrderByDescending(item => item.Similarity)
+                .ThenBy(item=>item.battery_id);
+            var totalNum = filteredItems.Count();
             var temp = filteredItems.Skip(offset)
                    .Take(limit);
 
