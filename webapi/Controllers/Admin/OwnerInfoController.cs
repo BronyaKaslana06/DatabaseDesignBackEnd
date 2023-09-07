@@ -31,7 +31,6 @@ namespace webapi.Controllers.Admin
             _context = context;
         }
 
-        [Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<VehicleOwner>> GetPage_(int pageIndex, int pageSize, string owner_id = "", string username = "", string gender = "", string phone_number = "", string address = "", string password = "")
         {
@@ -66,17 +65,17 @@ namespace webapi.Controllers.Admin
                     EF.Functions.Like(j.vo.PhoneNumber, pattern4) &&
                     EF.Functions.Like(j.op.Address, pattern5) &&
                     EF.Functions.Like(j.vo.Password, pattern6))
-                .OrderBy(j => j.vo.OwnerId)
+                .OrderBy(s => s.vo.OwnerId)
                 .Select(j => new
                 {
-                    owner_id = j.vo.OwnerId.ToString(),
+                    owner_id = j.vo.OwnerId,
                     address = string.Join(", ", j.vo.ownerpos.Select(pos => pos.Address)),
                     username = j.vo.Username,
                     gender = j.vo.Gender,
                     email = j.vo.Email,
                     phone_number = j.vo.PhoneNumber,
                     create_time = j.vo.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
-                });
+                }).ToList();
                 
 
             var totalNum = query.Count();
