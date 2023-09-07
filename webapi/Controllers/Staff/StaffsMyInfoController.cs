@@ -169,7 +169,7 @@ namespace webapi.Controllers.Staff
                     if (Enum.TryParse(order_status, out os_enum))
                     {
                         tmp = tmp.Where(c => c.OrderStatus == (int)os_enum);
-                        if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
+                        if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评价)
                         {
                             tmp = tmp.OrderByDescending(e => e.ServiceTime).ThenBy(c => c.AppointTime);
                         }
@@ -192,7 +192,7 @@ namespace webapi.Controllers.Staff
                     if (DateTime.TryParseExact(startDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result1) &&
                         DateTime.TryParseExact(endDate, format, null, System.Globalization.DateTimeStyles.None, out DateTime result2))
                     {
-                        if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评分)
+                        if (os_enum == OrderStatusEnum.已完成 || os_enum == OrderStatusEnum.待评价)
                             tmp = tmp.Where(e => e.ServiceTime < result2 && e.ServiceTime > result1);
                         else if (os_enum != OrderStatusEnum.未知)
                             tmp = tmp.Where(e => e.AppointTime < result2 && e.AppointTime > result1);

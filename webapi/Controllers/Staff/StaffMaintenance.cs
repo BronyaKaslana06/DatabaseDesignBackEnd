@@ -149,7 +149,7 @@ namespace webapi.Controllers.Staff
                 return NewContent(2, "无此id的维修项");
 
             maintanceItem.ServiceTime = DateTime.Now;
-            maintanceItem.OrderStatusEnum = OrderStatusEnum.待评分;
+            maintanceItem.OrderStatusEnum = OrderStatusEnum.待评价;
             _context.SaveChanges();
             return NewContent();
         }

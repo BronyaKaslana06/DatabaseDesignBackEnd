@@ -40,8 +40,8 @@ public partial class MaintenanceItem
                     return OrderStatusEnum.待接单;
                 case (int)OrderStatusEnum.待完成:
                     return OrderStatusEnum.待完成;
-                case (int)OrderStatusEnum.待评分:
-                    return OrderStatusEnum.待评分;
+                case (int)OrderStatusEnum.待评价:
+                    return OrderStatusEnum.待评价;
                 case (int)OrderStatusEnum.已完成:
                     return OrderStatusEnum.已完成;
                 default:
@@ -69,6 +69,6 @@ public enum OrderStatusEnum
     未知 = 0,
     待接单 = 1,
     待完成 = 2,
-    待评分 = 3,
+    待评价 = 3,
     已完成 = 4
 }
