@@ -1,13 +1,13 @@
 UPDATE SWITCH_REQUEST SR
-SET SR.RequestStatus = 
+SET SR."RequestStatus" = 
     CASE 
-        WHEN SR.switchRequestId NOT IN (SELECT switchRequestId FROM SWITCH_LOG) THEN
+        WHEN SR."SWITCH_REQUEST_ID" NOT IN (SELECT "switchRequestId" FROM SWITCH_LOG) THEN
             CASE 
                 WHEN SR.SWITCH_TYPE = 1 THEN ROUND(DBMS_RANDOM.VALUE(1, 2))
                 WHEN SR.SWITCH_TYPE = 2 THEN 2
-                ELSE SR.RequestStatus
+                ELSE SR."RequestStatus"
             END
-        ELSE SR.RequestStatus
+        ELSE SR."RequestStatus"
     END;
 
 update SWITCH_REQUEST
