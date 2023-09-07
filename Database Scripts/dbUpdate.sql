@@ -31,7 +31,7 @@ where t1.SCORE>=0
 
 
 update BATTERY
-set AVAILABLE_STATUS=DBMS_RANDOM.VALUE(1, 6)
+set AVAILABLE_STATUS=DBMS_RANDOM.VALUE(1, 5)
 where BATTERY_ID in (
 select t1.BATTERY_ID
 from BATTERY t1
@@ -39,10 +39,18 @@ left join VEHICLE t2
 on t1.BATTERY_ID=t2."BatteryId"
 where t2.VEHICLE_ID is null
 );
+
 UPDATE Battery 
-SET AVAILABLE_STATUS = 3
+SET AVAILABLE_STATUS = 3, "switchStationStationId"=null
 WHERE
-	BATTERY_ID IN ( SELECT BATTERY_ID FROM VEHICLE WHERE "BatteryId" IS NOT NULL );
+	BATTERY_ID IN ( SELECT "BatteryId" FROM VEHICLE WHERE "BatteryId" IS NOT NULL );
+	
+update BATTERY
+set AVAILABLE_STATUS = 1
+where BATTERY_ID not in ( SELECT "BatteryId" FROM VEHICLE WHERE "BatteryId" IS NOT NULL) and AVAILABLE_STATUS = 3;
+
+delete from BATTERY
+where AVAILABLE_STATUS!=3 and "switchStationStationId" is null;
 
 UPDATE EMPLOYEE
 SET "switchStationStationId" = NULL
