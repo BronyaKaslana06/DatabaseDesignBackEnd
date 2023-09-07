@@ -31,51 +31,7 @@ namespace webapi.Controllers.Admin
             _context = context;
         }
 
-        //[Authorize]
-        [HttpGet("message")]
-        public ActionResult<IEnumerable<VehicleOwner>> GetPage(int pageIndex, int pageSize)
-        {
-            int offset = (pageIndex - 1) * pageSize;
-            int limit = pageSize;
-            if (offset < 0 || limit <= 0)
-            {
-                var errorResponse = new
-                {
-                    code = 1,
-                    msg = "页码或页大小非正",
-                    totalData = 0,
-                    data = "",
-                };
-                return Content(JsonConvert.SerializeObject(errorResponse), "application/json");
-            }
-            var query = _context.VehicleOwners
-                    .Join(_context.OwnerPos, vo => vo.OwnerId, op => op.OwnerId, (vo, op) => new { vo, op })
-                    .OrderBy(j => j.vo.OwnerId)
-                    .Select(j => new
-                    {
-                        owner_id = j.vo.OwnerId.ToString(),
-                        username = j.vo.Username,
-                        gender = j.vo.Gender,
-                        phone_number = j.vo.PhoneNumber,
-                        address = string.Join(", ", j.vo.ownerpos.Select(pos => pos.Address)),
-                        password = j.vo.Password
-                    });
-            var totalNum = query.Count();
-            var data = query.Skip(offset)
-                    .Take(limit)
-                    .ToList();
-            var responseObj = new
-            {
-                code = 0,
-                msg = "success",
-                totalData = totalNum,
-                data,
-            };
-            return Content(JsonConvert.SerializeObject(responseObj), "application/json");
-
-        }
-
-        //[Authorize]
+        [Authorize]
         [HttpGet("query")]
         public ActionResult<IEnumerable<VehicleOwner>> GetPage_(int pageIndex, int pageSize, string owner_id = "", string username = "", string gender = "", string phone_number = "", string address = "", string password = "")
         {
@@ -116,10 +72,10 @@ namespace webapi.Controllers.Admin
                     owner_id = j.vo.OwnerId.ToString(),
                     address = string.Join(", ", j.vo.ownerpos.Select(pos => pos.Address)),
                     username = j.vo.Username,
-                    password = j.vo.Password,
                     gender = j.vo.Gender,
                     email = j.vo.Email,
-                    phone_number = j.vo.PhoneNumber
+                    phone_number = j.vo.PhoneNumber,
+                    create_time = j.vo.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
                 });
                 
 

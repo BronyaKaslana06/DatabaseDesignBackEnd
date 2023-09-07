@@ -54,7 +54,7 @@ namespace webapi.Controllers.Admin
                     EF.Functions.Like(sl.SwitchServiceId.ToString(), pattern1) &&
                     EF.Functions.Like(sl.switchrequest.employee.EmployeeId.ToString(), pattern2) &&
                     EF.Functions.Like(sl.switchrequest.vehicle.VehicleId.ToString(), pattern3))
-                .OrderBy(sl => sl.SwitchServiceId)
+                .OrderByDescending(sl => sl.SwitchTime)
                 .Select(sl => new
                 {
                     switch_service_id = sl.SwitchServiceId.ToString(),
