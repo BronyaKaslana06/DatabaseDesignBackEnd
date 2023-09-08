@@ -156,7 +156,7 @@ namespace webapi.Controllers.Staff
             try
             {
                 var tmp = _context.MaintenanceItems.Include(a => a.employees)
-    .Where(e => e.employees.Any(f => f.EmployeeId == long.Parse(employee_id)));
+                             .Where(e => e.employees.Any(f => f.EmployeeId == long.Parse(employee_id)));
 
                 if (!string.IsNullOrEmpty(maintenance_location))
                 {
@@ -182,6 +182,10 @@ namespace webapi.Controllers.Staff
                     {
                         return BadRequest("fail to convert order_status");
                     }
+                }
+                else
+                {
+                    tmp = tmp.OrderByDescending(e => e.OrderSubmissionTime);
                 }
 
                 if (startDate != null && endDate != null)
@@ -240,8 +244,8 @@ namespace webapi.Controllers.Staff
                 var res = new
                 {
                     title = mn_item.Title,
-                    order_submission_time = mn_item.OrderSubmissionTime.ToString(),
-                    service_time = mn_item.ServiceTime.HasValue ? mn_item.ServiceTime.ToString() : "",
+                    order_submission_time = mn_item.OrderSubmissionTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    service_time = mn_item.ServiceTime.HasValue ? mn_item.ServiceTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
                     order_status = mn_item.OrderStatusEnum.ToString(),
                     maintenance_location = mn_item.MaintenanceLocation.ToString(),
                     username = owner.Username == null ? "" : owner.Username,
