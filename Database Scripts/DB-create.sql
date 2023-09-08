@@ -1,439 +1,218 @@
-create table c###car.switch_station (
-    station_id varchar2(50) default 'st0' primary key,
-    station_name varchar2(50),
-    queue_length int default 0 not null,
-    service_fee number default 0 not null,
-    electricity_fee number default 0 not null,
-    longtitude number default 90.00 not null unique,
-    latitude number default 90.00 not null unique,
-<<<<<<< Updated upstream
-    faliure_status char(3) default '∑Ò' check (faliure_status in (' «', '∑Ò')),
-=======
-    faliure_status char(3) default 'Âê?' check (faliure_status in ('Êò?', 'Âê?')),
->>>>>>> Stashed changes
-    battery_capacity int default 0 not null,
-    available_battery_count int default 0
+CREATE TABLE ADMINISTRATOR (
+    ADMIN_ID NUMBER(19, 0) NOT NULL,
+    ACCOUNT_SERIAL VARCHAR2(2000),
+    EMAIL VARCHAR2(2000),
+    PASSWORD VARCHAR2(50) NOT NULL,
+    CONSTRAINT ADMIN_PK PRIMARY KEY (ADMIN_ID)
 );
 
-create table c###car.battery_type (
-    battery_type_id varchar2(50) default 'tp0.00.0' primary key,
-    max_charge_tiems int default 1000 not null,
-    total_capacity varchar2(50) default '98.67kwh' not null
+CREATE TABLE BATTERY (
+    BATTERY_ID NUMBER(19, 0) NOT NULL,
+    AVAILABLE_STATUS NUMBER,
+    CURRENT_CAPACITY NUMBER(38, 2) NOT NULL,
+    CURR_CHARGE_TIMES NUMBER NOT NULL,
+    MANUFACTURING_DATE TIMESTAMP(7) NOT NULL,
+    STATION_ID NUMBER(19, 0),
+    BATTERY_TYPE_ID NUMBER(19, 0) NOT NULL,
+    CONSTRAINT BATTERY_PK PRIMARY KEY (BATTERY_ID),
+    CONSTRAINT BATTERY_FK1 FOREIGN KEY (BATTERY_TYPE_ID) REFERENCES BATTERY_TYPE(BATTERY_TYPE_ID)
 );
 
-create table c###car.battery (
-    battery_id varchar2(50) default 'bt_tl1_num0.0.0' primary key,
-<<<<<<< Updated upstream
-    available_status char(3) default ' «' check (available_status in ('∑Ò', ' «')),
-=======
-    available_status char(3) default 'Êò?' check (available_status in ('Êò?', 'Âê?')),
->>>>>>> Stashed changes
-    current_capacity varchar2(4) default '0' not null,
-    curr_charge_times int default 0 not null,
-    manufacturing_date timestamp default systimestamp not null,
-    battery_type_id varchar2(50) default 'tp0.00.0' not null,
-    constraint fk_battery_type foreign key (battery_type_id)
-        references c###car.battery_type (battery_type_id) on delete cascade
+CREATE TABLE BATTERY_TYPE (
+    BATTERY_TYPE_ID NUMBER(19, 0) NOT NULL,
+    MAX_CHARGE_TIMES NUMBER NOT NULL,
+    TOTAL_CAPACITY VARCHAR2(2000),
+    NAME VARCHAR2(2000),
+    CONSTRAINT BATTERY_TYPE_PK PRIMARY KEY (BATTERY_TYPE_ID)
 );
 
-create table c###car.vehicle_param (
-    vehicle_model varchar2(50) default 'fu_wl_lp1_num0.0.0' primary key,
-    transmission varchar2(50) default 'gt0.00' not null,
-    service_term timestamp default systimestamp not null,
-    manufacturer varchar2(50) default 'nio inc.' not null,
-    snip blob,
-    max_speed number
+CREATE TABLE EMPLOYEE (
+    EMPLOYEE_ID NUMBER(19, 0) NOT NULL,
+    ACCOUNT_SERIAL VARCHAR2(2000),
+    EMAIL VARCHAR2(2000),
+    USERNAME VARCHAR2(30),
+    PASSWORD VARCHAR2(50) DEFAULT 'N''123456''' NOT NULL,
+    PROFILE_PHOTO BLOB,
+    CREATE_TIME TIMESTAMP(7) NOT NULL,
+    PHONE_NUMBER VARCHAR2(20),
+    IDENTITYNUMBER VARCHAR2(50),
+    NAME VARCHAR2(30),
+    GENDER VARCHAR2(3),
+    POSITIONS NUMBER NOT NULL,
+    SALARY NUMBER NOT NULL,
+    STATION_ID NUMBER(19, 0),
+    CONSTRAINT EMPLOYEE_PK PRIMARY KEY (EMPLOYEE_ID)
 );
 
-create table c###car.vehicle_owner (
-    owner_id varchar2(50) default '000000000' primary key,
-    username varchar2(50) default 'ÊùéÂõõ' not null,
-    nickname varchar2(50) default 'user_0.00' not null,
-    password varchar2(50) default '123456' not null,
-    profile_photo blob,
-    create_time timestamp default systimestamp not null,
-    phone_number varchar2(50) default '+86',
-    email varchar2(50) default 'wl@car.com' not null,
-<<<<<<< Updated upstream
-    gender char(3) default 'ƒ–' check (gender in ('ƒ–', '≈Æ')),
-=======
-    gender char(3) default 'Áî?' check (gender in ('Áî?', 'Â•?')),
->>>>>>> Stashed changes
-    birthday timestamp,
-    address varchar2(255)
+CREATE TABLE EMPLOYEE_MAINTENANCEITEM (
+    EMPLOYEE_ID NUMBER(19, 0) NOT NULL,
+    MAINTENANCE_ID NUMBER(19, 0) NOT NULL
 );
 
-create table c###car.employee (
-    employee_id varchar2(50) default '10000000' primary key,
-    username varchar2(50) default 'ep_0.00' not null,
-    email varchar2(50) default 'xxxx@xxx.xxx' not null,
-    password varchar2(50) default '123456' not null,
-    profile_photo blob,
-    create_time timestamp default systimestamp not null,
-    phone_number varchar2(50) default '+86',
-    identity_number varchar2(50) default '1xxxxxxxxxxxxxxxxx' not null,
-    name varchar2(50) default 'Âº†‰∏â' not null,
-<<<<<<< Updated upstream
-    gender char(3) default 'ƒ–' check (gender in ('ƒ–', '≈Æ')),
-=======
-    gender char(3) default 'Áî?' check (gender in ('Áî?', 'Â•?')),
->>>>>>> Stashed changes
-    positions varchar2(50) default '_',
-    salary number
+CREATE TABLE KPI (
+    KPI_ID NUMBER(19, 0) NOT NULL,
+    TOTAL_PERFORMANCE NUMBER(38, 2) NOT NULL,
+    SERVICE_FREQUENCY NUMBER NOT NULL,
+    SCORE NUMBER(38, 2) NOT NULL,
+    EMPLOYEE_ID NUMBER(19, 0) NOT NULL,
+    CONSTRAINT KPI_PK PRIMARY KEY (KPI_ID),
+    CONSTRAINT KPI_FK1 FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEE(EMPLOYEE_ID)
 );
 
-create table c###car.news (
-    announcement_id varchar2(50) default 'news. 0' primary key,
-    publish_time timestamp default systimestamp not null,
-    publish_pos varchar2(50),
-    title varchar2(50) default 'money talks.' not null,
-    contents varchar2(255),
-    likes int default 0,
-    view_count int default 0
+CREATE TABLE MAINTENANCE_ITEM (
+    MAINTENANCE_ITEM_ID NUMBER(19, 0) NOT NULL,
+    MAINTENANCE_LOCATION VARCHAR2(50) NOT NULL,
+    NOTE VARCHAR2(2000),
+    TITLE VARCHAR2(2000),
+    LONGITUDE NUMBER(38, 2) NOT NULL,
+    LATITUDE NUMBER(38, 2) NOT NULL,
+    SERVICE_TIME TIMESTAMP(7),
+    ORDER_SUBMISSION_TIME TIMESTAMP(6) NOT NULL,
+    APPOINT_TIME TIMESTAMP(7) NOT NULL,
+    ORDER_STATUS NUMBER NOT NULL,
+    SCORE NUMBER(38, 2) NOT NULL,
+    EVALUATION VARCHAR2(2000),
+    VEHICLE_ID NUMBER(19, 0) NOT NULL,
+    CONSTRAINT MAINTENANCE_ITEM_PK PRIMARY KEY (MAINTENANCE_ITEM_ID)
 );
 
-create table c###car.battery_switch_station (
-    battery_id varchar2(50) default 'bt_tl1_num0.0.0' primary key,
-    station_id varchar2(50) default 'st0' not null,
-    constraint fk_battery_battery_switch_station foreign key (battery_id)
-        references c###car.battery (battery_id) on delete cascade,
-    constraint fk_battery_switch_station_switch_station foreign key (station_id)
-        references c###car.switch_station (station_id) on delete cascade 
+CREATE TABLE NEWS (
+    ANNOUNCEMENT_ID NUMBER(19, 0) NOT NULL,
+    PUBLISH_TIME TIMESTAMP(7) NOT NULL,
+    PUBLISH_POS NUMBER NOT NULL,
+    TITLE VARCHAR2(50),
+    CONTENTS CLOB,
+    LIKES NUMBER NOT NULL,
+    VIEW_COUNT NUMBER NOT NULL,
+    ADMIN_ID NUMBER(19, 0) NOT NULL,
+    CONSTRAINT NEWS_PK PRIMARY KEY (ANNOUNCEMENT_ID),
+    CONSTRAINT NEWS_FK1 FOREIGN KEY (ADMIN_ID) REFERENCES ADMINISTRATOR(ADMIN_ID)
 );
 
-create table c###car.kpi (
-    kpi_id varchar2(50) default 'pf. no. 0__0' primary key,
-    employee_id varchar2(50)  default 'no. 0' not null,
-    total_performance int default 0 not null,
-    service_frequency int default 0,
-    score int,
-    constraint fk_kpi_employee foreign key (employee_id)
-        references c###car.employee (employee_id) on delete cascade 
-);
-create table c###car.vehicle (
-    vehicle_id varchar2(50) default 'vc. lc.0' primary key,
-    vehicle_model varchar2(50) default 'fu_wl_lp1_num0.0.0' not null,
-    plate_number varchar2(50) default 'x0xxxxx' not null,
-    owner_id varchar2(50) default 'no. 0' not null,
-    purchase_date timestamp default systimestamp not null,
-    battery_id varchar2(50) default null,
-    constraint fk_vehicle_owner foreign key (owner_id)
-        references c###car.vehicle_owner (owner_id) on delete cascade ,
-    constraint fk_vehicle_vehicle_param foreign key (vehicle_model)
-        references c###car.vehicle_param (vehicle_model) on delete cascade ,
-    constraint fk_vehicle_battery foreign key (battery_id)
-        references c###car.battery (battery_id) on delete cascade 
-);
-create table c###car.maintenance_item (
-    maintenance_item_id varchar2(50) default 'mti_ep_0x548151' primary key,
-    vehicle_id varchar2(50) default 'vc. lc.0' not null,
-    title varchar2(50) default 'Áª¥‰øÆÂ∑•‰Ωú1' not null,
-    maintenance_location varchar2(50) unique,
-    remarks varchar2(255),
-    service_time timestamp default systimestamp not null,
-    order_submission_time timestamp,
-<<<<<<< Updated upstream
-    order_status char(3) default ' «' check (order_status in ('∑Ò', ' «')),
-=======
-    order_status char(3) default 'Âê?' check (order_status in ('Êò?', 'Âê?')),
->>>>>>> Stashed changes
-    evaluations varchar2(255),
-    constraint fk_maintenance_item_vehicle foreign key (vehicle_id)
-        references c###car.vehicle (vehicle_id) on delete cascade 
+CREATE TABLE OWNERPOS (
+    OWNER_ID NUMBER(19, 0) NOT NULL,
+    ADDRESS VARCHAR2(2000) NOT NULL,
+    CONSTRAINT OWNERPOS_PK PRIMARY KEY (OWNER_ID)
 );
 
-create table c###car.employee_switch_station (
-    employee_id varchar2(50) default 'no. 0' primary key,
-    station_id varchar2(50) default 'st0' not null,
-    constraint fk_employee_switch_station_employee foreign key (employee_id)
-        references c###car.employee (employee_id) on delete cascade ,
-    constraint fk_employee_switch_station_switch_station foreign key (station_id)
-        references c###car.switch_station (station_id) on delete cascade 
-);
-create table c###car.maintenance_item_employee (
-    maintenance_item_id varchar2(50) default 'mti_ep_0x548151' primary key,
-    employee_id varchar2(50) default 'no. 0' not null,
-    constraint fk_maintenance_item_employee_employee foreign key (employee_id)
-        references c###car.employee (employee_id) on delete cascade ,
-    constraint fk_maintenance_item_employee_maintenance_item foreign key (maintenance_item_id)
-        references c###car.maintenance_item (maintenance_item_id) on delete cascade 
-);
-create table c###car.switch_request_employee (
-    switch_request_id varchar2(50) default 'sr_0x_1207xw1' primary key,
-    employee_id varchar2(50) default 'no. 0' not null,
-    constraint fk_switch_request_employee_employee foreign key (employee_id)
-        references c###car.employee (employee_id) on delete cascade 
+CREATE TABLE SWITCH_LOG (
+    SWITCH_SERVICE_ID NUMBER(19, 0) NOT NULL,
+    SWITCH_TIME TIMESTAMP(7) NOT NULL,
+    SCORE NUMBER(38, 2) NOT NULL,
+    EVALUATION VARCHAR2(2000),
+    SERVICE_FEE REAL NOT NULL,
+    BATTERY_ON_ID NUMBER(19, 0) NOT NULL,
+    BATTERY_OFF_IF NUMBER(19, 0) NOT NULL,
+    SWITCH_REQUEST_ID NUMBER(19, 0) NOT NULL,
+    CONSTRAINT SWITCH_LOG_PK PRIMARY KEY (SWITCH_SERVICE_ID),
+    CONSTRAINT SWITCH_LOG_FK1 FOREIGN KEY (BATTERY_ON_ID) REFERENCES BATTERY(BATTERY_ID),
+    CONSTRAINT SWITCH_LOG_FK2 FOREIGN KEY (BATTERY_OFF_IF) REFERENCES BATTERY(BATTERY_ID),
+    CONSTRAINT SWITCH_LOG_FK3 FOREIGN KEY (SWITCH_REQUEST_ID) REFERENCES SWITCH_REQUEST(SWITCH_REQUEST_ID)
 );
 
-create table c###car.switch_request (
-    switch_request_id varchar2(50) default 'sr_0x_1207xw1' primary key,
-    vehicle_id varchar2(50) default 'vc. lc.0' not null,
-    switch_type char(6) default 'µΩµÍ' check (switch_type in ('µΩµÍ', '…œ√≈')),
-    request_time timestamp default systimestamp not null,
-    longtitude number default 90.00 not null unique,
-    latitude number default 90.00 not null unique,
-    position varchar2(50),
-    remarks varchar2(255),
-    constraint fk_switch_request_vehicle foreign key (vehicle_id)
-        references c###car.vehicle (vehicle_id) on delete cascade ,
-    constraint fk_switch_request_switch_request_employee foreign key (switch_request_id)
-        references c###car.switch_request_employee (switch_request_id) on delete cascade 
+CREATE TABLE SWITCH_REQUEST (
+    SWITCH_REQUEST_ID NUMBER(19, 0) NOT NULL,
+    SWITCH_TYPE NUMBER NOT NULL,
+    REQUEST_TIME TIMESTAMP(7) NOT NULL,
+    POSITION VARCHAR2(50),
+    LONGITUDE NUMBER(38, 2) NOT NULL,
+    LATITUDE NUMBER(38, 2) NOT NULL,
+    NOTES VARCHAR2(255),
+    DATE TIMESTAMP(7) NOT NULL,
+    REQUEST_STATUS NUMBER NOT NULL,
+    EMPLOYEE_ID NUMBER(19, 0) NOT NULL,
+    VEHICLE_ID NUMBER(19, 0) NOT NULL,
+    BATTERY_TYPE_ID NUMBER(19, 0) NOT NULL,
+    PERIOD NUMBER,
+    CONSTRAINT SWITCH_REQUEST_PK PRIMARY KEY (SWITCH_REQUEST_ID),
+    CONSTRAINT SWITCH_REQUEST_FK1 FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEE(EMPLOYEE_ID),
+    CONSTRAINT SWITCH_REQUEST_FK2 FOREIGN KEY (VEHICLE_ID) REFERENCES VEHICLE(VEHICLE_ID),
+    CONSTRAINT SWITCH_REQUEST_FK3 FOREIGN KEY (BATTERY_TYPE_ID) REFERENCES BATTERY_TYPE(BATTERY_TYPE_ID)
 );
-create table c###car.switch_log (
-    switch_service_id varchar2(50) default 'sw_0x_017' primary key,
-    vehicle_id varchar2(50) default 'vc. lc.0' not null,
-    switch_time timestamp default systimestamp not null,
-    employee_id varchar2(50) default 'no. 0' not null,
-    battery_id_on varchar2(50) default 'bt_tl1_num0.0.1' not null,
-    battery_id_off varchar2(50) default 'bt_tl1_num0.0.0' not null,
-    evaluations varchar2(255),
-    longtitude number default 90.00 not null unique,
-    latitude number default 90.00 not null unique,
-    position varchar2(50),
-    constraint fk_switch_log_vehicle foreign key (vehicle_id)
-        references c###car.vehicle (vehicle_id) on delete cascade ,
-    constraint fk_switch_log_employee foreign key (employee_id)
-        references c###car.employee (employee_id) on delete cascade ,
-    constraint fk_switch_log_battery_in foreign key (battery_id_on)
-        references c###car.battery (battery_id) on delete cascade ,
-    constraint fk_switch_log_battery_out foreign key (battery_id_off)
-        references c###car.battery (battery_id) on delete cascade ,
-    constraint fk_switch_log_switch_request_lon foreign key (longtitude)
-        references c###car.switch_request (longtitude) on delete cascade ,
-    constraint fk_switch_log_switch_request_lat foreign key (latitude)
-        references c###car.switch_request (latitude) on delete cascade
+
+CREATE TABLE SWITCH_STATION (
+    STATION_ID NUMBER(19, 0) NOT NULL,
+    STATION_NAME VARCHAR2(50),
+    SERVICE_FEE REAL NOT NULL,
+    ELECTRICITY_FEE REAL NOT NULL,
+    PARKING_FEE VARCHAR2(2000) NOT NULL,
+    QUEUE_LENGTH NUMBER NOT NULL,
+    LONGITUDE NUMBER(38, 2) NOT NULL,
+    LATITUDE NUMBER(38, 2) NOT NULL,
+    FAILURE_STATUS NUMBER NOT NULL,
+    BATTERY_CAPACITY NUMBER NOT NULL,
+    AVAILABLE_BATTERY_COUNT NUMBER NOT NULL,
+    CITY VARCHAR2(2000),
+    TAGS VARCHAR2(2000),
+    ADDRESS VARCHAR2(2000),
+    TIMESPAN VARCHAR2(2000),
+    CONSTRAINT SWITCH_STATION_PK PRIMARY KEY (STATION_ID)
 );
-create table c###car.administrator (
-    admin_id varchar2(50) default '2000000' primary key,
-    email varchar2(50) default 'xxxx@xxxx.xxx' not null,
-    password varchar2(50) default '123456' not null
+
+CREATE TABLE VEHICLE (
+    VEHICLE_ID NUMBER(19, 0) NOT NULL,
+    PURCHASE_DATE TIMESTAMP(7) NOT NULL,
+    BATTERY_ID NUMBER(19, 0) NOT NULL,
+    PLATE_NUMBER VARCHAR2(2000),
+    MILEAGE NUMBER NOT NULL,
+    TEMPERATURE NUMBER NOT NULL,
+    WARRANTY TIMESTAMP(7) NOT NULL,
+    OWNER_ID NUMBER(19, 0) NOT NULL,
+    VEHICLE_MODEL_ID NUMBER(19, 0) NOT NULL,
+    CONSTRAINT VEHICLE_PK PRIMARY KEY (VEHICLE_ID),
+    CONSTRAINT VEHICLE_FK1 FOREIGN KEY (BATTERY_ID) REFERENCES BATTERY(BATTERY_ID),
+    CONSTRAINT VEHICLE_FK2 FOREIGN KEY (OWNER_ID) REFERENCES VEHICLE_OWNER(OWNER_ID),
+    CONSTRAINT VEHICLE_FK3 FOREIGN KEY (VEHICLE_MODEL_ID) REFERENCES VEHICLE_PARAM(VEHICLE_MODEL)
 );
-create trigger c###car.trg_cascade_update_battery
-after update of battery_type_id on c###car.battery_type
-for each row
-begin
-    update c###car.battery
-    set battery_type_id = :new.battery_type_id
-    where battery_type_id = :old.battery_type_id;
-end;
-/
-create trigger c###car.trg_bat_bat_replacing_sites_battery
-after update of battery_id on c###car.battery
-for each row
-begin
-    if updating('battery_id') then
-        update c###car.battery_switch_station
-        set battery_id = :new.battery_id
-        where battery_id = :old.battery_id;
-    end if;
-end;
-/
-create trigger c###car.trg_bat_bat_replacing_sites_site
-after update of station_id on c###car.switch_station
-for each row
-begin
-    if updating('station_id') then
-        update c###car.battery_switch_station
-        set station_id = :new.station_id
-        where station_id = :old.station_id;
-    end if;
-end;
-/
-create trigger c###car.trg_kpi_employee
-after update of employee_id on c###car.employee
-for each row
-begin
-    if updating('employee_id') then
-        update c###car.kpi
-        set employee_id = :new.employee_id
-        where employee_id = :old.employee_id;
-    end if;
-end;
-/
-create trigger c###car.trg_vehicle_owner
-after update of owner_id on c###car.vehicle_owner
-for each row
-begin
-    if updating('owner_id') then
-        update c###car.vehicle
-        set owner_id = :new.owner_id
-        where owner_id = :old.owner_id;
-    end if;
-end;
-/
-create trigger c###car.trg_vehicle_vehicle_param
-after update of vehicle_model on c###car.vehicle_param
-for each row
-begin
-    if updating('vehicle_model') then
-        update c###car.vehicle
-        set vehicle_model = :new.vehicle_model
-        where vehicle_model = :old.vehicle_model;
-    end if;
-end;
-/
-create trigger c###car.trg_vehicle_battery
-after update of battery_id on c###car.battery
-for each row
-begin
-    if updating('battery_id') then
-        update c###car.vehicle
-        set battery_id = :new.battery_id
-        where battery_id = :old.battery_id;
-    end if;
-end;
-/
-create trigger c###car.trg_maintenance_item_vehicle
-after update of vehicle_id on c###car.vehicle
-for each row
-begin
-    if updating('vehicle_id') then
-        update c###car.maintenance_item
-        set vehicle_id = :new.vehicle_id
-        where vehicle_id = :old.vehicle_id;
-    end if;
-end;
-/
-create trigger c###car.trg_employee_switch_station_employee
-after update of employee_id on c###car.employee
-for each row
-begin
-    if updating('employee_id') then
-        update c###car.employee_switch_station
-        set employee_id = :new.employee_id
-        where employee_id = :old.employee_id;
-    end if;
-end;
-/
-create trigger c###car.trg_employee_switch_station_site
-after update of station_id on c###car.switch_station
-for each row
-begin
-    if updating('station_id') then
-        update c###car.employee_switch_station
-        set station_id = :new.station_id
-        where station_id = :old.station_id;
-    end if;
-end;
-/
-create trigger c###car.trg_maintenance_item_employee_employee
-after update of employee_id on c###car.employee
-for each row
-begin
-    if updating('employee_id') then
-        update c###car.maintenance_item_employee
-        set employee_id = :new.employee_id
-        where employee_id = :old.employee_id;
-    end if;
-end;
-/
-create trigger c###car.trg_maintenance_item_employee_maintenance_item
-after update of maintenance_item_id on c###car.maintenance_item
-for each row
-begin
-    if updating('maintenance_item_id') then
-        update c###car.maintenance_item_employee
-        set maintenance_item_id = :new.maintenance_item_id
-        where maintenance_item_id = :old.maintenance_item_id;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_request_employee_employee
-after update of employee_id on c###car.employee
-for each row
-begin
-    if updating('employee_id') then
-        update c###car.switch_request_employee
-        set employee_id = :new.employee_id
-        where employee_id = :old.employee_id;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_request_vehicle
-after update of vehicle_id on c###car.vehicle
-for each row
-begin
-    if updating('vehicle_id') then
-        update c###car.switch_request
-        set vehicle_id = :new.vehicle_id
-        where vehicle_id = :old.vehicle_id;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_request_acceptance
-after update of switch_request_id on c###car.switch_request_employee
-for each row
-begin
-    if updating('switch_request_id') then
-        update c###car.switch_request
-        set switch_request_id = :new.switch_request_id
-        where switch_request_id = :old.switch_request_id;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_log_vehicle
-after update of vehicle_id on c###car.vehicle
-for each row
-begin
-    if updating('vehicle_id') then
-        update c###car.switch_log
-        set vehicle_id = :new.vehicle_id
-        where vehicle_id = :old.vehicle_id;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_log_employee
-after update of employee_id on c###car.employee
-for each row
-begin
-    if updating('employee_id') then
-        update c###car.switch_log
-        set employee_id = :new.employee_id
-        where employee_id = :old.employee_id;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_log_battery_in
-after update of battery_id on c###car.battery
-for each row
-begin
-    if updating('battery_id') then
-        update c###car.switch_log
-        set battery_id_on = :new.battery_id
-        where battery_id_on = :old.battery_id;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_log_battery_out
-after update of battery_id on c###car.battery
-for each row
-begin
-    if updating('battery_id') then
-        update c###car.switch_log
-        set battery_id_off = :new.battery_id
-        where battery_id_off = :old.battery_id;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_log_switch_request_lon
-after update of longtitude on c###car.switch_request
-for each row
-begin
-    if updating('longtitude') then
-        update c###car.switch_log
-        set longtitude = :new.longtitude
-        where longtitude = :old.longtitude;
-    end if;
-end;
-/
-create trigger c###car.trg_switch_log_switch_request_lat
-after update of latitude on c###car.switch_request
-for each row
-begin
-    if updating('latitude') then
-        update c###car.switch_log
-        set latitude = :new.latitude
-        where latitude = :old.latitude;
-    end if;
-end;
-/
+
+CREATE TABLE VEHICLE_OWNER (
+    OWNER_ID NUMBER(19, 0) NOT NULL,
+    ACCOUNT_SERIAL VARCHAR2(2000),
+    USERNAME VARCHAR2(50),
+    EMAIL VARCHAR2(50),
+    PASSWORD VARCHAR2(50) NOT NULL,
+    PROFILE_PHOTO BLOB,
+    CREATE_TIME TIMESTAMP(7) NOT NULL,
+    PHONE_NUMBER VARCHAR2(20) NOT NULL,
+    GENDER VARCHAR2(3),
+    BIRTHDAY TIMESTAMP(7),
+    CONSTRAINT VEHICLE_OWNER_PK PRIMARY KEY (OWNER_ID)
+);
+
+CREATE TABLE VEHICLE_PARAM (
+    VEHICLE_MODEL NUMBER(19, 0) NOT NULL,
+    ModelNAME VARCHAR2(2000) NOT NULL,
+    TRANSMISSION VARCHAR2(50) NOT NULL,
+    SERVICE_TERM TIMESTAMP(7) NOT NULL,
+    MANUFACTURER VARCHAR2(50) NOT NULL,
+    MAX_SPEED NUMBER NOT NULL,
+    SINP BLOB,
+    CONSTRAINT VEHICLE_PARAM_PK PRIMARY KEY (VEHICLE_MODEL)
+);
+
+CREATE TABLE __EFMigrationsHistory (
+    MigrationId VARCHAR2(150) NOT NULL,
+    ProductVersion VARCHAR2(32) NOT NULL,
+    CONSTRAINT EFMigrationsHistory_PK PRIMARY KEY (MigrationId)
+);
+
+-- Ê∑ªÂä†Â§ñÈîÆÁ∫¶Êùü
+ALTER TABLE SWITCH_LOG ADD CONSTRAINT SWITCH_LOG_FK4 FOREIGN KEY (SWITCH_REQUEST_ID) REFERENCES SWITCH_REQUEST(SWITCH_REQUEST_ID);
+ALTER TABLE KPI ADD CONSTRAINT KPI_FK2 FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEE(EMPLOYEE_ID);
+ALTER TABLE VEHICLE_OWNER ADD CONSTRAINT VEHICLE_OWNER_FK1 FOREIGN KEY (OWNER_ID) REFERENCES VEHICLE(OWNER_ID);
+ALTER TABLE VEHICLE_PARAM ADD CONSTRAINT VEHICLE_PARAM_FK1 FOREIGN KEY (VEHICLE_MODEL) REFERENCES VEHICLE(VEHICLE_MODEL_ID);
+ALTER TABLE SWITCH_REQUEST ADD CONSTRAINT SWITCH_REQUEST_FK4 FOREIGN KEY (VEHICLE_ID) REFERENCES VEHICLE(VEHICLE_ID);
+ALTER TABLE SWITCH_REQUEST ADD CONSTRAINT SWITCH_REQUEST_FK5 FOREIGN KEY (BATTERY_TYPE_ID) REFERENCES BATTERY_TYPE(BATTERY_TYPE_ID);
+ALTER TABLE BATTERY_TYPE ADD CONSTRAINT BATTERY_TYPE_FK2 FOREIGN KEY (BATTERY_TYPE_ID) REFERENCES BATTERY(BATTERY_TYPE_ID);
+ALTER TABLE SWITCH_STATION ADD CONSTRAINT SWITCH_STATION_FK1 FOREIGN KEY (STATION_ID) REFERENCES BATTERY(STATION_ID);
+ALTER TABLE BATTERY ADD CONSTRAINT BATTERY_FK2 FOREIGN KEY (STATION_ID) REFERENCES SWITCH_STATION(STATION_ID);
+ALTER TABLE VEHICLE ADD CONSTRAINT VEHICLE_FK4 FOREIGN KEY (BATTERY_ID) REFERENCES BATTERY(BATTERY_ID);
+ALTER TABLE OWNERPOS ADD CONSTRAINT OWNERPOS_FK1 FOREIGN KEY (OWNER_ID) REFERENCES VEHICLE_OWNER(OWNER_ID);
+ALTER TABLE MAINTENANCE_ITEM ADD CONSTRAINT MAINTENANCE_ITEM_FK2 FOREIGN KEY (VEHICLE_ID) REFERENCES VEHICLE(VEHICLE_ID);
+ALTER TABLE SWITCH_LOG ADD CONSTRAINT SWITCH_LOG_FK1 FOREIGN KEY (BATTERY_ON_ID) REFERENCES BATTERY(BATTERY_ID);
+ALTER TABLE SWITCH_LOG ADD CONSTRAINT SWITCH_LOG_FK2 FOREIGN KEY (BATTERY_OFF_IF) REFERENCES BATTERY(BATTERY_ID);
+ALTER TABLE SWITCH_STATION ADD CONSTRAINT SWITCH_STATION_FK2 FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEE(EMPLOYEE_ID);
+ALTER TABLE EMPLOYEE ADD CONSTRAINT EMPLOYEE_FK1 FOREIGN KEY (STATION_ID) REFERENCES SWITCH_STATION(STATION_ID);
+ALTER TABLE EMPLOYEE ADD CONSTRAINT EMPLOYEE_FK2 FOREIGN KEY (EMPLOYEE_ID) REFERENCES SWITCH_REQUEST(EMPLOYEE_ID);
+ALTER TABLE EMPLOYEE_MAINTENANCEITEM ADD CONSTRAINT EMPLOYEE_MAINTENANCEITEM_FK1 FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEE(EMPLOYEE_ID);
+ALTER TABLE EMPLOYEE_MAINTENANCEITEM ADD CONSTRAINT EMPLOYEE_MAINTENANCEITEM_FK2 FOREIGN KEY (MAINTENANCE_ID) REFERENCES MAINTENANCE_ITEM(MAINTENANCE_ITEM_ID);
