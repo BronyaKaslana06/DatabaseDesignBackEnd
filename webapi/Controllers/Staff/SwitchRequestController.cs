@@ -201,7 +201,7 @@ namespace webapi.Controllers.Staff
                 if (employee == null)
                     return NotFound("Employee not found.");
                 long request_id = Convert.ToInt64(body.switch_request_id);
-                var request = _context.SwitchRequests.Include(a => a.batteryType).Where(s => s.SwitchRequestId == request_id).DefaultIfEmpty().FirstOrDefault();
+                var request = _context.SwitchRequests.Include(a => a.batteryType).Include(a=>a.employee).Include(a=>a.employee.switchStation).Where(s => s.SwitchRequestId == request_id).DefaultIfEmpty().FirstOrDefault();
                 if (request == null)
                     return NotFound("Switch request not found.");
 
