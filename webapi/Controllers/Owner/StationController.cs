@@ -52,7 +52,7 @@ namespace webapi.Controllers.Owner
                             opening_time = station.TimeSpan,
                             distance = Math.Round(Calculator.CalculateDistanceInMeters(station.Latitude, station.Longitude, latitude.Value, longitude.Value)),
                             cell_num = station.BatteryCapacity,
-                            cell_avb_num = station.AvailableBatteryCount,
+                            cell_avb_num = _context.Batteries.Where(a=>a.switchStation.StationId==station.StationId&&a.AvailableStatus==(int)AvailableStatusEnum.可用).Count()
                         })
                         .AsEnumerable()
                         .Where(ss => ss.distance <= 50000)
