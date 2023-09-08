@@ -130,15 +130,26 @@ namespace webapi.Controllers.Owner
 
         [Authorize]
         [HttpGet("keyword")]
-        public ActionResult<IEnumerable<SwitchStation>> StationName(string keyword = "")
+        public ActionResult<IEnumerable<SwitchStation>> StationName(string keyword = "", double? longitude = null, double? latitude = null, int info_num = 0, int info_index = 0)
         {
             try
             {
-
+                var stations = _context.SwitchStations.AsQueryable();
+                int offset = (info_index - 1) * info_num;
+                int limit = info_num;
+                if (longitude == null && latitude == null || offset < 0 || limit <= 0)
+                {
+                    var ob = new
+                    {
+                        data = "",
+                        code = 1
+                    };
+                    return Content(JsonConvert.SerializeObject(ob), "application/json");
+                }
                 var query = _context.SwitchStations
                     .Select(item => new
                     {
-                        switch_station_id = item.StationId.ToString(),
+                        station_id = item.StationId.ToString(),
                         station_name = item.StationName,
                         latitude = item.Latitude,
                         longitude = item.Longitude,
@@ -147,19 +158,24 @@ namespace webapi.Controllers.Owner
                         service_fee = item.ServiceFee,
                         power_rate = item.ElectricityFee,
                         parking_fee = item.ParkingFee,
+                        distance = Math.Round(Calculator.CalculateDistanceInMeters(item.Latitude, item.Longitude, latitude.Value, longitude.Value)),
+                        cell_num = item.BatteryCapacity,
+                        cell_avb_num = item.AvailableBatteryCount,
                         Similarity = Calculator.ComputeSimilarityScore(item.StationName, keyword)
                     })
-                    .Take(25)
                     .ToList();
 
                 var filteredItems = query
                     .Where(item => item.Similarity > (double)0)
                     .OrderByDescending(item => item.Similarity)
+                    .Take(9)
                     .ToList();
 
                 var obj = new
                 {
-                    switch_stationArray = filteredItems,
+                    data = filteredItems,
+                    code = 0,
+                    msg = "success"
                 };
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
@@ -167,8 +183,9 @@ namespace webapi.Controllers.Owner
             {
                 var obj = new
                 {
-                    switch_stationArray = "",
-                    mag = ex.InnerException?.Message
+                    data = "",
+                    msg = ex.InnerException?.Message,
+                    code = 1
                 };
                 return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
