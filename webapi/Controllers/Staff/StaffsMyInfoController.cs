@@ -130,6 +130,7 @@ namespace webapi.Controllers.Staff
             var res = tmp.Select(a => new
             {
                 switch_record_id = a.SwitchServiceId,
+                switch_request_id=a.switchRequestId,
                 switch_time = a.SwitchTime.ToString("yyyy-MM-dd HH:mm:ss"),
                 request_status = a.switchrequest.requestStatusEnum.ToString()
             });

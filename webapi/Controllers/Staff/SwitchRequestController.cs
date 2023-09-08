@@ -211,7 +211,7 @@ namespace webapi.Controllers.Staff
                 request.requestStatusEnum = RequestStatusEnum.待完成;
 
                 long barry_type_id = request.batteryType.BatteryTypeId;
-                var battery = _context.Batteries.Where(s => s.batteryType.BatteryTypeId == barry_type_id).DefaultIfEmpty().ToList()[0];
+                var battery = _context.Batteries.Where(s => s.batteryType.BatteryTypeId == barry_type_id &&request.employee.switchStation.StationId==s.switchStation.StationId).DefaultIfEmpty().ToList()[0];
                 if (battery == null)
                     return NotFound("Battery not found.");
                 battery.AvailableStatusEnum = AvailableStatusEnum.已预定;
