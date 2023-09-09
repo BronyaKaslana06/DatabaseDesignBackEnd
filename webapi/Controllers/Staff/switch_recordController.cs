@@ -50,7 +50,8 @@ namespace webapi.Controllers.Staff
                     switch_type = switch_request.SwitchTypeEnum.ToString(),
                     evaluations = tmp.Evaluation == null ? "" : tmp.Evaluation,
                     score = tmp.Score,
-                    request_status = switch_request.requestStatusEnum.ToString()
+                    request_status = switch_request.requestStatusEnum.ToString(),
+                    switch_request_id=switch_request.SwitchRequestId
                 };
                 return Ok(res);
             }
