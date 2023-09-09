@@ -160,7 +160,7 @@ namespace webapi.Controllers.Owner
                         parking_fee = item.ParkingFee,
                         distance = Math.Round(Calculator.CalculateDistanceInMeters(item.Latitude, item.Longitude, latitude.Value, longitude.Value)),
                         cell_num = item.BatteryCapacity,
-                        cell_avb_num = item.AvailableBatteryCount,
+                        cell_avb_num = _context.Batteries.Where(a => a.switchStation.StationId == item.StationId && a.AvailableStatus == (int)AvailableStatusEnum.可用).Count(),
                         Similarity = Calculator.ComputeSimilarityScore(item.StationName, keyword)
                     })
                     .ToList();
