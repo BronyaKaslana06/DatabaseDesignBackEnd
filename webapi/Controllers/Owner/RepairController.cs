@@ -61,7 +61,7 @@ namespace webapi.Controllers.Owner
                         transmission = item.vehicleParam.Transmission,
                         battery_type = item.Battery.batteryType.Name.ToString(),
                         temperature = item.Temperature.ToString(),
-                        warrange = item.Warranty
+                        warrange = item.Warranty.ToString("yyyy-MM-dd"),
                     }).FirstOrDefault();
                 var a = new
                 {

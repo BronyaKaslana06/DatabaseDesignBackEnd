@@ -100,8 +100,8 @@ namespace webapi.Controllers.Owner
                         birthday = owner.Birthday == null ? "Î´°ó¶¨" : owner.Birthday.Value.ToString("yyyy-MM-dd"),
                         dealCount = _context.SwitchLogs.Where(sl => sl.switchrequest.vehicle.vehicleOwner.OwnerId == id).Count(),
                         mileage = _context.Vehicles.Where(v => v.vehicleOwner.OwnerId == id).Sum(v => v.Mileage),
-                        unscored_maintenance = _context.MaintenanceItems.Where(m => m.OrderStatus == 3).Count(),
-                        unscored_switchlog = _context.SwitchLogs.Where(sl => sl.Score == -1).Count()
+                        unscored_maintenance = _context.MaintenanceItems.Where(m => m.OrderStatus == 3 && m.vehicle.vehicleOwner.OwnerId == id).Count(),
+                        unscored_switchlog = _context.SwitchLogs.Where(sl => sl.Score == -1 && sl.switchrequest.vehicle.vehicleOwner.OwnerId == id).Count()
                     }
                 };
                 return Content(JsonConvert.SerializeObject(a), "application/json");
