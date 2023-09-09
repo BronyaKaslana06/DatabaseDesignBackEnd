@@ -36,7 +36,7 @@ namespace webapi.Controllers.Owner
                 var obj = new
                 {
                     code = 1,
-                    msg = "id·Ç·¨",
+                    msg = "idï¿½Ç·ï¿½",
                     totalData = 0,
                     data = "",
                 };
@@ -44,7 +44,7 @@ namespace webapi.Controllers.Owner
             }
             var owner = _context.VehicleOwners.Find(id);
             if (owner == null)
-                return NewContent(1, "id²»´æÔÚ");
+                return NewContent(1, "idï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
             else
             {
                 var filteredItem = _context.Vehicles
@@ -75,7 +75,7 @@ namespace webapi.Controllers.Owner
                 var error = new
                 {
                     code = 1,
-                    msg = "idÎÞÐ§",
+                    msg = "idï¿½ï¿½Ð§",
                     data = ""
                 };
                 return Content(JsonConvert.SerializeObject(error), "application/json");
@@ -83,7 +83,7 @@ namespace webapi.Controllers.Owner
 
             var owner = _context.VehicleOwners.Find(id);
             if (owner == null)
-                return NewContent(1, "id²»´æÔÚ");
+                return NewContent(1, "idï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
             else
             {
                 var a = new
@@ -94,10 +94,10 @@ namespace webapi.Controllers.Owner
                     {
                         accountSerial = owner.AccountSerial,
                         username = owner.Username,
-                        email = owner.Email == null ? "Î´°ó¶¨" : owner.Email,
+                        email = owner.Email == null ? "Î´ï¿½ï¿½" : owner.Email,
                         createTime = owner.CreateTime.ToString("yyyy-MM-dd"),
                         phoneNumber = owner.PhoneNumber,
-                        birthday = owner.Birthday == null ? "Î´°ó¶¨" : owner.Birthday.Value.ToString("yyyy-MM-dd"),
+                        birthday = owner.Birthday == null ? "Î´ï¿½ï¿½" : owner.Birthday.Value.ToString("yyyy-MM-dd"),
                         dealCount = _context.SwitchLogs.Where(sl => sl.switchrequest.vehicle.vehicleOwner.OwnerId == id).Count(),
                         mileage = _context.Vehicles.Where(v => v.vehicleOwner.OwnerId == id).Sum(v => v.Mileage),
                         unscored_maintenance = _context.MaintenanceItems.Where(m => m.OrderStatus == 3 && m.vehicle.vehicleOwner.OwnerId == id).Count(),
@@ -117,7 +117,7 @@ namespace webapi.Controllers.Owner
                 var error = new
                 {
                     code = 1,
-                    msg = "idÎÞÐ§",
+                    msg = "idï¿½ï¿½Ð§",
                     data = ""
                 };
                 return Content(JsonConvert.SerializeObject(error), "application/json");
@@ -125,7 +125,7 @@ namespace webapi.Controllers.Owner
 
             var owner = _context.VehicleOwners.Find(id);
             if (owner == null)
-                return NewContent(1, "id²»´æÔÚ");
+                return NewContent(1, "idï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
             else if(query_range == "year")
             {
                 var currentYear = DateTime.Now.Year;
@@ -133,7 +133,7 @@ namespace webapi.Controllers.Owner
                 var monthlySwitchCounts = _context.SwitchLogs
                     .Where(log => log.SwitchTime.Year == currentYear && log.switchrequest.vehicle.vehicleOwner.OwnerId == id)
                     .GroupBy(log => log.SwitchTime.Month)
-                    .Select(group => new { Month = group.Key, Count = group.Sum(log => log.ServiceFee) }) 
+                    .Select(group => new { Month = group.Key, Count = Math.Round( group.Sum(log => log.ServiceFee) ,2) }) 
                     .OrderBy(result => result.Month)
                     .ToArray();
                 var monthlySwitchCountsArray = allMonths
