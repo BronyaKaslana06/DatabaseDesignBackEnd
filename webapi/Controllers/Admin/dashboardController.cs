@@ -55,12 +55,12 @@ namespace webapi.Controllers.Admin
                     staff_count = totalStuff,
                     owner_count = totalUsers,
                     maintenance_count = totalOrders,
-                    avg_switch_score = context.SwitchRequests
+                    avg_switch_score = Math.Round(context.SwitchRequests
                             .Where(a => a.switchLog.Score >= 0) 
-                            .Average(a => a.switchLog.Score),
-                    avg_repair_score = context.MaintenanceItems
+                            .Average(a => a.switchLog.Score), 1),
+                    avg_repair_score = Math.Round(context.MaintenanceItems
                             .Where(a => a.Score >= 0) 
-                            .Average(a => a.Score),
+                            .Average(a => a.Score), 1),
                     switch_count =context.SwitchRequests.Count(),
                     cur_switch_count=context.SwitchRequests.Where(
                         a=>a.RequestTime.CompareTo(DateTime.Today)>=0&&a.RequestStatus>=3).Count(),
