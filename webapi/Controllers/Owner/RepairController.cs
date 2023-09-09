@@ -103,25 +103,6 @@ namespace webapi.Controllers.Owner
                             phone_number = ""
                         }
                 };
-                var filteredItems = _context.MaintenanceItems
-                    .Join(_context.Vehicles, mi => mi.vehicle.VehicleId, veh => veh.VehicleId,(mi, veh) => new { MaintenanceItem = mi, Vehicle = veh })
-                    .Where(joinedData => maintenance_item_id == "" || joinedData.MaintenanceItem.MaintenanceItemId == id)
-                    .Select(joinedData => new
-                    {
-                        maintenance_location = joinedData.MaintenanceItem.MaintenanceLocation,
-                        plate_number = joinedData.Vehicle.PlateNumber,
-                        title = joinedData.MaintenanceItem.Title,
-                        order_submission_time = joinedData.MaintenanceItem.OrderSubmissionTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                        service_time = joinedData.MaintenanceItem.ServiceTime.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                        longitude = joinedData.MaintenanceItem.longitude,
-                        latitude = joinedData.MaintenanceItem.latitude,
-                        appoint_time = joinedData.MaintenanceItem.AppointTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                        order_status = joinedData.MaintenanceItem.OrderStatusEnum.ToString(),
-                        remarks = joinedData.MaintenanceItem.Note,
-                        evaluations = joinedData.MaintenanceItem.Evaluation,
-                        score = joinedData.MaintenanceItem.Score,
-                        ep_data = epDataArray
-                    }).FirstOrDefault();
                 var filteredItems_e = _context.MaintenanceItems
                     .SelectMany(mi => mi.employees, (mi, emp) => new { MaintenanceItem = mi, Employee = emp })
                     .Join(_context.Employees, miEmp => miEmp.Employee, emp => emp, (miEmp, emp) => new { miEmp.MaintenanceItem, Employee = emp })
@@ -155,14 +136,7 @@ namespace webapi.Controllers.Owner
                     totalData = 1,
                     data = filteredItems_e
                 };
-                var ob = new
-                {
-                    code = 0,
-                    msg = "success",
-                    totalData = 1,
-                    data = filteredItems
-                };
-                return Content(JsonConvert.SerializeObject(esc > 0 ? obj : ob), "application/json");
+                return Content(JsonConvert.SerializeObject(obj), "application/json");
             }
             catch (Exception ex)
             {
