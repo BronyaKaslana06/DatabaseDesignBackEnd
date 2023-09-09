@@ -1,15 +1,65 @@
-# DatabaseDesign
-## 拉取仓库到本地
-- 先拉取后端仓库```DatabaseDesignBackEnd```
+# 数据库课程设计——智能电动汽车服务系统
+
+第4组： 
+
+2152614  崔宸睿
+
+2151644  周一韬
+
+2052342  马程铄
+
+2151474  刘奕廷
+
+2151616  束赫
+
+2151291  潘鋆林
+
+2151139  刘烨
+
+2151137  俞春先
+
+2150806  刘广源
+
+2151766  李哲
+
+## 功能描述
+
+​	车主的功能主要围绕着换电和维修服务展开，包括预约上门换电，到换电站换电，以及维修服务等，在服务完成后，车主可以对本次服务进行评价，此外，还有修改个人信息和查看信息公告等通用功能；
+​	系统管理员需要对各种功能进行统一管理，主要是统一管理车主信息、换电站信息、车辆信息，订单信息等，以及发布信息公告等功能。
+​	员工分为两种：换电站管理员负责管理和换电订单，包括上门换电订单和到换电站换电订单，同时也可以查看自己管理的换电站中的电池状态；维修工负责处理维修订单，包括接单和处理订单。两者都可以查看自己的历史换电或维修订单，并查看各个订单的评价以及自己的平均评价。
+
+## 运行方式
+
+### 直接访问
+
+前端服务器：http://8.130.9.72:5132
+
+用于展示的账号密码：
+
+| 角色                                   | 账号      | 密码       |
+| -------------------------------------- | --------- | ---------- |
+| 管理员                                 | 234032423 | W9ctSoAHWi |
+| 维修工员工                             | 120455505 | HltMm4n2yu |
+| 换电站员工（对应换电站：上海铂金时代） | 123548896 | r3EJPnUuHH |
+| 车主                                   | 005297695 | JjM3xIbYaB |
+
+### 本地部署
+
+#### 拉取仓库到本地
+
+- 先拉取后端仓库`DatabaseDesignBackEnd`https://github.com/BronyaKaslana06/DatabaseDesignBackEnd
 - cd vueapp
-- 再拉取前端仓库```DatabaseDesignFrontEnd```
-## 运行程序
-### 运行后端
-- vs打开```CarManagement.sln```
-- 右键webapi/依赖项，下载NuGet程序包```Oracle.ManagedDataAccess.Core```
+- 再拉取前端仓库`DatabaseDesignFrontEnd`https://github.com/BronyaKaslana06/DatabaseDesignFrontEnd
+
+#### 运行后端
+
+- vs打开`CarManagement.sln`
+- 右键webapi/依赖项，下载NuGet程序包`Oracle.ManagedDataAccess.Core`
 - 确保已经打开Oracle服务
 - 选择webapi作为启动项目，运行
-### 运行前端
+
+#### 运行前端
+
 - 先启动后端
 - cd vueapp
 - npm install(有node_modules就不需要运行了，除非又添加了新的库)
