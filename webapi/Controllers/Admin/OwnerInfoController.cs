@@ -141,9 +141,9 @@ namespace webapi.Controllers.Admin
                 VehicleOwner new_owner = new VehicleOwner()
                 {
                     OwnerId = newOwnerId,
-                    AccountSerial = EasyIDCreator.CreateId_New(_context, Idcreator.EntityType.VehicleOwner),
-                    Username = owner.username,
-                    Password = owner.password,
+                    AccountSerial = '0'+EasyIDCreator.CreateId_New(_context, Idcreator.EntityType.VehicleOwner),
+                    Username = "蔚来车主",
+                    Password = "123456",
                     ProfilePhoto = null,
                     CreateTime = System.DateTime.Now,
                     PhoneNumber = owner.phone_number,

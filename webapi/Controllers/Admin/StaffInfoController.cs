@@ -130,11 +130,10 @@ namespace webapi.Controllers.Admin
             var switchStation = _context.SwitchStations.FirstOrDefault(s => s.StationId == switchStationId);
 
             long snake = EasyIDCreator.CreateId(_context);
-            long uid = Convert.ToInt64(IdentityType.员工.ToString() + snake.ToString());
+            long uid = Convert.ToInt64((int)IdentityType.员工 + snake.ToString());
             Employee new_employee = new Employee()
             {
                 EmployeeId = uid,
-                Email = employee.Email,
                 UserName = employee.username,
                 Password = "123456",
                 CreateTime = DateTime.Now,
